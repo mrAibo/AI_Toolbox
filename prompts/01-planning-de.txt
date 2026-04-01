@@ -1,0 +1,1 @@
+Ich möchte ein [Projekt/Feature] bauen. Gemäß unseren AGENT.md Regeln, schreibe bitte noch keinen Code. Analysiere diese Anfrage zuerst, identifiziere Einschränkungen und schlage 2-3 architektonische Ansätze für ein Brainstorming vor.

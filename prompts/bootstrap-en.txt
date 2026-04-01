@@ -1,5 +1,0 @@
-Use this repository as the strict project workflow standard.
-Read AGENT.md first and follow it step by step.
-Start with the boot sequence, then use memory and task tracking before implementation.
-Do not code immediately for large or unclear requests.
-Record important decisions in the repository memory.
