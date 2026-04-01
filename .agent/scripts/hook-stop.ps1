@@ -6,6 +6,10 @@ if (Test-Path ".agent/memory/session-handover.md") {
   Write-Host "[stop] session handover file exists"
 }
 
+if (Test-Path ".agent/scripts/sync-task.ps1") {
+  & .\.agent\scripts\sync-task.ps1
+}
+
 Write-Host "[stop] remember to update:"
 Write-Host "  - .agent/memory/architecture-decisions.md"
 Write-Host "  - .agent/memory/integration-contracts.md"

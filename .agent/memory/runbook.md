@@ -55,7 +55,4 @@ If the next session seems unclear:
 3. Check the most recent unfinished work
 4. Resume only after the project state is understandable
 
-### 6. Known workflow limitations
-- GitHub files may need manual copy/paste if direct write access is unavailable
-- Some tool integrations may differ between Claude Code, OpenCode, and Gemini CLI
-- Missing plugins should be documented, not silently ignored
+
