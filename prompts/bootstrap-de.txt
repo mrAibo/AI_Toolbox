@@ -1,0 +1,5 @@
+Verwende dieses Repository als strikten Projekt-Workflow-Standard.
+Lies zuerst AGENT.md und folge ihm Schritt für Schritt.
+Starte mit der Boot-Sequenz und nutze danach Memory und Task-Tracking vor der Implementierung.
+Bei großen oder unklaren Aufgaben nicht sofort code schreiben.
+Wichtige Entscheidungen in der Repository-Memory festhalten.
