@@ -23,7 +23,7 @@ At the start of a fresh session, before doing new work:
 1. Read `.agent/memory/architecture-decisions.md`
 2. Read `.agent/memory/integration-contracts.md`
 3. Read `.agent/memory/session-handover.md` if it exists
-4. Check the current task state in Beads
+4. Run `.agent/scripts/sync-task.sh` (or `.ps1`) and read `.agent/memory/current-task.md` to get the latest task state
 5. Briefly summarize the recovered context before continuing
 
 Purpose:
@@ -54,7 +54,8 @@ Brainstorm -> Architecture decision -> Task creation -> Implementation -> Verifi
 
 ## 4. Execution rules
 
-- Work from the current ready task whenever task tracking is available
+- Run `.agent/scripts/sync-task.sh` regularly to ensure your view of the task tracker is up-to-date
+- Work from the `.agent/memory/current-task.md` state whenever available
 - Prefer small, verifiable steps
 - Prefer test-first or verification-first execution where possible
 - Keep changes focused and reversible

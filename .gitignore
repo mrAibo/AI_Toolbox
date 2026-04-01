@@ -1,0 +1,7 @@
+# Ignore local AI state and temp files
+.beads/
+.agent/memory/session-handover.md
+docs/build/
+.env
+__pycache__/
+*.log

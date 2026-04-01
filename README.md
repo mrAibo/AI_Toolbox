@@ -67,24 +67,70 @@ This workflow assumes the use of a few key tools to keep the AI disciplined:
    A local CLI task tracker. It moves the execution plan out of the AI's chat context and into a Git-backed graph.
 3. **[Claude-Mem](https://github.com/thedotmack/claude-mem)** (Optional)
    A local vector database for storing episodic bug fixes and project experience.
+4. **Terminal AI Agents**
+   - **[OpenCode](https://opencode.ai/)**: An open-source terminal alternative.
+   - **[Gemini CLI](https://geminicli.com)**: Google's console AI agent using Gemini models.
+   - **[Aider](https://aider.chat/)**: (Optional) AI pair programming in your terminal.
+5. **[MCP Servers](https://modelcontextprotocol.io/)**
+   Model Context Protocol (MCP) integrations for GitHub, Docs, Databases, etc., to connect agents safely to resources.
+6. **[context7](https://github.com/context7/context7)**
+   Lazy-loading tool for providing up-to-date documentation accurately to the agent.
+7. **[Template Bridge](https://github.com/maslennikov-ig/template-bridge) & [Superpowers](https://github.com/obra/superpowers)**
+   Plugins for managing rigid TDD workflows and accessing expert agent templates.
 
 ---
 
-## 🚀 Getting Started
+## 🤖 One-Prompt Installation
 
-### For Humans
-1. Clone this repository to your local machine.
+Want to convert an existing project into an AI Toolbox compliant project? Open your terminal AI (Claude Code, OpenCode, Gemini CLI, RooCode) in your project directory and paste this exact prompt:
+
+```text
+Follow the setup instructions here to initialize the AI Toolbox environment:
+https://raw.githubusercontent.com/mrAibo/AI_Toolbox/main/install.md
+```
+
+The AI will autonomously download the `.agent` folder, `AGENT.md`, run the bootstrap script to create the routers, and report back when finished.
+
+---
+
+## 🚀 Manual Installation & Usage
+
+### 1. Set up the repo
+Clone this repository as a starting point.
 2. Run the bootstrap script for your OS to ensure all folders exist:
    - Linux/macOS: `bash .agent/scripts/bootstrap.sh`
    - Windows: `powershell .agent/scripts/bootstrap.ps1`
 3. Connect your AI agent to the workspace.
 
-### For AI Agents
+### 2. For AI Agents (Manual setup)
 Give your terminal AI agent this exact prompt to start a project:
 
 > *"Use this repository as the strict project workflow standard. Read AGENT.md first and follow its Boot Sequence. Do not start coding until the memory is initialized."*
 
 *(See the `prompts/` folder for German and Russian translations).*
+
+---
+
+## 🏁 How to Start Working
+
+Depending on whether you are beginning something entirely new or just picking up yesterday's work, use one of the two approaches below:
+
+### Scenario A: Starting a New Project or Major Feature
+If you are at the very beginning of a project or want to plan a large new architecture, you need to trigger the **Brainstorming & Planning Mode**. 
+
+1. Launch your AI agent in the terminal.
+2. Give a **Planning Prompt**:
+   > *"I want to build a [describe project/feature]. According to our AGENT.md rules, do not write code yet. Analyze this request, identify constraints, and propose 2-3 architectural approaches to brainstorm."*
+3. The AI will brainstorm with you. Once you decide on a path, it will automatically record the decision in `.agent/memory/architecture-decisions.md`, create a structured task plan (e.g., via `bd`), and then begin execution.
+
+### Scenario B: Continuing an Existing Project
+If the architecture is already set, or you are returning after a break, you just want the AI to grind through the tasks.
+
+1. Review the current state by executing `.agent/scripts/sync-task.sh` (or `.ps1`). This exports the tracker directly into `.agent/memory/current-task.md` for both you and the AI to read.
+2. Launch your AI agent.
+3. Give an **Execution Prompt**:
+   > *"We are continuing our work. Please execute your Boot Sequence to read our memories and sync the tasks, then pick up the next step."*
+4. The AI autopilot engages: It restores its context from `.agent/memory/`, checks `current-task.md`, and begins implementing the exact next step without getting sidetracked.
 
 ---
 
