@@ -30,7 +30,8 @@ Summary of changes. For specific files:
 ## Verification Plan
 
 ### Automated Tests
-- Exact commands you'll run (`rtk`).
+- Exact commands you'll run.
+- **IMPORTANT:** All terminal commands must be wrapped in **`rtk`** if they are long-running or generate large logs.
 
 ### Manual Verification
-- Steps for the user to verify.
+- Steps for the user to verify manually.

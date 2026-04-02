@@ -85,4 +85,14 @@ EOF
 fi
 
 chmod +x .agent/scripts/*.sh
+echo "[bootstrap] checking for recommended developer tools..."
+RECOMMENDED_TOOLS=("rtk" "bd" "bat" "rg")
+for tool in "${RECOMMENDED_TOOLS[@]}"; do
+    if command -v "$tool" &> /dev/null; then
+        echo "[bootstrap] Found $tool"
+    else
+        echo "[bootstrap] Recommended tool '$tool' not found. Visit https://github.com/mrAibo/AI_Toolbox for installation info."
+    fi
+done
+
 echo "[bootstrap] structure ready"

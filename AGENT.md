@@ -165,9 +165,28 @@ The next session should be able to continue with minimal explanation.
 
 When working within the **Antigravity** assistant environment:
 
-- **Workflows:** Use native slash commands defined in `.agent/workflows/` (e.g., `/start`, `/sync`, `/handover`).
-- **Brainstorming:** For Section 3 (New projects/features), strictly use the native `implementation_plan.md` artifact from the `.agent/templates/antigravity-plan.md` template.
+- **Workflows:** Use native slash commands defined in `.agent/workflows/`:
+    - `/start`: Initial context recovery (Boot Sequence).
+    - `/plan`: Create an implementation plan from the template.
+    - `/sync`: Synchronize Beads (bd) to memory and task artifact.
+    - `/adr`: Record an Architecture Decision.
+    - `/handover`: Finalize the session and summarize work.
+- **Brainstorming:** For Section 3 (New projects/features), strictly use the native `implementation_plan.md` artifact from the `.agent/templates/antigravity-plan.md` template (trigger with `/plan`).
 - **Task Tracking:** Always maintain the native `task.md` artifact. Use the `/sync` workflow to ensure it matches the AI Toolbox internal state.
 - **Session Closure:** Always generate a `walkthrough.md` artifact during the `/handover` workflow.
 
 These artifacts are first-class citizens in Antigravity and should be used to provide a premium agentic experience.
+
+---
+
+## 12. The Toolbox Toolkit
+
+For maximum efficiency and context safety, use these recommended binary tools:
+
+- **rtk (Rust Token Killer):** Mandatory console proxy for heavy commands.
+- **Beads (bd):** Git-backed CLI task tracker for out-of-context planning.
+- **bat & rg (ripgrep):** Modern alternatives to `cat` and `grep` for faster, cleaner file inspection.
+
+AI Toolbox scripts (like `bootstrap`) automatically check for these tools and provide installation hints.
+
+---

@@ -108,4 +108,14 @@ exit 0
     Set-Content -Path ".git/hooks/pre-commit" -Value $HookContent -Encoding utf8
 }
 
+Write-Host "[bootstrap] checking for recommended developer tools..."
+$RecommendedTools = @("rtk", "bd", "bat", "rg")
+foreach ($Tool in $RecommendedTools) {
+    if (Get-Command $Tool -ErrorAction SilentlyContinue) {
+        Write-Host "[bootstrap] Found $Tool"
+    } else {
+        Write-Host "[bootstrap] Recommended tool '$Tool' not found. Visit https://github.com/mrAibo/AI_Toolbox for installation info."
+    }
+}
+
 Write-Host "[bootstrap] structure ready"
