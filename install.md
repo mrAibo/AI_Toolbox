@@ -1,8 +1,15 @@
 # AI Toolbox Installation Instructions (For AI Agents)
 
-You are an AI assistant (such as Claude Code, OpenCode, or Gemini CLI) and the user has asked you to install the "AI Toolbox" workflow into the current repository/directory.
+You are an AI assistant (such as Claude Code, OpenCode, Gemini CLI, or Antigravity) and the user has asked you to install the "AI Toolbox" workflow into the current repository/directory.
 
-You must execute the following steps using your terminal tools. Complete the installation and report back.
+## Phase 0: Environment Discovery
+Before you start, identify your own environment:
+1.  **Operating System:** Are you running on Linux/macOS (Bash) or Windows (PowerShell)? Choose the corresponding commands in the steps below.
+2.  **Platform Identity:** 
+    - If you are **Claude Code**, you can use `mcp add` commands.
+    - If you are **Antigravity**, you have access to **native slash-command workflows** and **artifacts**; prioritize these.
+    - If you are **Gemini CLI** or **OpenCode**, follow the generic terminal instructions.
+3.  **Tooling:** Check if you have direct access to `git`, `npx`, `go`, and `cargo`.
 
 ## Step 1: Download the core files
 Fetch the boilerplate framework files from the `mrAibo/AI_Toolbox` repository. 
@@ -12,6 +19,7 @@ Fetch the boilerplate framework files from the `mrAibo/AI_Toolbox` repository.
 git clone https://github.com/mrAibo/AI_Toolbox.git /tmp/ai_toolbox_tmp
 cp -r /tmp/ai_toolbox_tmp/.agent .
 cp /tmp/ai_toolbox_tmp/AGENT.md .
+cp /tmp/ai_toolbox_tmp/SKILL.md .
 rm -rf /tmp/ai_toolbox_tmp
 ```
 
@@ -20,11 +28,12 @@ rm -rf /tmp/ai_toolbox_tmp
 git clone https://github.com/mrAibo/AI_Toolbox.git $env:TEMP\ai_toolbox_tmp
 Copy-Item -Path "$env:TEMP\ai_toolbox_tmp\.agent" -Destination ".\" -Recurse -Force
 Copy-Item -Path "$env:TEMP\ai_toolbox_tmp\AGENT.md" -Destination ".\" -Force
+Copy-Item -Path "$env:TEMP\ai_toolbox_tmp\SKILL.md" -Destination ".\" -Force
 Remove-Item -Path "$env:TEMP\ai_toolbox_tmp" -Recurse -Force
 ```
 
-## Step 2: Initialize AI Router Files
-Run the bootstrap script to create the necessary auto-discovery files (`CLAUDE.md`, `GEMINI.md`, `.clinerules`, etc.) that will point future sessions to `AGENT.md`.
+## Step 2: Initialize AI Router Files & Workflows
+Run the bootstrap script to create the core structure, Antigravity workflows (`.agent/workflows/`), and auto-discovery files (`CLAUDE.md`, `GEMINI.md`, etc.).
 
 - **On Linux/macOS:** `bash .agent/scripts/bootstrap.sh`
 - **On Windows:** `powershell .agent/scripts/bootstrap.ps1`
@@ -78,4 +87,6 @@ Append the following definitions to the project's existing `.gitignore`. If it d
 ## Step 6: Finalization 
 Once completed, read the `AGENT.md` file you just copied to understand your new operational bounds in this repository. 
 Then, output a message to the user:
-> "✅ **AI Toolbox Environment initialized successfully.** The framework `.agent/` and rules are in place. Optional tools like `rtk` and `Beads` have been checked/installed. I have read the `AGENT.md` contract and am ready to work! What is our first task?"
+> "✅ **AI Toolbox Environment initialized successfully.** The framework `.agent/` and rules are in place. Optional tools like `rtk` and `Beads` have been checked/installed. I have read the `AGENT.md` contract and am ready to work!
+>
+> 💡 **Tip:** If you are using Antigravity, you can now use native workflows like `/start`, `/sync`, and `/handover`!"

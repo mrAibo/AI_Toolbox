@@ -26,6 +26,8 @@ The repository enforces a strict separation between human instructions, AI workf
 AI_Toolbox/
 ├── README.md               # Human-facing overview (You are here)
 ├── AGENT.md                # The AI's primary execution contract
+├── SKILL.md                # Antigravity Skill manifest
+├── GEMINI.md               # Antigravity context guide
 ├── .gitignore              # Ignores local output and temporary files
 │
 ├── .agent/                 # The AI's "Brain"
@@ -47,8 +49,12 @@ AI_Toolbox/
 │   │
 │   └── templates/          # Standardized formats
 │       ├── adr-template.md            # Architecture Decision Record
-│       ├── issue-template.md          # Bug tracking
+│       ├── antigravity-plan.md        # Antigravity native plan
 │       └── task-template.md           # Task definition
+│
+└── workflows/          # Antigravity Slash Commands
+    ├── start.md / sync.md         # Routine automation
+    └── handover.md                # Session wrap-up
 │
 ├── docs/                   # Detailed human guides (Setup, MCP, FAQ)
 ├── examples/               # Sample workflows
@@ -124,13 +130,20 @@ If you are at the very beginning of a project or want to plan a large new archit
 3. The AI will brainstorm with you. Once you decide on a path, it will automatically record the decision in `.agent/memory/architecture-decisions.md`, create a structured task plan (e.g., via `bd`), and then begin execution.
 
 ### Scenario B: Continuing an Existing Project
-If the architecture is already set, or you are returning after a break, you just want the AI to grind through the tasks.
-
-1. Review the current state by executing `.agent/scripts/sync-task.sh` (or `.ps1`). This exports the tracker directly into `.agent/memory/current-task.md` for both you and the AI to read.
-2. Launch your AI agent.
+...
 3. Give an **Execution Prompt**:
    > *"We are continuing our work. Please execute your Boot Sequence to read our memories and sync the tasks, then pick up the next step."*
 4. The AI autopilot engages: It restores its context from `.agent/memory/`, checks `current-task.md`, and begins implementing the exact next step without getting sidetracked.
+
+### Scenario C: Antigravity Native Mode
+If you are using the **Antigravity** assistant, the toolbox is a first-class citizen.
+
+1. Launch Antigravity.
+2. Use **Slash Commands**:
+   - Type `/start` to boot the project memory.
+   - Type `/sync` to update your task list artifact.
+   - Type `/handover` to wrap up and generate a walkthrough.
+3. Antigravity will automatically use native artifacts (`implementation_plan.md`, `task.md`) for a premium experience.
 
 ---
 
