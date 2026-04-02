@@ -158,3 +158,16 @@ Before ending a meaningful work session:
 4. Leave the repository in a recoverable state
 
 The next session should be able to continue with minimal explanation.
+
+---
+
+## 11. Antigravity Environment Specifics
+
+When working within the **Antigravity** assistant environment:
+
+- **Workflows:** Use native slash commands defined in `.agent/workflows/` (e.g., `/start`, `/sync`, `/handover`).
+- **Brainstorming:** For Section 3 (New projects/features), strictly use the native `implementation_plan.md` artifact from the `.agent/templates/antigravity-plan.md` template.
+- **Task Tracking:** Always maintain the native `task.md` artifact. Use the `/sync` workflow to ensure it matches the AI Toolbox internal state.
+- **Session Closure:** Always generate a `walkthrough.md` artifact during the `/handover` workflow.
+
+These artifacts are first-class citizens in Antigravity and should be used to provide a premium agentic experience.

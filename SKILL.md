@@ -1,0 +1,19 @@
+---
+name: AI Toolbox
+description: A strict, memory-backed agentic development framework for terminal-based AIs.
+---
+
+# AI Toolbox Skill
+
+This skill allows the assistant to follow the strict project standards defined in the **AI Toolbox** repository.
+
+## Capabilities:
+1. **Context Restoration:** Automatically restores session context via `AGENT.md` guidelines.
+2. **Task Synchronization:** Syncs `Beads` (CLI task tracker) to readable markdown files.
+3. **Session Handover:** Enforces recording of accomplishments to prevent "context amnesia".
+
+## Instructions for the Assistant:
+1.  **Always** read `AGENT.md` if the `.agent/` folder is detected.
+2.  Follow the **Boot Sequence** before performing any implementation task.
+3.  Use the **slash commands** in `.agent/workflows/` for routine operations.
+4.  In Antigravity environments, prioritize native artifacts (`implementation_plan.md`, `task.md`, `walkthrough.md`) but keep them synchronized with the AI Toolbox state.
