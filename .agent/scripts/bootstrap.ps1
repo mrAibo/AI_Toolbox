@@ -17,23 +17,20 @@ foreach ($dir in $dirs) {
   New-Item -ItemType Directory -Force -Path $dir | Out-Null
 }
 
-$files = @(
-  "README.md",
-  "AGENT.md",
-  ".agent/memory/architecture-decisions.md",
-  ".agent/memory/integration-contracts.md",
-  ".agent/memory/session-handover.md",
-  ".agent/memory/runbook.md",
-  ".agent/memory/current-task.md",
-  ".agent/rules/stack-rules.md",
-  ".agent/rules/testing-rules.md",
-  ".agent/rules/safety-rules.md"
-)
+Set-Content -Path ".agent/memory/architecture-decisions.md" -Value "# Architecture Decision Records (ADRs)" -Encoding utf8
+Set-Content -Path ".agent/memory/integration-contracts.md" -Value "# Integration Contracts" -Encoding utf8
+Set-Content -Path ".agent/memory/session-handover.md" -Value "# Session Handover" -Encoding utf8
+Set-Content -Path ".agent/memory/runbook.md" -Value "# Runbook" -Encoding utf8
+Set-Content -Path ".agent/memory/current-task.md" -Value "# Current Task" -Encoding utf8
 
-foreach ($file in $files) {
-  if (-not (Test-Path $file)) {
-    New-Item -ItemType File -Path $file | Out-Null
-  }
+$RuleFiles = @(".agent/rules/stack-rules.md", ".agent/rules/testing-rules.md", ".agent/rules/safety-rules.md")
+foreach ($RuleFile in $RuleFiles) {
+    if (-not (Test-Path $RuleFile)) { New-Item -ItemType File -Path $RuleFile | Out-Null }
+}
+
+$RootFiles = @("README.md", "AGENT.md")
+foreach ($RootFile in $RootFiles) {
+    if (-not (Test-Path $RootFile)) { New-Item -ItemType File -Path $RootFile | Out-Null }
 }
 
 Write-Host "[bootstrap] creating AI auto-discovery router files..."
@@ -88,25 +85,27 @@ foreach ($AgentFile in $AgentFiles) {
 }
 Set-Content -Path "GEMINI.md" -Value $GeminiContent -Encoding utf8
 
-if ((Test-Path ".git") -and -not (Test-Path ".git/hooks/pre-commit")) {
-    Write-Host "[bootstrap] Installing Git pre-commit safeguards..."
-    $HookContent = @"
+if (Test-Path ".git") {
+    Write-Host "[bootstrap] Updating Git pre-commit safeguards..."
+    $HookContent = @'
 #!/bin/bash
 # AI Toolbox Pre-commit hook
+# Validates that primary architectural intent is preserved.
 
-HANDOVER_FILE=".agent/memory/session-handover.md"
+ADR_FILE=".agent/memory/architecture-decisions.md"
 
-if [ -f "`$HANDOVER_FILE" ]; then
-    if [ ! -s "`$HANDOVER_FILE" ]; then
-        echo "🚨 AI Toolbox Block: session-handover.md is empty!"
-        echo "Please update handover notes before committing your work to preserve context."
+if [ -f "$ADR_FILE" ]; then
+    if [ ! -s "$ADR_FILE" ] || grep -q "^# Architecture Decision Records" "$ADR_FILE" && [ $(wc -l < "$ADR_FILE") -le 1 ]; then
+        echo "🚨 AI Toolbox Block: architecture-decisions.md is empty or only contains a header!"
+        echo "Please document your architectural decisions before committing to ensure project durability."
         exit 1
     fi
 fi
 exit 0
-"@
+'@
     Set-Content -Path ".git/hooks/pre-commit" -Value $HookContent -Encoding utf8
 }
+
 
 Write-Host "[bootstrap] checking for recommended developer tools..."
 $RecommendedTools = @("rtk", "bd", "bat", "rg")

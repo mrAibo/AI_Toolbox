@@ -6,11 +6,11 @@ mkdir -p .agent/rules .agent/memory .agent/templates .agent/scripts .agent/workf
 
 touch README.md AGENT.md
 
-touch .agent/memory/architecture-decisions.md
-touch .agent/memory/integration-contracts.md
-touch .agent/memory/session-handover.md
-touch .agent/memory/runbook.md
-touch .agent/memory/current-task.md
+echo "# Architecture Decision Records (ADRs)" > .agent/memory/architecture-decisions.md
+echo "# Integration Contracts" > .agent/memory/integration-contracts.md
+echo "# Session Handover" > .agent/memory/session-handover.md
+echo "# Runbook" > .agent/memory/runbook.md
+echo "# Current Task" > .agent/memory/current-task.md
 
 touch .agent/rules/stack-rules.md
 touch .agent/rules/testing-rules.md
@@ -67,18 +67,19 @@ cp CLAUDE.md .clinerules
 cp CLAUDE.md .cursorrules
 cp CLAUDE.md .windsurfrules
 
-if [ -d ".git" ] && [ ! -f ".git/hooks/pre-commit" ]; then
-    echo "[bootstrap] Installing Git pre-commit safeguards..."
+if [ -d ".git" ]; then
+    echo "[bootstrap] Updating Git pre-commit safeguards..."
     cat << 'EOF' > .git/hooks/pre-commit
 #!/bin/bash
 # AI Toolbox Pre-commit hook
+# Validates that primary architectural intent is preserved.
 
-HANDOVER_FILE=".agent/memory/session-handover.md"
+ADR_FILE=".agent/memory/architecture-decisions.md"
 
-if [ -f "$HANDOVER_FILE" ]; then
-    if [ ! -s "$HANDOVER_FILE" ]; then
-        echo "🚨 AI Toolbox Block: session-handover.md is empty!"
-        echo "Please update handover notes before committing your work to preserve context."
+if [ -f "$ADR_FILE" ]; then
+    if [ ! -s "$ADR_FILE" ] || grep -q "^# Architecture Decision Records" "$ADR_FILE" && [ $(wc -l < "$ADR_FILE") -le 1 ]; then
+        echo "🚨 AI Toolbox Block: architecture-decisions.md is empty or only contains a header!"
+        echo "Please document your architectural decisions before committing to ensure project durability."
         exit 1
     fi
 fi
@@ -86,6 +87,7 @@ exit 0
 EOF
     chmod +x .git/hooks/pre-commit
 fi
+
 
 chmod +x .agent/scripts/*.sh
 echo "[bootstrap] checking for recommended developer tools..."
