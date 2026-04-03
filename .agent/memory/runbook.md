@@ -23,12 +23,7 @@ Keep entries operational and repeatable.
 ## Sections
 
 ### 1. Startup procedure
-1. Read `AGENT.md`
-2. Read `.agent/memory/architecture-decisions.md`
-3. Read `.agent/memory/integration-contracts.md`
-4. Read `.agent/memory/session-handover.md` if present
-5. Check Beads for current task state
-6. Continue with the next ready task
+Follow the **Definitive Boot Sequence** from `AGENT.md §2`. This procedure ensures all context and task states are recovered before starting work.
 
 ### 2. Verification procedure
 - Run tests if tests exist

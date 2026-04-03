@@ -18,19 +18,18 @@ The agent must treat this file as the primary execution standard for project wor
 
 ## 2. Boot sequence
 
-At the start of a fresh session, before doing new work:
+This is the **Definitive Boot Sequence**. All agents must follow this procedure at the start of a fresh session:
 
-1. Read `.agent/memory/architecture-decisions.md`
-2. Read `.agent/memory/integration-contracts.md`
-3. Read `.agent/memory/session-handover.md` if it exists
-4. Run `.agent/scripts/sync-task.sh` (or `.ps1`) and read `.agent/memory/current-task.md` to get the latest task state
-5. Briefly summarize the recovered context before continuing
+1. **Environmental Check:** Check for the presence of `.agent/` folder and recommended binaries (`rtk`, `bd`).
+2. **Context Recovery:** Read `.agent/memory/architecture-decisions.md` and `.agent/memory/integration-contracts.md`.
+3. **Work-in-Progress Check:** Read `.agent/memory/session-handover.md` if it exists.
+4. **Task Synchronization:** Run `.agent/scripts/sync-task.sh` (or `.ps1` on Windows) to update `.agent/memory/current-task.md` with the latest state from the task tracker.
+5. **Summarization:** Briefly summarize the recovered context, current state, and the next planned task before continuing.
 
 Purpose:
-- restore architecture context
-- restore integration expectations
-- restore unfinished work
-- avoid starting from zero after a restart
+- Restore architecture and integration context.
+- Restore work exactly where it was left off.
+- Avoid context drift after a restart.
 
 ---
 
