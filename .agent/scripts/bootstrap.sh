@@ -6,15 +6,16 @@ mkdir -p .agent/rules .agent/memory .agent/templates .agent/scripts .agent/workf
 
 touch README.md AGENT.md
 
+TODAY=$(date +%Y-%m-%d)
 if [ ! -s .agent/memory/architecture-decisions.md ]; then
-cat << 'EOF' > .agent/memory/architecture-decisions.md
+cat << EOF > .agent/memory/architecture-decisions.md
 # Architecture Decision Records (ADRs)
 
-This file tracks major architectural decisions. Use the format from `.agent/templates/adr-template.md`.
+This file tracks major architectural decisions. Use the format from \`.agent/templates/adr-template.md\`.
 
 ### ADR-0000: Use AI Toolbox for Repository Governance
 - Status: accepted
-- Date: $(date +%Y-%m-%d)
+- Date: $TODAY
 - Context: Need a standardized, agent-agnostic way to maintain project memory and rules.
 - Decision: Adopt AI Toolbox framework.
 - Consequences: All agents must follow AGENT.md; memory is stored in .agent/.

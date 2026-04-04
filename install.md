@@ -73,10 +73,15 @@ Each AI client has its own way of handling hooks. If your client supports them, 
 *   **Claude Code:** We've provided a `.agent/templates/clients/.claude.json` template. Copy it to your root or update your existing config:
     ```json
     {
+      "NOTE": "EXPERIMENTAL: Claude Code hook API is evolving. This is a conceptual template.",
+      "PLATFORM_GUIDE": "Use .sh on Unix/macOS and .ps1 on Windows.",
       "hooks": {
         "pre-command": ".agent/scripts/hook-pre-command.sh \"$COMMAND\"",
+        "// windows-pre-command": "powershell -ExecutionPolicy Bypass -File .agent/scripts/hook-pre-command.ps1 \"$COMMAND\"",
         "post-command": ".agent/scripts/hook-stop.sh",
-        "on-session-start": "bash .agent/scripts/sync-task.sh && cat .agent/memory/current-task.md"
+        "// windows-post-command": "powershell -ExecutionPolicy Bypass -File .agent/scripts/hook-stop.ps1",
+        "on-session-start": "bash .agent/scripts/sync-task.sh && cat .agent/memory/current-task.md",
+        "// windows-on-session-start": "powershell -ExecutionPolicy Bypass -File .agent/scripts/sync-task.ps1 ; Get-Content .agent/memory/current-task.md"
       }
     }
     ```
