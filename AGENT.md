@@ -142,7 +142,7 @@ Before reporting success, follow the **[.agent/rules/testing-rules.md](.agent/ru
 2. **Identify** the likely cause.
 3. **Implement** the fix.
 4. **Verify** using the reproduction step.
-5. **Record** durable knowledge if the bug was non-trivial.
+5. **Record** durable knowledge if the bug was non-trivial. Use **[.agent/templates/issue-template.md](.agent/templates/issue-template.md)** for documentation.
 
 Never say that something works unless it has been checked.
 

@@ -50,6 +50,7 @@ AI_Toolbox/
 │   └── templates/          # Standardized formats
 │       ├── adr-template.md            # Architecture Decision Record
 │       ├── antigravity-plan.md        # Antigravity native plan
+│       ├── issue-template.md          # Internal bug/issue report
 │       └── task-template.md           # Task definition
 │
 └── workflows/          # Antigravity Slash Commands
