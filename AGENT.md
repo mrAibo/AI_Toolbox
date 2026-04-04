@@ -14,6 +14,14 @@ The agent must treat this file as the primary execution standard for project wor
 - Use the repository memory and task structure before asking the user to repeat context.
 - Do not claim completion without verification.
 
+### Universal vs. Client-Specific
+This framework is architechurally **universal**. While this `AGENT.md` is the **Master Protocol**, individual AI agents should prioritize their optimized entry points:
+- **Claude Code:** Uses `CLAUDE.md` and `.claude.json`.
+- **Cursor / Windsurf:** Uses `.cursorrules` and `.windsurfrules`.
+- **Antigravity:** Uses `SKILL.md` and `.agent/workflows/`.
+
+Each entry point contains **Critical Session Rules** to ensure session resilience.
+
 ---
 
 ## 2. Boot sequence

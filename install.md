@@ -67,10 +67,23 @@ claude mcp add sequential-thinking npx -y @modelcontextprotocol/server-sequentia
 - *Instruction for AI:* Check if these plugins/MCPs are active in your environment. If not, inform the user or attempt to configure them if valid installation commands are known.
 
 **4. ⚡ Auto-Configure Terminal Hooks (CRITICAL)**
-If your agent framework (Claude Code, OpenCode, Gemini CLI) supports execution hooks or start parameters, you MUST configure them automatically right now:
-- Set `pre-command` hook to: `.agent/scripts/hook-pre-command.sh "$COMMAND"` (or `.ps1 "$COMMAND"` on Windows).
-- Set `post-command` / `stop` hook to: `.agent/scripts/hook-stop.sh` (or `.ps1`).
-- *If you configure this via a local JSON/TOML settings file (like `.claude.json` or `.opencode.yml`), create/update it now in the project root.*
+
+Each AI client has its own way of handling hooks. If your client supports them, configure them now:
+
+*   **Claude Code:** We've provided a `.agent/templates/clients/.claude.json` template. Copy it to your root or update your existing config:
+    ```json
+    {
+      "hooks": {
+        "pre-command": ".agent/scripts/hook-pre-command.sh \"$COMMAND\"",
+        "post-command": ".agent/scripts/hook-stop.sh",
+        "on-session-start": "bash .agent/scripts/sync-task.sh && cat .agent/memory/current-task.md"
+      }
+    }
+    ```
+*   **Cursor / Windsurf:** These clients primarily use rule files (`.cursorrules`). Ensure you've run the `bootstrap` script to generate these with the **Critical 3 Session Rules**.
+*   **Gemini CLI:** Does not natively support command hooks. Rely on the instructions in `GEMINI.md` and manually run `.agent/scripts/sync-task.sh` at the start of a session.
+
+*If you configure this via a local settings file (like `.claude.json` or `.opencode.yml`), create/update it now in the project root.*
 
 If you are an agent without direct `mcp add` commands, inform the user they need to manually configure these servers in their respective MCP config files.
 

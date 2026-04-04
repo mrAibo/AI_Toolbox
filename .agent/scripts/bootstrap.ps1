@@ -34,11 +34,27 @@ foreach ($RootFile in $RootFiles) {
 }
 
 Write-Host "[bootstrap] creating AI auto-discovery router files..."
-$RouterContent = @'
-# AI Toolbox Workflow
 
-Please refer strictly to [AGENT.md](AGENT.md) for the universal project guidelines, rules, and memory contracts. 
-Do not begin any work or code without reading and following the Boot Sequence in AGENT.md!
+$ClaudeContent = @'
+# AI Toolbox Protocol (Claude)
+
+This project uses the **AI Toolbox** workflow. Adhere to these **Critical 3 Session Rules**:
+
+1. **BOOT:** Detect `.agent/`? Read `AGENT.md` section 2 (Boot Sequence) and run `.agent/scripts/sync-task.sh` before starting any task.
+2. **SAFETY:** All heavy terminal commands (python, cargo, go) MUST be run via `rtk`.
+3. **HANDOVER:** Maintain project history in `.agent/memory/session-handover.md` at the end of every task or session.
+
+Refer to [AGENT.md](AGENT.md) for the full operational contract.
+'@
+
+$CursorContent = @'
+# AI Toolbox Protocol (Cursor)
+
+1. **BOOT:** Run `.agent/scripts/sync-task.sh` and read `.agent/memory/current-task.md` before starting.
+2. **SAFETY:** Use `rtk` for all heavy executions (tests, builds).
+3. **HANDOVER:** Update `.agent/memory/session-handover.md` before finishing.
+
+Details in [AGENT.md](AGENT.md).
 '@
 
 $GeminiContent = @'
@@ -79,31 +95,37 @@ This document provides essential context for AI models interacting with this pro
 * **Gemini CLI:** This project uses `GEMINI.md` as its primary context file. Read this file carefully to understand the repository structure.
 '@
 
-$AgentFiles = @("CLAUDE.md", ".clinerules", ".cursorrules", ".windsurfrules")
-foreach ($AgentFile in $AgentFiles) {
-    Set-Content -Path $AgentFile -Value $RouterContent -Encoding utf8
-}
+Set-Content -Path "CLAUDE.md" -Value $ClaudeContent -Encoding utf8
 Set-Content -Path "GEMINI.md" -Value $GeminiContent -Encoding utf8
+Set-Content -Path ".cursorrules" -Value $CursorContent -Encoding utf8
+Set-Content -Path ".clinerules" -Value $CursorContent -Encoding utf8
+Set-Content -Path ".windsurfrules" -Value $CursorContent -Encoding utf8
+
+# Client-specific templates
+$ClientDir = ".agent/templates/clients"
+if (-not (Test-Path $ClientDir)) { New-Item -ItemType Directory -Path $ClientDir | Out-Null }
+if (Test-Path "$ClientDir/.claude.json") {
+    Copy-Item -Path "$ClientDir/.claude.json" -Destination ".claude.json" -Force
+    Write-Host "[bootstrap] Installed .claude.json hooks"
+}
 
 if (Test-Path ".git") {
     Write-Host "[bootstrap] Updating Git pre-commit safeguards..."
-    $HookContent = @'
+    
+    # 1. Bash wrapper (for Git Bash)
+    $BashHook = @'
 #!/bin/bash
-# AI Toolbox Pre-commit hook
-# Validates that primary architectural intent is preserved.
-
-ADR_FILE=".agent/memory/architecture-decisions.md"
-
-if [ -f "$ADR_FILE" ]; then
-    if [ ! -s "$ADR_FILE" ] || grep -q "^# Architecture Decision Records" "$ADR_FILE" && [ $(wc -l < "$ADR_FILE") -le 1 ]; then
-        echo "🚨 AI Toolbox Block: architecture-decisions.md is empty or only contains a header!"
-        echo "Please document your architectural decisions before committing to ensure project durability."
-        exit 1
-    fi
-fi
-exit 0
+# AI Toolbox Pre-commit wrapper (BASH)
+powershell.exe -ExecutionPolicy Bypass -File .agent/scripts/verify-commit.ps1
 '@
-    Set-Content -Path ".git/hooks/pre-commit" -Value $HookContent -Encoding utf8
+    Set-Content -Path ".git/hooks/pre-commit" -Value $BashHook -Encoding utf8
+
+    # 2. Batch wrapper (for native Windows CMD/Git)
+    $BatchHook = @'
+@echo off
+powershell.exe -ExecutionPolicy Bypass -File .agent/scripts/verify-commit.ps1
+'@
+    Set-Content -Path ".git/hooks/pre-commit.bat" -Value $BatchHook -Encoding utf8
 }
 
 

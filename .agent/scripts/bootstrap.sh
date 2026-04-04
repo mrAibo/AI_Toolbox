@@ -18,11 +18,23 @@ touch .agent/rules/safety-rules.md
 
 echo "[bootstrap] creating AI auto-discovery router files..."
 cat << 'EOF' > CLAUDE.md
-# AI Toolbox Workflow
+# AI Toolbox Protocol (Claude)
 
-Please refer strictly to [AGENT.md](AGENT.md) for the universal project guidelines, rules, and memory contracts. 
-Do not begin any work or code without reading and following the Boot Sequence in AGENT.md!
+This project uses the **AI Toolbox** workflow. Adhere to these **Critical 3 Session Rules**:
+
+1. **BOOT:** Detect `.agent/`? Read `AGENT.md` section 2 (Boot Sequence) and run `.agent/scripts/sync-task.sh` before starting any task.
+2. **SAFETY:** All heavy terminal commands (python, cargo, go) MUST be run via `rtk`.
+3. **HANDOVER:** Maintain project history in `.agent/memory/session-handover.md` at the end of every task or session.
+
+Refer to [AGENT.md](AGENT.md) for the full operational contract.
 EOF
+
+# Create client-specific config folder
+mkdir -p .agent/templates/clients
+if [ -f ".agent/templates/clients/.claude.json" ]; then
+    cp .agent/templates/clients/.claude.json .claude.json
+    echo "[bootstrap] Installed .claude.json hooks"
+fi
 
 cat << 'EOF' > GEMINI.md
 # GEMINI.MD: AI Collaboration Guide (AI Toolbox)
@@ -62,28 +74,30 @@ This document provides essential context for AI models interacting with this pro
 * **Gemini CLI:** This project uses `GEMINI.md` as its primary context file. Read this file carefully to understand the repository structure.
 EOF
 
-# Copy CLAUDE.md to other router files
-cp CLAUDE.md .clinerules
-cp CLAUDE.md .cursorrules
-cp CLAUDE.md .windsurfrules
+# Create specialized router files
+cat << 'EOF' > .cursorrules
+# AI Toolbox Protocol (Cursor)
+
+1. **BOOT:** Run `.agent/scripts/sync-task.sh` and read `.agent/memory/current-task.md` before starting.
+2. **SAFETY:** Use `rtk` for all heavy executions (tests, builds).
+3. **HANDOVER:** Update `.agent/memory/session-handover.md` before finishing.
+
+Details in [AGENT.md](AGENT.md).
+EOF
+
+cp .cursorrules .clinerules
+cp .cursorrules .windsurfrules
 
 if [ -d ".git" ]; then
     echo "[bootstrap] Updating Git pre-commit safeguards..."
     cat << 'EOF' > .git/hooks/pre-commit
 #!/bin/bash
-# AI Toolbox Pre-commit hook
-# Validates that primary architectural intent is preserved.
+# AI Toolbox Pre-commit wrapper
+# Calls the cross-platform verification logic.
 
-ADR_FILE=".agent/memory/architecture-decisions.md"
-
-if [ -f "$ADR_FILE" ]; then
-    if [ ! -s "$ADR_FILE" ] || grep -q "^# Architecture Decision Records" "$ADR_FILE" && [ $(wc -l < "$ADR_FILE") -le 1 ]; then
-        echo "🚨 AI Toolbox Block: architecture-decisions.md is empty or only contains a header!"
-        echo "Please document your architectural decisions before committing to ensure project durability."
-        exit 1
-    fi
+if [ -f ".agent/scripts/verify-commit.sh" ]; then
+    bash .agent/scripts/verify-commit.sh
 fi
-exit 0
 EOF
     chmod +x .git/hooks/pre-commit
 fi

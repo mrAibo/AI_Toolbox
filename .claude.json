@@ -1,0 +1,7 @@
+{
+  "hooks": {
+    "pre-command": ".agent/scripts/hook-pre-command.sh \"$COMMAND\"",
+    "post-command": ".agent/scripts/hook-stop.sh",
+    "on-session-start": "bash .agent/scripts/sync-task.sh && cat .agent/memory/current-task.md"
+  }
+}
