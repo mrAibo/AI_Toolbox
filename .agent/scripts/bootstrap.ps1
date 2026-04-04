@@ -161,9 +161,11 @@ foreach ($RootFile in $RootFiles) {
 Write-Host "[bootstrap] creating AI auto-discovery router files..."
 
 $ClaudeContent = @'
-# AI Toolbox Protocol (Claude)
+# AI Toolbox Protocol (Claude Code) -- Tier: Full
 
-This project uses the **AI Toolbox** workflow. Adhere to these **Critical 3 Session Rules**:
+This project uses the **AI Toolbox** workflow. As a **Full-Tier** client you have access to hooks, multi-agent orchestration, and plan mode.
+
+Adhere to these **Critical 3 Session Rules**:
 
 1. **BOOT:** Detect `.agent/`? Read `AGENT.md` section 2 (Boot Sequence) and run the sync-task script (`.sh` on Unix, `.ps1` on Windows) before starting any task.
 2. **SAFETY:** All heavy terminal commands (python, cargo, go) MUST be run via `rtk`.
@@ -173,7 +175,7 @@ Refer to [AGENT.md](AGENT.md) for the full operational contract.
 '@
 
 $CursorContent = @'
-# AI Toolbox Protocol (Cursor)
+# AI Toolbox Protocol (Cursor) -- Tier: Standard
 
 1. **BOOT:** Run the sync-task script (`.sh` on Unix, `.ps1` on Windows) and read `.agent/memory/current-task.md` before starting.
 2. **SAFETY:** Use `rtk` for all heavy executions (tests, builds).
@@ -183,7 +185,7 @@ Details in [AGENT.md](AGENT.md).
 '@
 
 $ClineContent = @'
-# AI Toolbox Protocol (RooCode / Cline)
+# AI Toolbox Protocol (RooCode / Cline) -- Tier: Standard
 
 1. **BOOT:** Run the sync-task script (`.sh` on Unix, `.ps1` on Windows) and read `.agent/memory/current-task.md` before starting.
 2. **SAFETY:** Use `rtk` for all heavy executions (tests, builds).
@@ -193,7 +195,7 @@ Details in [AGENT.md](AGENT.md).
 '@
 
 $WindsurfContent = @'
-# AI Toolbox Protocol (Windsurf)
+# AI Toolbox Protocol (Windsurf) -- Tier: Standard
 
 1. **BOOT:** Run the sync-task script (`.sh` on Unix, `.ps1` on Windows) and read `.agent/memory/current-task.md` before starting.
 2. **SAFETY:** Use `rtk` for all heavy executions (tests, builds).
@@ -202,42 +204,65 @@ $WindsurfContent = @'
 Details in [AGENT.md](AGENT.md).
 '@
 
-$GeminiContent = @'
-# GEMINI.MD: AI Collaboration Guide (AI Toolbox)
+$QwenContent = @'
+# AI Toolbox Protocol (Qwen Code) -- Tier: Full
 
-This document provides essential context for AI models interacting with this project.
+1. **BOOT:** Detect `.agent/`? Read `AGENT.md` section 2 (Boot Sequence) and run the sync-task script (`.sh` on Unix, `.ps1` on Windows) before starting any task.
+2. **SAFETY:** All heavy terminal commands MUST be run via `rtk`.
+3. **HANDOVER:** Maintain project history in `.agent/memory/session-handover.md` at the end of every task or session.
+
+Full-Tier features: Hooks, Multi-Agent, Plan Mode, Sync automation.
+
+Details in [AGENT.md](AGENT.md).
+'@
+
+$AiderConventionsContent = @'
+# AI Toolbox Protocol (Aider) -- Tier: Basic
+
+> **Note:** These are soft reminders, not enforced guardrails.
+
+1. **BOOT:** Read `.agent/memory/current-task.md` before starting.
+2. **SAFETY:** Prefer safe, reversible operations.
+3. **HANDOVER:** Update `.agent/memory/session-handover.md` before finishing.
+
+Details in [AGENT.md](AGENT.md).
+'@
+
+$GeminiContent = @'
+# AI Toolbox Protocol (Gemini CLI) -- Tier: Basic
+
+> **Tier Note:** Gemini CLI is a Basic-Tier client. Hooks are not available.
+> All safety rules below are **soft reminders**, not enforced guardrails.
+
+This project uses the **AI Toolbox** workflow framework. Read this file carefully at the start of every session.
+
+## Session Guidelines (Soft Reminders)
+
+1. **BOOT:** Read `.agent/memory/current-task.md` to understand the current task state before starting.
+2. **SAFETY:** Prefer safe, reversible operations. Avoid destructive commands without explicit user confirmation.
+3. **HANDOVER:** Update `.agent/memory/session-handover.md` before finishing your session.
 
 ## 1. Project Overview & Purpose
-* **Primary Goal:** [Describe your project's main purpose here]
+* **Primary Goal:** [Describe your project`s main purpose here]
 * **Workflow Standard:** This project adheres to the AI Toolbox development lifecycle.
 
 ## 2. Core Technologies & Stack
 * **Workflow Engine:** AI Toolbox (AGENT.md)
 * **Task Tracker:** Beads (bd)
 * **Execution Wrapper:** RTK (Token-Safe Execution)
-* **Languages/Frameworks:** [List your project's languages here, e.g. TypeScript, Python]
+* **Languages/Frameworks:** [List your project`s languages here]
 
-## 3. Architectural Patterns
-* **Memory Management:** Repository-based project memory in `.agent/memory/`.
-* **Decision Tracking:** Architecture Decision Records (ADRs) in `.agent/memory/architecture-decisions.md`.
-
-## 4. Coding Conventions & Style Guide
-* **Workflow Rule:** Follow the [AGENT.md](AGENT.md) Boot Sequence.
-* **Naming:** [Inferred: Standard kebab-case for files, camelCase for variables]
-
-## 5. Key Files & Entrypoints
+## 3. Key Files & Entrypoints
 * **Main Contract:** [AGENT.md](AGENT.md)
 * **Handover Log:** [.agent/memory/session-handover.md](.agent/memory/session-handover.md)
 * **Rules:** [.agent/rules/](.agent/rules/)
 
-## 6. Development & Testing Workflow
-* **Booting:** Start every session by reading AGENT.md and running the sync-task script (`.sh` on Unix, `.ps1` on Windows).
-* **Testing:** All heavy commands MUST be run through `rtk`.
+## 4. Limitations (Basic Tier)
+* No hook automation -- sync and handover must be done manually.
+* No multi-agent support.
+* Safety rules are recommendations only, not enforced by the toolchain.
 
-## 7. Specific Instructions for AI Collaboration
-* **MANDATORY:** You MUST run the Boot Sequence defined in [AGENT.md](AGENT.md) before starting any task.
-* **Handover:** Always update `.agent/memory/session-handover.md` at the end of a session.
-* **Gemini CLI:** This project uses `GEMINI.md` as its primary context file. Read this file carefully to understand the repository structure.
+Refer to [AGENT.md](AGENT.md) for the full operational contract.
 '@
 
 Set-Content -Path "CLAUDE.md" -Value $ClaudeContent -Encoding utf8
@@ -246,8 +271,30 @@ Set-Content -Path ".cursorrules" -Value $CursorContent -Encoding utf8
 Set-Content -Path ".clinerules" -Value $ClineContent -Encoding utf8
 Set-Content -Path ".windsurfrules" -Value $WindsurfContent -Encoding utf8
 
-# Client-specific templates
+# Qwen Code router (Full Tier)
 $ClientDir = ".agent/templates/clients"
+if (-not (Test-Path $ClientDir)) { New-Item -ItemType Directory -Path $ClientDir | Out-Null }
+if (Test-Path "$ClientDir/QWEN.md") {
+    Copy-Item -Path "$ClientDir/QWEN.md" -Destination "QWEN.md" -Force
+    Write-Host "[bootstrap] Installed QWEN.md (Full Tier)"
+} else {
+    Set-Content -Path "QWEN.md" -Value $QwenContent -Encoding utf8
+}
+
+# Aider router + config (Basic Tier)
+if (Test-Path "$ClientDir/CONVENTIONS.md") {
+    Copy-Item -Path "$ClientDir/CONVENTIONS.md" -Destination "CONVENTIONS.md" -Force
+    Write-Host "[bootstrap] Installed CONVENTIONS.md (Basic Tier)"
+} else {
+    Set-Content -Path "CONVENTIONS.md" -Value $AiderConventionsContent -Encoding utf8
+}
+if (Test-Path "$ClientDir/.aider.conf.yml") {
+    Copy-Item -Path "$ClientDir/.aider.conf.yml" -Destination ".aider.conf.yml" -Force
+    Write-Host "[bootstrap] Installed .aider.conf.yml"
+}
+
+# Client-specific templates
+
 if (-not (Test-Path $ClientDir)) { New-Item -ItemType Directory -Path $ClientDir | Out-Null }
 if (Test-Path "$ClientDir/.claude.json") {
     Copy-Item -Path "$ClientDir/.claude.json" -Destination ".claude.json" -Force

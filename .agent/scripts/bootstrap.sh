@@ -192,7 +192,7 @@ EOF
 
 # Create specialized router files
 cat << 'EOF' > .cursorrules
-# AI Toolbox Protocol (Cursor)
+# AI Toolbox Protocol (Cursor) -- Tier: Standard
 
 1. **BOOT:** Run the sync-task script (`.sh` on Unix, `.ps1` on Windows) and read `.agent/memory/current-task.md` before starting.
 2. **SAFETY:** Use `rtk` for all heavy executions (tests, builds).
@@ -202,7 +202,7 @@ Details in [AGENT.md](AGENT.md).
 EOF
 
 cat << 'EOF' > .clinerules
-# AI Toolbox Protocol (RooCode / Cline)
+# AI Toolbox Protocol (RooCode / Cline) -- Tier: Standard
 
 1. **BOOT:** Run the sync-task script (`.sh` on Unix, `.ps1` on Windows) and read `.agent/memory/current-task.md` before starting.
 2. **SAFETY:** Use `rtk` for all heavy executions (tests, builds).
@@ -212,7 +212,7 @@ Details in [AGENT.md](AGENT.md).
 EOF
 
 cat << 'EOF' > .windsurfrules
-# AI Toolbox Protocol (Windsurf)
+# AI Toolbox Protocol (Windsurf) -- Tier: Standard
 
 1. **BOOT:** Run the sync-task script (`.sh` on Unix, `.ps1` on Windows) and read `.agent/memory/current-task.md` before starting.
 2. **SAFETY:** Use `rtk` for all heavy executions (tests, builds).
@@ -220,6 +220,47 @@ cat << 'EOF' > .windsurfrules
 
 Details in [AGENT.md](AGENT.md).
 EOF
+
+# Full-Tier: Qwen Code CLI router
+if [ -f ".agent/templates/clients/QWEN.md" ]; then
+    cp .agent/templates/clients/QWEN.md QWEN.md
+    echo "[bootstrap] Installed QWEN.md (Full Tier)"
+else
+cat << 'EOF' > QWEN.md
+# AI Toolbox Protocol (Qwen Code) -- Tier: Full
+
+1. **BOOT:** Detect `.agent/`? Read `AGENT.md` section 2 (Boot Sequence) and run the sync-task script (`.sh` on Unix, `.ps1` on Windows) before starting any task.
+2. **SAFETY:** All heavy terminal commands MUST be run via `rtk`.
+3. **HANDOVER:** Maintain project history in `.agent/memory/session-handover.md` at the end of every task or session.
+
+Full-Tier features: Hooks, Multi-Agent, Plan Mode, Sync automation.
+
+Details in [AGENT.md](AGENT.md).
+EOF
+fi
+
+# Basic-Tier: Aider router + config
+if [ -f ".agent/templates/clients/CONVENTIONS.md" ]; then
+    cp .agent/templates/clients/CONVENTIONS.md CONVENTIONS.md
+    echo "[bootstrap] Installed CONVENTIONS.md (Basic Tier)"
+else
+cat << 'EOF' > CONVENTIONS.md
+# AI Toolbox Protocol (Aider) -- Tier: Basic
+
+> **Note:** These are soft reminders, not enforced guardrails.
+
+1. **BOOT:** Read `.agent/memory/current-task.md` before starting.
+2. **SAFETY:** Prefer safe, reversible operations.
+3. **HANDOVER:** Update `.agent/memory/session-handover.md` before finishing.
+
+Details in [AGENT.md](AGENT.md).
+EOF
+fi
+
+if [ -f ".agent/templates/clients/.aider.conf.yml" ]; then
+    cp .agent/templates/clients/.aider.conf.yml .aider.conf.yml
+    echo "[bootstrap] Installed .aider.conf.yml"
+fi
 
 if [ -d ".git" ]; then
     echo "[bootstrap] Updating Git pre-commit safeguards..."

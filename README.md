@@ -99,7 +99,27 @@ This workflow assumes the use of a few key tools to keep the AI disciplined:
 
 ---
 
-## 🤖 One-Prompt Installation
+## 🎯 Client Capability Matrix
+
+The framework adapts its instructions to each client's actual capabilities via a **3-Tier Orchestration System**:
+
+| Client | Tier | Hooks | Multi-Agent | File Rules | Router File |
+|--------|------|-------|-------------|------------|-------------|
+| Claude Code | 🥇 Full | ✅ | ✅ Agent Teams | ✅ | `CLAUDE.md` |
+| Antigravity | 🥇 Full | ✅ | ✅ Agent Manager | ✅ | `SKILL.md` |
+| Qwen Code | 🥇 Full | ✅ | ✅ SubAgents | ✅ | `QWEN.md` |
+| Cursor | 🥈 Standard | ✅ | ⚠️ Background | ✅ | `.cursorrules` |
+| RooCode / Cline | 🥈 Standard | ✅ (v3.36+) | ❌ | ✅ | `.clinerules` |
+| Windsurf | 🥈 Standard | ✅ | ❌ | ✅ | `.windsurfrules` |
+| Gemini CLI | 🥉 Basic | ❌ | ❌ | ✅ | `GEMINI.md` |
+| Aider | 🥉 Basic | ❌ | ❌ | ✅ | `CONVENTIONS.md` |
+
+**Tier behavior:**
+- **Full:** Hooks enforce safety rules; multi-agent orchestration available; full automation via sync/handover scripts.
+- **Standard:** Hooks available for sync/handover; no multi-agent; rules enforced via file-based routing.
+- **Basic:** No hooks — safety rules are **soft reminders only**. Memory and Rules layers still active.
+
+
 
 Want to convert an existing project into an AI Toolbox compliant project? Open your terminal AI (Claude Code, OpenCode, Gemini CLI, RooCode) in your project directory and paste this exact prompt:
 

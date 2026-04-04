@@ -1,0 +1,27 @@
+{
+  "_comment": "AI Toolbox Client Capability Matrix. Drives tier-specific router generation in bootstrap.",
+  "tiers": {
+    "full": {
+      "description": "Hooks + Multi-Agent + Sync + Handover + Plan Mode",
+      "clients": ["claude-code", "antigravity", "qwen-code"]
+    },
+    "standard": {
+      "description": "Hooks + Sync + Handover (no Multi-Agent)",
+      "clients": ["cline", "windsurf", "cursor"]
+    },
+    "basic": {
+      "description": "Memory + Rules only (Soft-Reminders, no Guards)",
+      "clients": ["gemini-cli", "aider"]
+    }
+  },
+  "clients": {
+    "claude-code": { "tier": "full", "router_file": "CLAUDE.md", "config_file": ".claude.json", "hooks": true, "multi_agent": true, "file_rules": true, "plan_mode": true },
+    "antigravity":  { "tier": "full", "router_file": "SKILL.md", "hooks": true, "multi_agent": true, "file_rules": true, "plan_mode": true, "slash_commands": true },
+    "qwen-code":    { "tier": "full", "router_file": "QWEN.md", "hooks": true, "multi_agent": true, "file_rules": true, "plan_mode": true },
+    "cline":        { "tier": "standard", "router_file": ".clinerules", "hooks": true, "multi_agent": false, "file_rules": true },
+    "windsurf":     { "tier": "standard", "router_file": ".windsurfrules", "hooks": true, "multi_agent": false, "file_rules": true },
+    "cursor":       { "tier": "standard", "router_file": ".cursorrules", "hooks": true, "multi_agent": false, "file_rules": true },
+    "gemini-cli":   { "tier": "basic", "router_file": "GEMINI.md", "hooks": false, "multi_agent": false, "file_rules": true },
+    "aider":        { "tier": "basic", "router_file": "CONVENTIONS.md", "config_file": ".aider.conf.yml", "hooks": false, "multi_agent": false, "file_rules": true }
+  }
+}

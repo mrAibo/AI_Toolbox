@@ -1,6 +1,8 @@
-# AI Toolbox Protocol (Claude)
+# AI Toolbox Protocol (Claude Code) -- Tier: Full
 
-This project uses the **AI Toolbox** workflow. Adhere to these **Critical 3 Session Rules**:
+This project uses the **AI Toolbox** workflow. As a **Full-Tier** client you have access to hooks, multi-agent orchestration, and plan mode.
+
+Adhere to these **Critical 3 Session Rules**:
 
 1. **BOOT:** Detect `.agent/`? Read `AGENT.md` section 2 (Boot Sequence) and run the sync-task script (`.sh` on Unix, `.ps1` on Windows) before starting any task.
 2. **SAFETY:** All heavy terminal commands (python, cargo, go) MUST be run via `rtk`.
