@@ -265,10 +265,15 @@ This project uses the **AI Toolbox** workflow framework. Read this file carefull
 Refer to [AGENT.md](AGENT.md) for the full operational contract.
 '@
 
-Set-Content -Path "CLAUDE.md" -Value $ClaudeContent -Encoding utf8
-Set-Content -Path "GEMINI.md" -Value $GeminiContent -Encoding utf8
-Set-Content -Path ".cursorrules" -Value $CursorContent -Encoding utf8
-Set-Content -Path ".clinerules" -Value $ClineContent -Encoding utf8
+# Write router files (guard: only create if not already present)
+if (-not (Test-Path "CLAUDE.md") -or (Get-Item "CLAUDE.md").Length -eq 0) {
+    Set-Content -Path "CLAUDE.md" -Value $ClaudeContent -Encoding utf8
+}
+if (-not (Test-Path "GEMINI.md") -or (Get-Item "GEMINI.md").Length -eq 0) {
+    Set-Content -Path "GEMINI.md" -Value $GeminiContent -Encoding utf8
+}
+Set-Content -Path ".cursorrules"   -Value $CursorContent   -Encoding utf8
+Set-Content -Path ".clinerules"    -Value $ClineContent    -Encoding utf8
 Set-Content -Path ".windsurfrules" -Value $WindsurfContent -Encoding utf8
 
 # Qwen Code router (Full Tier)
@@ -278,7 +283,35 @@ if (Test-Path "$ClientDir/QWEN.md") {
     Copy-Item -Path "$ClientDir/QWEN.md" -Destination "QWEN.md" -Force
     Write-Host "[bootstrap] Installed QWEN.md (Full Tier)"
 } else {
-    Set-Content -Path "QWEN.md" -Value $QwenContent -Encoding utf8
+    $QwenFull = @'
+# AI Toolbox Protocol (Qwen Code) -- Tier: Full
+
+This project uses the **AI Toolbox** workflow framework. As a **Full-Tier** client, you have access to all features: hooks, multi-agent orchestration, plan mode, and sync automation.
+
+## Critical Session Rules
+
+1. **BOOT:** Detect `.agent/`? Read `AGENT.md` section 2 (Boot Sequence) and run the sync-task script (`.sh` on Unix, `.ps1` on Windows) before starting any task.
+2. **SAFETY:** All heavy terminal commands (builds, tests, package installs) MUST be run via `rtk`.
+3. **HANDOVER:** Maintain project history in `.agent/memory/session-handover.md` at the end of every task or session.
+
+## Full-Tier Features Available
+
+- **Hooks:** Pre/post-command hooks auto-sync state and enforce safety rules.
+- **Multi-Agent:** Spawn sub-agents for parallel task execution. Coordinate via `.agent/memory/`.
+- **Plan Mode:** Use plan mode before major changes. Document in `.agent/memory/current-task.md`.
+- **Sync:** Run `.agent/scripts/sync-task.sh` (or `.ps1`) to refresh your task view at any time.
+
+## Memory Layer
+
+Read these files at session start (in order):
+1. `.agent/memory/architecture-decisions.md` -- ADR log
+2. `.agent/memory/integration-contracts.md` -- API/schema contracts
+3. `.agent/memory/session-handover.md` -- Unfinished work from last session
+4. `.agent/memory/current-task.md` -- Active todo list
+
+Refer to [AGENT.md](AGENT.md) for the full operational contract.
+'@
+    Set-Content -Path "QWEN.md" -Value $QwenFull -Encoding utf8
 }
 
 # Aider router + config (Basic Tier)
@@ -286,7 +319,43 @@ if (Test-Path "$ClientDir/CONVENTIONS.md") {
     Copy-Item -Path "$ClientDir/CONVENTIONS.md" -Destination "CONVENTIONS.md" -Force
     Write-Host "[bootstrap] Installed CONVENTIONS.md (Basic Tier)"
 } else {
-    Set-Content -Path "CONVENTIONS.md" -Value $AiderConventionsContent -Encoding utf8
+    $AiderFull = @'
+# AI Toolbox Protocol (Aider) -- Tier: Basic
+
+This project uses the **AI Toolbox** workflow framework. As a **Basic-Tier** client, you have access to the Memory Layer and Rules Layer. Hooks are not available -- all safety rules are soft reminders.
+
+## Session Guidelines (Soft Reminders)
+
+> **Note:** These are recommendations, not enforced guardrails. Please follow them to maintain project consistency.
+
+1. **BOOT:** Before starting, read `.agent/memory/current-task.md` to understand the current task state.
+2. **SAFETY:** Prefer safe, reversible operations. Avoid destructive commands without explicit user confirmation. Prefer `--dry-run` where available.
+3. **HANDOVER:** Before finishing, update `.agent/memory/session-handover.md` with what was completed and what remains.
+
+## Memory Layer
+
+Please read these files at the start of your session:
+- `.agent/memory/architecture-decisions.md` -- Architectural decisions log
+- `.agent/memory/integration-contracts.md` -- API/schema contracts
+- `.agent/memory/session-handover.md` -- Unfinished work from the last session
+- `.agent/memory/current-task.md` -- Active todo list (Beads tracker)
+
+## Rules Layer
+
+The following rule files define project standards. Please read and adhere to them:
+- `.agent/rules/safety-rules.md`
+- `.agent/rules/testing-rules.md`
+- `.agent/rules/stack-rules.md`
+
+## Limitations (Basic Tier)
+
+- No hook automation -- sync and handover must be done manually.
+- No multi-agent support.
+- No plan mode integration.
+
+Refer to [AGENT.md](AGENT.md) for the full operational contract.
+'@
+    Set-Content -Path "CONVENTIONS.md" -Value $AiderFull -Encoding utf8
 }
 if (Test-Path "$ClientDir/.aider.conf.yml") {
     Copy-Item -Path "$ClientDir/.aider.conf.yml" -Destination ".aider.conf.yml" -Force

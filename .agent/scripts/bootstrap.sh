@@ -133,10 +133,13 @@ EOF
 fi
 
 echo "[bootstrap] creating AI auto-discovery router files..."
+if [ ! -s CLAUDE.md ]; then
 cat << 'EOF' > CLAUDE.md
-# AI Toolbox Protocol (Claude)
+# AI Toolbox Protocol (Claude Code) -- Tier: Full
 
-This project uses the **AI Toolbox** workflow. Adhere to these **Critical 3 Session Rules**:
+This project uses the **AI Toolbox** workflow. As a **Full-Tier** client you have access to hooks, multi-agent orchestration, and plan mode.
+
+Adhere to these **Critical 3 Session Rules**:
 
 1. **BOOT:** Detect `.agent/`? Read `AGENT.md` section 2 (Boot Sequence) and run the sync-task script (`.sh` on Unix, `.ps1` on Windows) before starting any task.
 2. **SAFETY:** All heavy terminal commands (python, cargo, go) MUST be run via `rtk`.
@@ -144,6 +147,7 @@ This project uses the **AI Toolbox** workflow. Adhere to these **Critical 3 Sess
 
 Refer to [AGENT.md](AGENT.md) for the full operational contract.
 EOF
+fi
 
 # Create client-specific config folder
 mkdir -p .agent/templates/clients
@@ -152,10 +156,20 @@ if [ -f ".agent/templates/clients/.claude.json" ]; then
     echo "[bootstrap] Installed .claude.json hooks"
 fi
 
+if [ ! -s GEMINI.md ]; then
 cat << 'EOF' > GEMINI.md
-# GEMINI.MD: AI Collaboration Guide (AI Toolbox)
+# AI Toolbox Protocol (Gemini CLI) -- Tier: Basic
 
-This document provides essential context for AI models interacting with this project.
+> **Tier Note:** Gemini CLI is a Basic-Tier client. Hooks are not available.
+> All safety rules below are **soft reminders**, not enforced guardrails.
+
+This project uses the **AI Toolbox** workflow framework. Read this file carefully at the start of every session.
+
+## Session Guidelines (Soft Reminders)
+
+1. **BOOT:** Read `.agent/memory/current-task.md` to understand the current task state before starting.
+2. **SAFETY:** Prefer safe, reversible operations. Avoid destructive commands without explicit user confirmation.
+3. **HANDOVER:** Update `.agent/memory/session-handover.md` before finishing your session.
 
 ## 1. Project Overview & Purpose
 * **Primary Goal:** [Describe your project's main purpose here]
@@ -165,30 +179,21 @@ This document provides essential context for AI models interacting with this pro
 * **Workflow Engine:** AI Toolbox (AGENT.md)
 * **Task Tracker:** Beads (bd)
 * **Execution Wrapper:** RTK (Token-Safe Execution)
-* **Languages/Frameworks:** [List your project's languages here, e.g. TypeScript, Python]
+* **Languages/Frameworks:** [List your project's languages here]
 
-## 3. Architectural Patterns
-* **Memory Management:** Repository-based project memory in `.agent/memory/`.
-* **Decision Tracking:** Architecture Decision Records (ADRs) in `.agent/memory/architecture-decisions.md`.
-
-## 4. Coding Conventions & Style Guide
-* **Workflow Rule:** Follow the [AGENT.md](AGENT.md) Boot Sequence.
-* **Naming:** [Inferred: Standard kebab-case for files, camelCase for variables]
-
-## 5. Key Files & Entrypoints
+## 3. Key Files & Entrypoints
 * **Main Contract:** [AGENT.md](AGENT.md)
 * **Handover Log:** [.agent/memory/session-handover.md](.agent/memory/session-handover.md)
 * **Rules:** [.agent/rules/](.agent/rules/)
 
-## 6. Development & Testing Workflow
-* **Booting:** Start every session by reading AGENT.md and running the sync-task script (`.sh` on Unix, `.ps1` on Windows).
-* **Testing:** All heavy commands MUST be run through `rtk`.
+## 4. Limitations (Basic Tier)
+* No hook automation -- sync and handover must be done manually.
+* No multi-agent support.
+* Safety rules are recommendations only, not enforced by the toolchain.
 
-## 7. Specific Instructions for AI Collaboration
-* **MANDATORY:** You MUST run the Boot Sequence defined in [AGENT.md](AGENT.md) before starting any task.
-* **Handover:** Always update `.agent/memory/session-handover.md` at the end of a session.
-* **Gemini CLI:** This project uses `GEMINI.md` as its primary context file. Read this file carefully to understand the repository structure.
+Refer to [AGENT.md](AGENT.md) for the full operational contract.
 EOF
+fi
 
 # Create specialized router files
 cat << 'EOF' > .cursorrules
@@ -229,13 +234,30 @@ else
 cat << 'EOF' > QWEN.md
 # AI Toolbox Protocol (Qwen Code) -- Tier: Full
 
+This project uses the **AI Toolbox** workflow framework. As a **Full-Tier** client, you have access to all features: hooks, multi-agent orchestration, plan mode, and sync automation.
+
+## Critical Session Rules
+
 1. **BOOT:** Detect `.agent/`? Read `AGENT.md` section 2 (Boot Sequence) and run the sync-task script (`.sh` on Unix, `.ps1` on Windows) before starting any task.
-2. **SAFETY:** All heavy terminal commands MUST be run via `rtk`.
+2. **SAFETY:** All heavy terminal commands (builds, tests, package installs) MUST be run via `rtk`.
 3. **HANDOVER:** Maintain project history in `.agent/memory/session-handover.md` at the end of every task or session.
 
-Full-Tier features: Hooks, Multi-Agent, Plan Mode, Sync automation.
+## Full-Tier Features Available
 
-Details in [AGENT.md](AGENT.md).
+- **Hooks:** Pre/post-command hooks auto-sync state and enforce safety rules.
+- **Multi-Agent:** Spawn sub-agents for parallel task execution. Coordinate via `.agent/memory/`.
+- **Plan Mode:** Use plan mode before major changes. Document in `.agent/memory/current-task.md`.
+- **Sync:** Run `.agent/scripts/sync-task.sh` (or `.ps1`) to refresh your task view at any time.
+
+## Memory Layer
+
+Read these files at session start (in order):
+1. `.agent/memory/architecture-decisions.md` -- ADR log
+2. `.agent/memory/integration-contracts.md` -- API/schema contracts
+3. `.agent/memory/session-handover.md` -- Unfinished work from last session
+4. `.agent/memory/current-task.md` -- Active todo list
+
+Refer to [AGENT.md](AGENT.md) for the full operational contract.
 EOF
 fi
 
@@ -247,13 +269,38 @@ else
 cat << 'EOF' > CONVENTIONS.md
 # AI Toolbox Protocol (Aider) -- Tier: Basic
 
-> **Note:** These are soft reminders, not enforced guardrails.
+This project uses the **AI Toolbox** workflow framework. As a **Basic-Tier** client, you have access to the Memory Layer and Rules Layer. Hooks are not available -- all safety rules are soft reminders.
 
-1. **BOOT:** Read `.agent/memory/current-task.md` before starting.
-2. **SAFETY:** Prefer safe, reversible operations.
-3. **HANDOVER:** Update `.agent/memory/session-handover.md` before finishing.
+## Session Guidelines (Soft Reminders)
 
-Details in [AGENT.md](AGENT.md).
+> **Note:** These are recommendations, not enforced guardrails. Please follow them to maintain project consistency.
+
+1. **BOOT:** Before starting, read `.agent/memory/current-task.md` to understand the current task state.
+2. **SAFETY:** Prefer safe, reversible operations. Avoid destructive commands without explicit user confirmation. Prefer `--dry-run` where available.
+3. **HANDOVER:** Before finishing, update `.agent/memory/session-handover.md` with what was completed and what remains.
+
+## Memory Layer
+
+Please read these files at the start of your session:
+- `.agent/memory/architecture-decisions.md` -- Architectural decisions log
+- `.agent/memory/integration-contracts.md` -- API/schema contracts
+- `.agent/memory/session-handover.md` -- Unfinished work from the last session
+- `.agent/memory/current-task.md` -- Active todo list (Beads tracker)
+
+## Rules Layer
+
+The following rule files define project standards. Please read and adhere to them:
+- `.agent/rules/safety-rules.md`
+- `.agent/rules/testing-rules.md`
+- `.agent/rules/stack-rules.md`
+
+## Limitations (Basic Tier)
+
+- No hook automation -- sync and handover must be done manually.
+- No multi-agent support.
+- No plan mode integration.
+
+Refer to [AGENT.md](AGENT.md) for the full operational contract.
 EOF
 fi
 
