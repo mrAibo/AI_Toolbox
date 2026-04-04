@@ -170,19 +170,14 @@ The next session should be able to continue with minimal explanation.
 
 ---
 
-## 11. Antigravity Environment Specifics
+---
 
-When working within the **Antigravity** assistant environment:
+## 11. Client-Specific Extensions
 
-- **Workflows:** Use native slash commands defined in `.agent/workflows/`:
-    - `/start`: Initial context recovery (Boot Sequence).
-    - `/plan`: Create an implementation plan from the template.
-    - `/sync`: Synchronize Beads (bd) to memory and task artifact.
-    - `/adr`: Record an Architecture Decision.
-    - `/handover`: Finalize the session and summarize work.
-- **Brainstorming:** For Section 3 (New projects/features), strictly use the native `implementation_plan.md` artifact from the `.agent/templates/antigravity-plan.md` template (trigger with `/plan`).
-- **Task Tracking:** Always maintain the native `task.md` artifact. Use the `/sync` workflow to ensure it matches the AI Toolbox internal state.
-- **Session Closure:** Always generate a `walkthrough.md` artifact during the `/handover` workflow.
+Some AI assistant environments provide additional capabilities or specific rules. If an extension exists for your environment in the `[.agent/rules/](.agent/rules/)` directory, please follow it:
+
+- **Antigravity:** Refer to **[.agent/rules/antigravity.md](.agent/rules/antigravity.md)** for native slash commands and artifact workflows.
+- [Other Clients]: Add your specific client instructions to `.agent/rules/` and reference them here.
 
 These artifacts are first-class citizens in Antigravity and should be used to provide a premium agentic experience.
 

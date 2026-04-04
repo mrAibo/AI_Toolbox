@@ -41,6 +41,14 @@ cat << 'EOF' > .agent/rules/stack-rules.md
 EOF
 fi
 
+if [ ! -s .agent/rules/antigravity.md ]; then
+cat << 'EOF' > .agent/rules/antigravity.md
+# Antigravity Environment Specifics
+Use native slash commands in .agent/workflows/ (/start, /plan, /sync, /handover).
+Maintain native artifacts: implementation_plan.md, task.md, walkthrough.md.
+EOF
+fi
+
 echo "[bootstrap] creating AI auto-discovery router files..."
 cat << 'EOF' > CLAUDE.md
 # AI Toolbox Protocol (Claude)

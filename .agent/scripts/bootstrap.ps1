@@ -38,6 +38,11 @@ if (-not (Test-Path ".agent/rules/stack-rules.md") -or (Get-Item ".agent/rules/s
     Set-Content -Path ".agent/rules/stack-rules.md" -Value $StackContent -Encoding utf8
 }
 
+$AntigravityContent = "# Antigravity Environment Specifics`r`nUse native slash commands in .agent/workflows/ (/start, /plan, /sync, /handover).`r`nMaintain native artifacts: implementation_plan.md, task.md, walkthrough.md."
+if (-not (Test-Path ".agent/rules/antigravity.md") -or (Get-Item ".agent/rules/antigravity.md").Length -eq 0) {
+    Set-Content -Path ".agent/rules/antigravity.md" -Value $AntigravityContent -Encoding utf8
+}
+
 $RootFiles = @("README.md", "AGENT.md")
 foreach ($RootFile in $RootFiles) {
     if (-not (Test-Path $RootFile)) { New-Item -ItemType File -Path $RootFile | Out-Null }
