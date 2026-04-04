@@ -29,6 +29,7 @@ This file tracks major architectural decisions. Use the format from `.agent/temp
 - Context: Need a standardized, agent-agnostic way to maintain project memory and rules.
 - Decision: Adopt AI Toolbox framework.
 - Consequences: All agents must follow AGENT.md; memory is stored in .agent/.
+- Rejected alternatives: Manual documentation, client-specific rules only.
 "@
 
 if (-not (Test-Path ".agent/memory/architecture-decisions.md") -or (Get-Item ".agent/memory/architecture-decisions.md").Length -eq 0) {

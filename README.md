@@ -30,6 +30,8 @@ AI_Toolbox/
 ├── GEMINI.md               # Gemini CLI context file
 ├── CLAUDE.md               # Claude Code router file
 ├── .cursorrules            # Cursor router file
+├── .clinerules             # RooCode / Cline router file
+├── .windsurfrules          # Windsurf router file
 ├── .gitignore              # Ignores local output and temporary files
 │
 ├── .agent/                 # The AI's "Brain"

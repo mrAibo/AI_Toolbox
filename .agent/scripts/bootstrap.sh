@@ -19,6 +19,7 @@ This file tracks major architectural decisions. Use the format from \`.agent/tem
 - Context: Need a standardized, agent-agnostic way to maintain project memory and rules.
 - Decision: Adopt AI Toolbox framework.
 - Consequences: All agents must follow AGENT.md; memory is stored in .agent/.
+- Rejected alternatives: Manual documentation, client-specific rules only.
 EOF
 fi
 

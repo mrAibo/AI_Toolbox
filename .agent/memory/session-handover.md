@@ -1,1 +1,1 @@
-﻿# Session Handover
+# Session Handover
