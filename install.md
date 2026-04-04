@@ -81,7 +81,7 @@ Each AI client has its own way of handling hooks. If your client supports them, 
     }
     ```
 *   **Cursor / Windsurf:** These clients primarily use rule files (`.cursorrules`). Ensure you've run the `bootstrap` script to generate these with the **Critical 3 Session Rules**.
-*   **Gemini CLI:** Does not natively support command hooks. Rely on the instructions in `GEMINI.md` and manually run `.agent/scripts/sync-task.sh` at the start of a session.
+*   **Gemini CLI:** Does not natively support command hooks. Rely on the instructions in `GEMINI.md` and manually run the sync-task script (`.sh` on Unix, `.ps1` on Windows) at the start of a session.
 
 *If you configure this via a local settings file (like `.claude.json` or `.opencode.yml`), create/update it now in the project root.*
 

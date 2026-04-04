@@ -70,6 +70,31 @@ if (-not (Test-Path ".agent/memory/runbook.md") -or (Get-Item ".agent/memory/run
     Set-Content -Path ".agent/memory/runbook.md" -Value $RunbookContent -Encoding utf8
 }
 
+if (-not (Test-Path ".agent/memory/integration-contracts.md") -or (Get-Item ".agent/memory/integration-contracts.md").Length -eq 0) {
+    Set-Content -Path ".agent/memory/integration-contracts.md" -Value "# Integration Contracts" -Encoding utf8
+}
+
+if (-not (Test-Path ".agent/memory/session-handover.md") -or (Get-Item ".agent/memory/session-handover.md").Length -eq 0) {
+    Set-Content -Path ".agent/memory/session-handover.md" -Value "# Session Handover" -Encoding utf8
+}
+
+if (-not (Test-Path ".agent/memory/current-task.md") -or (Get-Item ".agent/memory/current-task.md").Length -eq 0) {
+    $TaskTemplate = @"
+# Task: Short title
+
+- Status: ready
+- Priority: medium
+- Owner: AI agent
+- Related files:
+- Goal:
+- Steps:
+    - [ ] Step 1
+- Verification:
+- Notes:
+"@
+    Set-Content -Path ".agent/memory/current-task.md" -Value $TaskTemplate -Encoding utf8
+}
+
 $SafetyContent = @'
 # Safety Rules
 Core principle: Do not perform destructive, irreversible, or high-risk actions without explicit user intent.

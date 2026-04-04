@@ -27,7 +27,7 @@ AI_Toolbox/
 ├── README.md               # Human-facing overview (You are here)
 ├── AGENT.md                # The AI's primary execution contract
 ├── SKILL.md                # Antigravity Skill manifest (Antigravity-only)
-├── GEMINI.md               # Antigravity context guide
+├── GEMINI.md               # Gemini CLI context file
 ├── CLAUDE.md               # Claude Code router file
 ├── .cursorrules            # Cursor router file
 ├── .gitignore              # Ignores local output and temporary files
@@ -108,14 +108,12 @@ The AI will autonomously download the `.agent` folder, `AGENT.md`, run the boots
 
 ---
 
-## 🚀 Manual Installation & Usage
-
-### 1. Set up the repo
-Clone this repository as a starting point.
-2. Run the bootstrap script for your OS to ensure all folders exist:
+### 1. Manual Initialization (Direct Clone)
+1. **Set up the repo:** Clone this repository as a starting point.
+2. **Run the bootstrap script** for your OS to ensure all folders and router files exist:
    - Linux/macOS: `bash .agent/scripts/bootstrap.sh`
    - Windows: `powershell .agent/scripts/bootstrap.ps1`
-3. Connect your AI agent to the workspace.
+3. **Connect your AI agent** to the workspace.
 
 ### 2. For AI Agents (Manual setup)
 Give your terminal AI agent this exact prompt to start a project:
@@ -139,10 +137,12 @@ If you are at the very beginning of a project or want to plan a large new archit
 3. The AI will brainstorm with you. Once you decide on a path, it will automatically record the decision in `.agent/memory/architecture-decisions.md`, create a structured task plan (e.g., via `bd`), and then begin execution.
 
 ### Scenario B: Continuing an Existing Project
-...
-3. Give an **Execution Prompt**:
+If you are returning to a project with existing memory, let the AI catch up.
+
+1. Launch your AI agent in the terminal.
+2. Give an **Execution Prompt**:
    > *"We are continuing our work. Please execute your Boot Sequence to read our memories and sync the tasks, then pick up the next step."*
-4. The AI autopilot engages: It restores its context from `.agent/memory/`, checks `current-task.md`, and begins implementing the exact next step without getting sidetracked.
+3. The AI autopilot engages: It restores its context from `.agent/memory/`, checks `current-task.md`, and begins implementing the exact next step without getting sidetracked.
 
 ### Scenario C: Antigravity Native Mode
 If you are using the **Antigravity** assistant, the toolbox is a first-class citizen.
@@ -160,12 +160,17 @@ If you are using the **Antigravity** assistant, the toolbox is a first-class cit
 
 When the AI agent works in this repository, it follows a strict sequence defined in `AGENT.md`:
 
-1. **Boot Sequence:** Upon starting, the agent reads `architecture-decisions.md` and `session-handover.md` to restore context.
-2. **Brainstorming:** For new features, the agent analyzes and proposes solutions before writing code.
-3. **Task Creation:** Work is broken down into small, verifiable steps.
-4. **Execution:** Code is written and executed. Heavy commands are prefixed with `rtk`.
-5. **Verification:** The agent must run tests or verify output before claiming success.
-6. **Consolidation:** Before shutting down, the agent updates the handover and memory files.
+1. **Boot Sequence:** 
+   - **Environmental Check:** Verify `.agent/` and required binaries (`rtk`, `bd`).
+   - **Context Recovery:** Read `architecture-decisions.md` and `integration-contracts.md`.
+   - **WIP Check:** Read `session-handover.md` to see where the last session stopped.
+   - **Task Sync:** Run `sync-task.sh/ps1` to load the current task list.
+   - **Summarization:** The agent provides a brief update on what it recovered.
+2. **Execution Flow:**
+   - **Planning:** Identify constraints and update the plan.
+   - **Implementation:** Write code; prefix heavy commands with `rtk`.
+   - **Verification:** Run tests or verify output before claiming success.
+3. **Consolidation:** Before shutting down, the agent updates the handover and memory files.
 
 ---
 
