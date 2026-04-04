@@ -73,17 +73,17 @@ Brainstorm -> Architecture decision -> Task creation -> Implementation -> Verifi
 
 ## 5. Terminal rules
 
-When using the terminal:
+When using the terminal, adhere to the **[.agent/rules/safety-rules.md](.agent/rules/safety-rules.md)**.
 
-- Heavy commands should be prefixed with `rtk` whenever applicable
-- Large `.log` files should be read with `rtk read <file>`
-- Avoid dumping raw long logs directly into the model context
-- Prefer concise, inspectable command output
+**Quick Reference:**
+- Use **rtk** for all heavy terminal commands (python, cargo, tests, etc.).
+- Avoid dumping raw long logs directly into context.
+- Prefer concise, inspectable command output.
 
 Examples:
 - `rtk pytest`
 - `rtk mvn test`
-- `rtk read error.log`
+- `rtk cat large_output.log`
 
 ---
 
@@ -135,12 +135,14 @@ Brainstorming should produce structure, not noise.
 
 ## 8. Verification rules
 
-Before reporting success:
+Before reporting success, follow the **[.agent/rules/testing-rules.md](.agent/rules/testing-rules.md)**.
 
-- run tests if tests exist
-- run verification commands if no tests exist
-- inspect outputs rather than assuming they worked
-- mention important limitations or unverified parts clearly
+**Bug Fix Sequence:**
+1. **Reproduce** the problem with a test or command.
+2. **Identify** the likely cause.
+3. **Implement** the fix.
+4. **Verify** using the reproduction step.
+5. **Record** durable knowledge if the bug was non-trivial.
 
 Never say that something works unless it has been checked.
 
@@ -148,10 +150,10 @@ Never say that something works unless it has been checked.
 
 ## 9. Safety rules
 
-- Do not execute destructive commands without explicit user intent
-- Do not remove files, rewrite large parts of the project, or migrate architecture silently
-- Do not treat assumptions as facts
-- If something is uncertain, document the uncertainty
+For all behavioral constraints and destroyer-prevention, refer to **[.agent/rules/safety-rules.md](.agent/rules/safety-rules.md)**.
+
+**Core Safety Principle:**
+Do not perform destructive, irreversible, or high-risk actions (delete files, rewrite large parts, force-push) without explicit user intent.
 
 ---
 

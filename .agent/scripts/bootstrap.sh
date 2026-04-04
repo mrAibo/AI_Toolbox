@@ -12,9 +12,34 @@ echo "# Session Handover" > .agent/memory/session-handover.md
 echo "# Runbook" > .agent/memory/runbook.md
 echo "# Current Task" > .agent/memory/current-task.md
 
-touch .agent/rules/stack-rules.md
-touch .agent/rules/testing-rules.md
-touch .agent/rules/safety-rules.md
+if [ ! -s .agent/rules/safety-rules.md ]; then
+cat << 'EOF' > .agent/rules/safety-rules.md
+# Safety Rules
+Core principle: Do not perform destructive, irreversible, or high-risk actions without explicit user intent.
+- Do not delete files or directories blindly.
+- Do not rewrite large parts of the repository silently.
+- Do not force-push or rewrite git history.
+EOF
+fi
+
+if [ ! -s .agent/rules/testing-rules.md ]; then
+cat << 'EOF' > .agent/rules/testing-rules.md
+# Testing Rules
+Core principle: Do not claim completion without verification.
+- Run tests when tests exist.
+- Use the Bug Fix Sequence: Reproduce -> Identify -> Fix -> Verify -> Record.
+- Prefer concise test output via rtk.
+EOF
+fi
+
+if [ ! -s .agent/rules/stack-rules.md ]; then
+cat << 'EOF' > .agent/rules/stack-rules.md
+# Stack Rules
+- Follow the project's established coding standards.
+- Prefer idiomatic solutions for the detected language/framework.
+- Document third-party library additions in .agent/memory/integration-contracts.md.
+EOF
+fi
 
 echo "[bootstrap] creating AI auto-discovery router files..."
 cat << 'EOF' > CLAUDE.md

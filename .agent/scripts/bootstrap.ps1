@@ -23,9 +23,19 @@ Set-Content -Path ".agent/memory/session-handover.md" -Value "# Session Handover
 Set-Content -Path ".agent/memory/runbook.md" -Value "# Runbook" -Encoding utf8
 Set-Content -Path ".agent/memory/current-task.md" -Value "# Current Task" -Encoding utf8
 
-$RuleFiles = @(".agent/rules/stack-rules.md", ".agent/rules/testing-rules.md", ".agent/rules/safety-rules.md")
-foreach ($RuleFile in $RuleFiles) {
-    if (-not (Test-Path $RuleFile)) { New-Item -ItemType File -Path $RuleFile | Out-Null }
+$SafetyContent = "# Safety Rules`r`nCore principle: Do not perform destructive, irreversible, or high-risk actions without explicit user intent.`r`n- Do not delete files or directories blindly.`r`n- Do not rewrite large parts of the repository silently.`r`n- Do not force-push or rewrite git history."
+if (-not (Test-Path ".agent/rules/safety-rules.md") -or (Get-Item ".agent/rules/safety-rules.md").Length -eq 0) {
+    Set-Content -Path ".agent/rules/safety-rules.md" -Value $SafetyContent -Encoding utf8
+}
+
+$TestingContent = "# Testing Rules`r`nCore principle: Do not claim completion without verification.`r`n- Run tests when tests exist.`r`n- Use the Bug Fix Sequence: Reproduce -> Identify -> Fix -> Verify -> Record.`r`n- Prefer concise test output via rtk."
+if (-not (Test-Path ".agent/rules/testing-rules.md") -or (Get-Item ".agent/rules/testing-rules.md").Length -eq 0) {
+    Set-Content -Path ".agent/rules/testing-rules.md" -Value $TestingContent -Encoding utf8
+}
+
+$StackContent = "# Stack Rules`r`n- Follow the project's established coding standards.`r`n- Prefer idiomatic solutions for the detected language/framework.`r`n- Document third-party library additions in .agent/memory/integration-contracts.md."
+if (-not (Test-Path ".agent/rules/stack-rules.md") -or (Get-Item ".agent/rules/stack-rules.md").Length -eq 0) {
+    Set-Content -Path ".agent/rules/stack-rules.md" -Value $StackContent -Encoding utf8
 }
 
 $RootFiles = @("README.md", "AGENT.md")
