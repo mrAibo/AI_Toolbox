@@ -15,7 +15,7 @@ The agent must treat this file as the primary execution standard for project wor
 - Do not claim completion without verification.
 
 ### Universal vs. Client-Specific
-This framework is architechurally **universal**. While this `AGENT.md` is the **Master Protocol**, individual AI agents should prioritize their optimized entry points:
+This framework is architecturally **universal**. While this `AGENT.md` is the **Master Protocol**, individual AI agents should prioritize their optimized entry points:
 - **Claude Code:** Uses `CLAUDE.md` and `.claude.json`.
 - **Cursor / Windsurf:** Uses `.cursorrules` and `.windsurfrules`.
 - **Antigravity:** Uses `SKILL.md` and `.agent/workflows/`.
@@ -61,7 +61,7 @@ Brainstorm -> Architecture decision -> Task creation -> Implementation -> Verifi
 
 ## 4. Execution rules
 
-- Run `.agent/scripts/sync-task.sh` regularly to ensure your view of the task tracker is up-to-date
+- Run `.agent/scripts/sync-task.sh` (or `.ps1` on Windows) regularly to ensure your view of the task tracker is up-to-date
 - Work from the `.agent/memory/current-task.md` state whenever available
 - Prefer small, verifiable steps
 - Prefer test-first or verification-first execution where possible
@@ -150,7 +150,7 @@ Never say that something works unless it has been checked.
 
 ## 9. Safety rules
 
-For all behavioral constraints and destroyer-prevention, refer to **[.agent/rules/safety-rules.md](.agent/rules/safety-rules.md)**.
+For all behavioral constraints and destructive-action prevention, refer to **[.agent/rules/safety-rules.md](.agent/rules/safety-rules.md)**.
 
 **Core Safety Principle:**
 Do not perform destructive, irreversible, or high-risk actions (delete files, rewrite large parts, force-push) without explicit user intent.
@@ -174,10 +174,8 @@ The next session should be able to continue with minimal explanation.
 
 Some AI assistant environments provide additional capabilities or specific rules. If an extension exists for your environment in the `[.agent/rules/](.agent/rules/)` directory, please follow it:
 
-- **Antigravity:** Refer to **[.agent/rules/antigravity.md](.agent/rules/antigravity.md)** for native slash commands and artifact workflows.
+- **Antigravity:** Refer to **[.agent/rules/antigravity.md](.agent/rules/antigravity.md)** for native slash commands and artifact workflows. These artifacts are first-class citizens in Antigravity and should be used to provide a premium agentic experience.
 - [Other Clients]: Add your specific client instructions to `.agent/rules/` and reference them here.
-
-These artifacts are first-class citizens in Antigravity and should be used to provide a premium agentic experience.
 
 ---
 

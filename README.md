@@ -83,6 +83,7 @@ This workflow assumes the use of a few key tools to keep the AI disciplined:
 3. **[Claude-Mem](https://github.com/thedotmack/claude-mem)** (Optional)
    A local vector database for storing episodic bug fixes and project experience.
 4. **Terminal AI Agents**
+   - **[RooCode](https://github.com/RooCode/RooCode)**: An open-source, powerful terminal agent for VS Code.
    - **[OpenCode](https://opencode.ai/)**: An open-source terminal alternative.
    - **[Gemini CLI](https://geminicli.com)**: Google's console AI agent using Gemini models.
    - **[Aider](https://aider.chat/)**: (Optional) AI pair programming in your terminal.
