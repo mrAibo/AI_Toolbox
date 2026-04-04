@@ -11,7 +11,10 @@ dist/
 build/
 docs/build/
 
-# Config and logs
-.env
-__pycache__/
-*.log
+# Workspace and Testing
+test_fresh/
+.claude.json
+.cursorrules
+.clinerules
+.windsurfrules
+GEMINI.md

@@ -181,6 +181,26 @@ $CursorContent = @'
 Details in [AGENT.md](AGENT.md).
 '@
 
+$ClineContent = @'
+# AI Toolbox Protocol (RooCode / Cline)
+
+1. **BOOT:** Run the sync-task script (`.sh` on Unix, `.ps1` on Windows) and read `.agent/memory/current-task.md` before starting.
+2. **SAFETY:** Use `rtk` for all heavy executions (tests, builds).
+3. **HANDOVER:** Update `.agent/memory/session-handover.md` before finishing.
+
+Details in [AGENT.md](AGENT.md).
+'@
+
+$WindsurfContent = @'
+# AI Toolbox Protocol (Windsurf)
+
+1. **BOOT:** Run the sync-task script (`.sh` on Unix, `.ps1` on Windows) and read `.agent/memory/current-task.md` before starting.
+2. **SAFETY:** Use `rtk` for all heavy executions (tests, builds).
+3. **HANDOVER:** Update `.agent/memory/session-handover.md` before finishing.
+
+Details in [AGENT.md](AGENT.md).
+'@
+
 $GeminiContent = @'
 # GEMINI.MD: AI Collaboration Guide (AI Toolbox)
 
@@ -222,8 +242,8 @@ This document provides essential context for AI models interacting with this pro
 Set-Content -Path "CLAUDE.md" -Value $ClaudeContent -Encoding utf8
 Set-Content -Path "GEMINI.md" -Value $GeminiContent -Encoding utf8
 Set-Content -Path ".cursorrules" -Value $CursorContent -Encoding utf8
-Set-Content -Path ".clinerules" -Value $CursorContent -Encoding utf8
-Set-Content -Path ".windsurfrules" -Value $CursorContent -Encoding utf8
+Set-Content -Path ".clinerules" -Value $ClineContent -Encoding utf8
+Set-Content -Path ".windsurfrules" -Value $WindsurfContent -Encoding utf8
 
 # Client-specific templates
 $ClientDir = ".agent/templates/clients"

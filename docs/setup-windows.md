@@ -11,9 +11,9 @@
 2. Review `README.md`
 3. Review `AGENT.md`
 4. Fill the memory files
-5. Configure PowerShell scripts and hooks
-6. Connect task tracking if needed
-7. Run the bootstrap script (This will automatically generate AI routing files like `.clinerules`, `CLAUDE.md`, `GEMINI.md` to point agents to the workflow).
+5. Run the bootstrap script (`powershell .agent/scripts/bootstrap.ps1`). This will generate AI routing files (like `.clinerules`, `CLAUDE.md`, `GEMINI.md`) and initialize the hook wrappers.
+6. Verify PowerShell scripts and hooks (Git pre-commit, .claude.json).
+7. Connect task tracking if needed (e.g., `bd`).
 
 ## Notes
 - Keep the workflow consistent with Linux as much as possible

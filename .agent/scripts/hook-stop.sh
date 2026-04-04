@@ -3,12 +3,14 @@ set -e
 
 echo "[stop] consolidating session memory..."
 
-if [ -f .agent/memory/session-handover.md ]; then
+REPO_ROOT="$(git rev-parse --show-toplevel)"
+
+if [ -f "$REPO_ROOT/.agent/memory/session-handover.md" ]; then
   echo "[stop] session handover file exists"
 fi
 
-if [ -x .agent/scripts/sync-task.sh ]; then
-  .agent/scripts/sync-task.sh
+if [ -x "$REPO_ROOT/.agent/scripts/sync-task.sh" ]; then
+  "$REPO_ROOT/.agent/scripts/sync-task.sh"
 fi
 
 echo "[stop] remember to update:"

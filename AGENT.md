@@ -175,7 +175,7 @@ The next session should be able to continue with minimal explanation.
 Some AI assistant environments provide additional capabilities or specific rules. If an extension exists for your environment in the `[.agent/rules/](.agent/rules/)` directory, please follow it:
 
 - **Antigravity:** Refer to **[.agent/rules/antigravity.md](.agent/rules/antigravity.md)** for native slash commands and artifact workflows. These artifacts are first-class citizens in Antigravity and should be used to provide a premium agentic experience.
-- [Other Clients]: Add your specific client instructions to `.agent/rules/` and reference them here.
+- **Other Clients:** Add your specific client instructions to the `[.agent/rules/](.agent/rules/)` directory and reference them here to ensure your environment's unique capabilities are leveraged.
 
 ---
 

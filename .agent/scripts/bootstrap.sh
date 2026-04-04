@@ -200,8 +200,25 @@ cat << 'EOF' > .cursorrules
 Details in [AGENT.md](AGENT.md).
 EOF
 
-cp .cursorrules .clinerules
-cp .cursorrules .windsurfrules
+cat << 'EOF' > .clinerules
+# AI Toolbox Protocol (RooCode / Cline)
+
+1. **BOOT:** Run the sync-task script (`.sh` on Unix, `.ps1` on Windows) and read `.agent/memory/current-task.md` before starting.
+2. **SAFETY:** Use `rtk` for all heavy executions (tests, builds).
+3. **HANDOVER:** Update `.agent/memory/session-handover.md` before finishing.
+
+Details in [AGENT.md](AGENT.md).
+EOF
+
+cat << 'EOF' > .windsurfrules
+# AI Toolbox Protocol (Windsurf)
+
+1. **BOOT:** Run the sync-task script (`.sh` on Unix, `.ps1` on Windows) and read `.agent/memory/current-task.md` before starting.
+2. **SAFETY:** Use `rtk` for all heavy executions (tests, builds).
+3. **HANDOVER:** Update `.agent/memory/session-handover.md` before finishing.
+
+Details in [AGENT.md](AGENT.md).
+EOF
 
 if [ -d ".git" ]; then
     echo "[bootstrap] Updating Git pre-commit safeguards..."

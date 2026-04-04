@@ -34,6 +34,7 @@ AI_Toolbox/
 │
 ├── .agent/                 # The AI's "Brain"
 │   ├── memory/             # Durable project state
+│   │   ├── current-task.md            # The AI's active todo list
 │   │   ├── architecture-decisions.md  # Long-term architecture ADRs
 │   │   ├── integration-contracts.md   # APIs, schemas, data expectations
 │   │   ├── runbook.md                 # Recurring operational procedures
