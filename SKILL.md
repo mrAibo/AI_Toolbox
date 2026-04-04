@@ -3,10 +3,11 @@ name: AI Toolbox
 description: A strict, memory-backed agentic development framework for terminal-based AIs. (Antigravity Manifest)
 ---
 
-# AI Toolbox Skill (Antigravity Manifest)
+# AI Toolbox Skill (Antigravity Manifest) -- Tier: Full
 
 > [!NOTE]
 > This file is a specific manifest for the **Antigravity** agentic framework. If you are using Claude Code, Cursor, or other agents, please refer to the router files (CLAUDE.md, .cursorrules) or the master protocol in AGENT.md.
+> As a **Full-Tier** client, Antigravity has access to hooks, multi-agent orchestration, plan mode, and sync automation.
 
 This skill allows the assistant to follow the strict project standards defined in the **AI Toolbox** repository.
 

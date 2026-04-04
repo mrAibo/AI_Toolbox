@@ -17,8 +17,13 @@ The agent must treat this file as the primary execution standard for project wor
 ### Universal vs. Client-Specific
 This framework is architecturally **universal**. While this `AGENT.md` is the **Master Protocol**, individual AI agents should prioritize their optimized entry points:
 - **Claude Code:** Uses `CLAUDE.md` and `.claude.json`.
-- **Cursor / Windsurf:** Uses `.cursorrules` and `.windsurfrules`.
+- **Qwen Code:** Uses `QWEN.md`.
+- **Gemini CLI:** Uses `GEMINI.md`.
+- **Cursor:** Uses `.cursorrules`.
+- **RooCode / Cline:** Uses `.clinerules`.
+- **Windsurf:** Uses `.windsurfrules`.
 - **Antigravity:** Uses `SKILL.md` and `.agent/workflows/`.
+- **Aider:** Uses `CONVENTIONS.md` and `.aider.conf.yml`.
 
 Each entry point contains **Critical Session Rules** to ensure session resilience.
 
@@ -175,6 +180,7 @@ The next session should be able to continue with minimal explanation.
 Some AI assistant environments provide additional capabilities or specific rules. If an extension exists for your environment in the `[.agent/rules/](.agent/rules/)` directory, please follow it:
 
 - **Antigravity:** Refer to **[.agent/rules/antigravity.md](.agent/rules/antigravity.md)** for native slash commands and artifact workflows. These artifacts are first-class citizens in Antigravity and should be used to provide a premium agentic experience.
+- **Qwen Code:** Refer to **[.agent/rules/qwen-code.md](.agent/rules/qwen-code.md)** for SubAgent configuration, hook setup, plan mode usage, and multi-agent coordination patterns.
 - **Other Clients:** Add your specific client instructions to the `[.agent/rules/](.agent/rules/)` directory and reference them here to ensure your environment's unique capabilities are leveraged.
 
 ---

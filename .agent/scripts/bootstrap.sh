@@ -133,6 +133,7 @@ EOF
 fi
 
 echo "[bootstrap] creating AI auto-discovery router files..."
+# CLAUDE.md is a committed file — only create/update if missing or empty
 if [ ! -s CLAUDE.md ]; then
 cat << 'EOF' > CLAUDE.md
 # AI Toolbox Protocol (Claude Code) -- Tier: Full

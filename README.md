@@ -24,53 +24,61 @@ The repository enforces a strict separation between human instructions, AI workf
 
 ```text
 AI_Toolbox/
-├── README.md               # Human-facing overview (You are here)
-├── AGENT.md                # The AI's primary execution contract
-├── SKILL.md                # Antigravity Skill manifest (Antigravity-only)
-├── GEMINI.md               # Gemini CLI context file
-├── CLAUDE.md               # Claude Code router file
-├── .cursorrules            # Cursor router file
-├── .clinerules             # RooCode / Cline router file
-├── .windsurfrules          # Windsurf router file
-├── .gitignore              # Ignores local output and temporary files
+├── README.md                     # Human-facing overview (You are here)
+├── AGENT.md                      # The AI's primary execution contract
+├── SKILL.md                      # Antigravity Skill manifest (Antigravity-only)
+├── GEMINI.md                     # Gemini CLI context file
+├── CLAUDE.md                     # Claude Code router file
+├── QWEN.md                       # Qwen Code router file
+├── CONVENTIONS.md                # Aider router file
+├── .cursorrules                  # Cursor router file
+├── .clinerules                   # RooCode / Cline router file
+├── .windsurfrules                # Windsurf router file
+├── .claude.json                  # Claude Code hook configuration
+├── .aider.conf.yml               # Aider configuration file
+├── .gitignore                    # Ignores local output and temporary files
 │
-├── .agent/                 # The AI's "Brain"
-│   ├── memory/             # Durable project state
+├── .agent/                       # The AI's "Brain"
+│   ├── config/                   # Client capability definitions
+│   │   └── client-capabilities.json  # Tier matrix (documentation)
+│   │
+│   ├── memory/                   # Durable project state
 │   │   ├── current-task.md            # The AI's active todo list
 │   │   ├── architecture-decisions.md  # Long-term architecture ADRs
 │   │   ├── integration-contracts.md   # APIs, schemas, data expectations
 │   │   ├── runbook.md                 # Recurring operational procedures
 │   │   └── session-handover.md        # Unfinished work for the next session
 │   │
-│   ├── rules/              # Hard execution constraints
+│   ├── rules/                    # Hard execution constraints
 │   │   ├── safety-rules.md            # Prevention of destructive commands
 │   │   ├── testing-rules.md           # Verification requirements (Bug Fix Seq)
 │   │   ├── stack-rules.md             # Allowed languages & dependencies
-│   │   └── antigravity.md             # Antigravity-specific extensions
+│   │   ├── antigravity.md             # Antigravity-specific extensions
+│   │   └── qwen-code.md               # Qwen Code Full-Tier extensions
 │   │
-│   ├── scripts/            # Automation & Hooks
+│   ├── scripts/                  # Automation & Hooks
 │   │   ├── bootstrap.sh / .ps1        # Initial repo setup
 │   │   ├── hook-pre-command.sh / .ps1 # Terminal safety guard (rtk check)
 │   │   ├── hook-stop.sh / .ps1        # Memory consolidation guard
 │   │   ├── verify-commit.sh / .ps1    # Git pre-commit logic
 │   │   └── sync-task.sh / .ps1        # Task tracker synchronization
 │   │
-│   ├── templates/          # Standardized formats
+│   ├── templates/                # Standardized formats
 │   │   ├── adr-template.md            # Architecture Decision Record
 │   │   ├── antigravity-plan.md        # Antigravity native plan
 │   │   ├── issue-template.md          # Internal bug/issue report
 │   │   ├── task-template.md           # Task definition
-│   │   └── clients/                   # Client-specific configs (.claude.json)
+│   │   └── clients/                   # Client-specific configs (QWEN.md, CONVENTIONS.md, .aider.conf.yml, .claude.json)
 │   │
-│   └── workflows/          # Antigravity Slash Commands
+│   └── workflows/                # Antigravity Slash Commands
 │       ├── start.md / sync.md         # Routine automation
 │       ├── handover.md                # Session wrap-up
 │       ├── plan.md                    # Planning mode
 │       └── adr.md                     # ADR creation
 │
-├── docs/                   # Detailed human guides (Setup, MCP, FAQ)
-├── examples/               # Sample workflows
-└── prompts/                # Quick-start prompts for the AI agent
+├── docs/                       # Detailed human guides (Setup, MCP, FAQ)
+├── examples/                   # Sample workflows
+└── prompts/                    # Quick-start prompts for the AI agent
 ```
 
 ---
@@ -121,7 +129,7 @@ The framework adapts its instructions to each client's actual capabilities via a
 
 
 
-Want to convert an existing project into an AI Toolbox compliant project? Open your terminal AI (Claude Code, OpenCode, Gemini CLI, RooCode) in your project directory and paste this exact prompt:
+Want to convert an existing project into an AI Toolbox compliant project? Open your terminal AI (Claude Code, Qwen Code, Gemini CLI, RooCode/Cline, Cursor, Windsurf, Aider, or Antigravity) in your project directory and paste this exact prompt:
 
 ```text
 Follow the setup instructions here to initialize the AI Toolbox environment:

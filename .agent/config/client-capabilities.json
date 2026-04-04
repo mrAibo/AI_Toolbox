@@ -1,5 +1,5 @@
 {
-  "_comment": "AI Toolbox Client Capability Matrix. Drives tier-specific router generation in bootstrap.",
+  "_comment": "AI Toolbox Client Capability Matrix. DOCUMENTATION ONLY — not consumed by bootstrap scripts. Tier assignments are hard-coded in bootstrap.sh/ps1. This file serves as a human-readable reference for the 3-Tier Orchestration System.",
   "tiers": {
     "full": {
       "description": "Hooks + Multi-Agent + Sync + Handover + Plan Mode",

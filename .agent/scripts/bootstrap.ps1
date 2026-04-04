@@ -266,6 +266,7 @@ Refer to [AGENT.md](AGENT.md) for the full operational contract.
 '@
 
 # Write router files (guard: only create if not already present)
+# NOTE: CLAUDE.md is a committed file — the guard ensures we don't overwrite manual edits
 if (-not (Test-Path "CLAUDE.md") -or (Get-Item "CLAUDE.md").Length -eq 0) {
     Set-Content -Path "CLAUDE.md" -Value $ClaudeContent -Encoding utf8
 }
