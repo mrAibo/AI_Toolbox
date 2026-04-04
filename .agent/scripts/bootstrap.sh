@@ -9,16 +9,65 @@ touch README.md AGENT.md
 echo "# Architecture Decision Records (ADRs)" > .agent/memory/architecture-decisions.md
 echo "# Integration Contracts" > .agent/memory/integration-contracts.md
 echo "# Session Handover" > .agent/memory/session-handover.md
-echo "# Runbook" > .agent/memory/runbook.md
 echo "# Current Task" > .agent/memory/current-task.md
+
+if [ ! -s .agent/memory/architecture-decisions.md ]; then
+cat << 'EOF' > .agent/memory/architecture-decisions.md
+# Architecture Decision Records (ADRs)
+
+This file tracks major architectural decisions. Use the format from `.agent/templates/adr-template.md`.
+
+### ADR-0000: Use AI Toolbox for Repository Governance
+- Status: accepted
+- Date: $(date +%Y-%m-%d)
+- Context: Need a standardized, agent-agnostic way to maintain project memory and rules.
+- Decision: Adopt AI Toolbox framework.
+- Consequences: All agents must follow AGENT.md; memory is stored in .agent/.
+EOF
+fi
+
+if [ ! -s .agent/memory/runbook.md ]; then
+cat << 'EOF' > .agent/memory/runbook.md
+# Runbook
+
+This file stores recurring operational knowledge for the repository.
+Use it for setup notes, recovery steps, repeated commands, and maintenance procedures.
+
+## 1. Startup procedure
+1. Read `AGENT.md`
+2. Read `.agent/memory/architecture-decisions.md`
+3. Read `.agent/memory/integration-contracts.md`
+4. Read `.agent/memory/session-handover.md` if present
+5. Check Beads for current task state (`.agent/memory/current-task.md`)
+6. Continue with the next ready task
+
+## 2. Verification procedure
+- Run tests if tests exist
+- If no tests exist, run the most relevant verification command
+- Inspect the actual output
+- Do not mark work as complete without verification
+
+## 3. Terminal procedure
+- Prefer concise command output
+- Use `rtk` for heavy test/build commands where available (e.g. `rtk run "npm test"`)
+- Avoid raw long log dumps into model context
+
+## 4. Memory maintenance
+- Record architecture changes in `architecture-decisions.md`
+- Record integration expectations in `integration-contracts.md`
+- Record current unfinished state in `session-handover.md`
+EOF
+fi
 
 if [ ! -s .agent/rules/safety-rules.md ]; then
 cat << 'EOF' > .agent/rules/safety-rules.md
 # Safety Rules
 Core principle: Do not perform destructive, irreversible, or high-risk actions without explicit user intent.
-- Do not delete files or directories blindly.
-- Do not rewrite large parts of the repository silently.
-- Do not force-push or rewrite git history.
+
+1. **No Blind Deletion:** Do not delete files or directories without verifying their content and importance.
+2. **No Silent Rewrites:** Do not rewrite large parts of the repository silently or without a plan.
+3. **Git Integrity:** Do not force-push or rewrite git history unless explicitly requested.
+4. **Safety wrapper:** Always use `rtk` for heavy terminal operations to manage token usage and risk.
 EOF
 fi
 
@@ -26,26 +75,29 @@ if [ ! -s .agent/rules/testing-rules.md ]; then
 cat << 'EOF' > .agent/rules/testing-rules.md
 # Testing Rules
 Core principle: Do not claim completion without verification.
-- Run tests when tests exist.
-- Use the Bug Fix Sequence: Reproduce -> Identify -> Fix -> Verify -> Record.
-- Prefer concise test output via rtk.
+
+1. **Verify Always:** Run tests whenever they exist.
+2. **Bug Fix Sequence:** Use Reproduce -> Identify -> Fix -> Verify -> Record.
+3. **Red-Green-Refactor:** Ensure tests fail before they pass for new features.
+4. **Tooling:** Prefer concise test output via `rtk` to avoid context flooding.
 EOF
 fi
 
 if [ ! -s .agent/rules/stack-rules.md ]; then
 cat << 'EOF' > .agent/rules/stack-rules.md
 # Stack Rules
-- Follow the project's established coding standards.
+- Follow the project's established coding standards (check `.editorconfig`, `.eslintrc`, etc.).
 - Prefer idiomatic solutions for the detected language/framework.
-- Document third-party library additions in .agent/memory/integration-contracts.md.
+- Document third-party library additions in `.agent/memory/integration-contracts.md`.
+- Keep dependencies updated and minimize security vulnerabilities.
 EOF
 fi
 
 if [ ! -s .agent/rules/antigravity.md ]; then
 cat << 'EOF' > .agent/rules/antigravity.md
 # Antigravity Environment Specifics
-Use native slash commands in .agent/workflows/ (/start, /plan, /sync, /handover).
-Maintain native artifacts: implementation_plan.md, task.md, walkthrough.md.
+Use native slash commands in `.agent/workflows/` (`/start`, `/plan`, `/sync`, `/handover`).
+Maintain native artifacts: `implementation_plan.md`, `task.md`, `walkthrough.md`.
 EOF
 fi
 
@@ -55,7 +107,7 @@ cat << 'EOF' > CLAUDE.md
 
 This project uses the **AI Toolbox** workflow. Adhere to these **Critical 3 Session Rules**:
 
-1. **BOOT:** Detect `.agent/`? Read `AGENT.md` section 2 (Boot Sequence) and run `.agent/scripts/sync-task.sh` before starting any task.
+1. **BOOT:** Detect `.agent/`? Read `AGENT.md` section 2 (Boot Sequence) and run the sync-task script (`.sh` on Unix, `.ps1` on Windows) before starting any task.
 2. **SAFETY:** All heavy terminal commands (python, cargo, go) MUST be run via `rtk`.
 3. **HANDOVER:** Maintain project history in `.agent/memory/session-handover.md` at the end of every task or session.
 
@@ -98,7 +150,7 @@ This document provides essential context for AI models interacting with this pro
 * **Rules:** [.agent/rules/](.agent/rules/)
 
 ## 6. Development & Testing Workflow
-* **Booting:** Start every session by reading AGENT.md and running `.agent/scripts/sync-task.sh`.
+* **Booting:** Start every session by reading AGENT.md and running the sync-task script (`.sh` on Unix, `.ps1` on Windows).
 * **Testing:** All heavy commands MUST be run through `rtk`.
 
 ## 7. Specific Instructions for AI Collaboration
@@ -111,7 +163,7 @@ EOF
 cat << 'EOF' > .cursorrules
 # AI Toolbox Protocol (Cursor)
 
-1. **BOOT:** Run `.agent/scripts/sync-task.sh` and read `.agent/memory/current-task.md` before starting.
+1. **BOOT:** Run the sync-task script (`.sh` on Unix, `.ps1` on Windows) and read `.agent/memory/current-task.md` before starting.
 2. **SAFETY:** Use `rtk` for all heavy executions (tests, builds).
 3. **HANDOVER:** Update `.agent/memory/session-handover.md` before finishing.
 

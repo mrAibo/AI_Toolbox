@@ -1,4 +1,4 @@
-﻿# GEMINI.MD: AI Collaboration Guide (AI Toolbox)
+# GEMINI.MD: AI Collaboration Guide (AI Toolbox)
 
 This document provides essential context for AI models interacting with this project.
 
@@ -26,7 +26,7 @@ This document provides essential context for AI models interacting with this pro
 * **Rules:** [.agent/rules/](.agent/rules/)
 
 ## 6. Development & Testing Workflow
-* **Booting:** Start every session by reading AGENT.md and running `.agent/scripts/sync-task.sh`.
+* **Booting:** Start every session by reading AGENT.md and running the sync-task script (`.sh` on Unix, `.ps1` on Windows).
 * **Testing:** All heavy commands MUST be run through `rtk`.
 
 ## 7. Specific Instructions for AI Collaboration

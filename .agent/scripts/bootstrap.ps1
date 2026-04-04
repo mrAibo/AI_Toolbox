@@ -17,28 +17,101 @@ foreach ($dir in $dirs) {
   New-Item -ItemType Directory -Force -Path $dir | Out-Null
 }
 
-Set-Content -Path ".agent/memory/architecture-decisions.md" -Value "# Architecture Decision Records (ADRs)" -Encoding utf8
-Set-Content -Path ".agent/memory/integration-contracts.md" -Value "# Integration Contracts" -Encoding utf8
-Set-Content -Path ".agent/memory/session-handover.md" -Value "# Session Handover" -Encoding utf8
-Set-Content -Path ".agent/memory/runbook.md" -Value "# Runbook" -Encoding utf8
-Set-Content -Path ".agent/memory/current-task.md" -Value "# Current Task" -Encoding utf8
+$Today = Get-Date -Format "yyyy-MM-dd"
+$ADRContent = @"
+# Architecture Decision Records (ADRs)
 
-$SafetyContent = "# Safety Rules`r`nCore principle: Do not perform destructive, irreversible, or high-risk actions without explicit user intent.`r`n- Do not delete files or directories blindly.`r`n- Do not rewrite large parts of the repository silently.`r`n- Do not force-push or rewrite git history."
+This file tracks major architectural decisions. Use the format from `.agent/templates/adr-template.md`.
+
+### ADR-0000: Use AI Toolbox for Repository Governance
+- Status: accepted
+- Date: $Today
+- Context: Need a standardized, agent-agnostic way to maintain project memory and rules.
+- Decision: Adopt AI Toolbox framework.
+- Consequences: All agents must follow AGENT.md; memory is stored in .agent/.
+"@
+
+if (-not (Test-Path ".agent/memory/architecture-decisions.md") -or (Get-Item ".agent/memory/architecture-decisions.md").Length -eq 0) {
+    Set-Content -Path ".agent/memory/architecture-decisions.md" -Value $ADRContent -Encoding utf8
+}
+
+$RunbookContent = @'
+# Runbook
+
+This file stores recurring operational knowledge for the repository.
+Use it for setup notes, recovery steps, repeated commands, and maintenance procedures.
+
+## 1. Startup procedure
+1. Read `AGENT.md`
+2. Read `.agent/memory/architecture-decisions.md`
+3. Read `.agent/memory/integration-contracts.md`
+4. Read `.agent/memory/session-handover.md` if present
+5. Check Beads for current task state (`.agent/memory/current-task.md`)
+6. Continue with the next ready task
+
+## 2. Verification procedure
+- Run tests if tests exist
+- If no tests exist, run the most relevant verification command
+- Inspect the actual output
+- Do not mark work as complete without verification
+
+## 3. Terminal procedure
+- Prefer concise command output
+- Use `rtk` for heavy test/build commands where available (e.g. `rtk run "npm test"`)
+- Avoid raw long log dumps into model context
+
+## 4. Memory maintenance
+- Record architecture changes in `architecture-decisions.md`
+- Record integration expectations in `integration-contracts.md`
+- Record current unfinished state in `session-handover.md`
+'@
+
+if (-not (Test-Path ".agent/memory/runbook.md") -or (Get-Item ".agent/memory/runbook.md").Length -eq 0) {
+    Set-Content -Path ".agent/memory/runbook.md" -Value $RunbookContent -Encoding utf8
+}
+
+$SafetyContent = @'
+# Safety Rules
+Core principle: Do not perform destructive, irreversible, or high-risk actions without explicit user intent.
+
+1. **No Blind Deletion:** Do not delete files or directories without verifying their content and importance.
+2. **No Silent Rewrites:** Do not rewrite large parts of the repository silently or without a plan.
+3. **Git Integrity:** Do not force-push or rewrite git history unless explicitly requested.
+4. **Safety wrapper:** Always use `rtk` for heavy terminal operations to manage token usage and risk.
+'@
 if (-not (Test-Path ".agent/rules/safety-rules.md") -or (Get-Item ".agent/rules/safety-rules.md").Length -eq 0) {
     Set-Content -Path ".agent/rules/safety-rules.md" -Value $SafetyContent -Encoding utf8
 }
 
-$TestingContent = "# Testing Rules`r`nCore principle: Do not claim completion without verification.`r`n- Run tests when tests exist.`r`n- Use the Bug Fix Sequence: Reproduce -> Identify -> Fix -> Verify -> Record.`r`n- Prefer concise test output via rtk."
+$TestingContent = @'
+# Testing Rules
+Core principle: Do not claim completion without verification.
+
+1. **Verify Always:** Run tests whenever they exist.
+2. **Bug Fix Sequence:** Use Reproduce -> Identify -> Fix -> Verify -> Record.
+3. **Red-Green-Refactor:** Ensure tests fail before they pass for new features.
+4. **Tooling:** Prefer concise test output via `rtk` to avoid context flooding.
+'@
 if (-not (Test-Path ".agent/rules/testing-rules.md") -or (Get-Item ".agent/rules/testing-rules.md").Length -eq 0) {
     Set-Content -Path ".agent/rules/testing-rules.md" -Value $TestingContent -Encoding utf8
 }
 
-$StackContent = "# Stack Rules`r`n- Follow the project's established coding standards.`r`n- Prefer idiomatic solutions for the detected language/framework.`r`n- Document third-party library additions in .agent/memory/integration-contracts.md."
+$StackContent = @'
+# Stack Rules
+- Follow the project's established coding standards (check `.editorconfig`, `.eslintrc`, etc.).
+- Prefer idiomatic solutions for the detected language/framework.
+- Document third-party library additions in `.agent/memory/integration-contracts.md`.
+- Keep dependencies updated and minimize security vulnerabilities.
+'@
 if (-not (Test-Path ".agent/rules/stack-rules.md") -or (Get-Item ".agent/rules/stack-rules.md").Length -eq 0) {
     Set-Content -Path ".agent/rules/stack-rules.md" -Value $StackContent -Encoding utf8
 }
 
-$AntigravityContent = "# Antigravity Environment Specifics`r`nUse native slash commands in .agent/workflows/ (/start, /plan, /sync, /handover).`r`nMaintain native artifacts: implementation_plan.md, task.md, walkthrough.md."
+$AntigravityContent = @'
+# Antigravity Environment Specifics
+Use native slash commands in `.agent/workflows/` (`/start`, `/plan`, `/sync`, `/handover`).
+Maintain native artifacts: `implementation_plan.md`, `task.md`, `walkthrough.md`.
+'@
 if (-not (Test-Path ".agent/rules/antigravity.md") -or (Get-Item ".agent/rules/antigravity.md").Length -eq 0) {
     Set-Content -Path ".agent/rules/antigravity.md" -Value $AntigravityContent -Encoding utf8
 }
@@ -55,7 +128,7 @@ $ClaudeContent = @'
 
 This project uses the **AI Toolbox** workflow. Adhere to these **Critical 3 Session Rules**:
 
-1. **BOOT:** Detect `.agent/`? Read `AGENT.md` section 2 (Boot Sequence) and run `.agent/scripts/sync-task.sh` before starting any task.
+1. **BOOT:** Detect `.agent/`? Read `AGENT.md` section 2 (Boot Sequence) and run the sync-task script (`.sh` on Unix, `.ps1` on Windows) before starting any task.
 2. **SAFETY:** All heavy terminal commands (python, cargo, go) MUST be run via `rtk`.
 3. **HANDOVER:** Maintain project history in `.agent/memory/session-handover.md` at the end of every task or session.
 
@@ -65,7 +138,7 @@ Refer to [AGENT.md](AGENT.md) for the full operational contract.
 $CursorContent = @'
 # AI Toolbox Protocol (Cursor)
 
-1. **BOOT:** Run `.agent/scripts/sync-task.sh` and read `.agent/memory/current-task.md` before starting.
+1. **BOOT:** Run the sync-task script (`.sh` on Unix, `.ps1` on Windows) and read `.agent/memory/current-task.md` before starting.
 2. **SAFETY:** Use `rtk` for all heavy executions (tests, builds).
 3. **HANDOVER:** Update `.agent/memory/session-handover.md` before finishing.
 
@@ -101,7 +174,7 @@ This document provides essential context for AI models interacting with this pro
 * **Rules:** [.agent/rules/](.agent/rules/)
 
 ## 6. Development & Testing Workflow
-* **Booting:** Start every session by reading AGENT.md and running `.agent/scripts/sync-task.sh`.
+* **Booting:** Start every session by reading AGENT.md and running the sync-task script (`.sh` on Unix, `.ps1` on Windows).
 * **Testing:** All heavy commands MUST be run through `rtk`.
 
 ## 7. Specific Instructions for AI Collaboration

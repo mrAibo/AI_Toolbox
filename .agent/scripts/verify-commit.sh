@@ -6,10 +6,10 @@ REPO_ROOT="$(git rev-parse --show-toplevel)"
 ADR_FILE="$REPO_ROOT/.agent/memory/architecture-decisions.md"
 
 if [ -f "$ADR_FILE" ]; then
-    # Check if file is empty OR only contains the default header
-    if [ ! -s "$ADR_FILE" ] || (grep -q "^# Architecture Decision Records" "$ADR_FILE" && [ $(wc -l < "$ADR_FILE") -le 2 ]); then
-        echo "🚨 AI Toolbox Block: architecture-decisions.md is empty or only contains a header!"
-        echo "Please document your architectural decisions before committing to ensure project durability."
+    # Check if file contains at least one ADR entry
+    if [ ! -s "$ADR_FILE" ] || ! grep -q "^### ADR-" "$ADR_FILE"; then
+        echo "🚨 AI Toolbox Block: no architecture decisions found in $ADR_FILE!"
+        echo "Please document your architectural decisions (use the '### ADR-XXXX' format) before committing to ensure project durability."
         exit 1
     fi
 fi
