@@ -107,6 +107,26 @@ exit 0
 }
 
 
+# Update .gitignore if needed
+$GitignoreFile = ".gitignore"
+if (-not (Test-Path $GitignoreFile)) {
+    New-Item -ItemType File -Path $GitignoreFile | Out-Null
+}
+
+$RequiredIgnores = @(
+    ".beads/",
+    ".agent/memory/session-handover.md",
+    ".agent/memory/current-task.md"
+)
+
+$ExistingIgnores = Get-Content $GitignoreFile -ErrorAction SilentlyContinue
+foreach ($Ignore in $RequiredIgnores) {
+    if ($ExistingIgnores -notcontains $Ignore) {
+        Add-Content -Path $GitignoreFile -Value "`n$Ignore"
+        Write-Host "[bootstrap] Added $Ignore to .gitignore"
+    }
+}
+
 Write-Host "[bootstrap] checking for recommended developer tools..."
 $RecommendedTools = @("rtk", "bd", "bat", "rg")
 foreach ($Tool in $RecommendedTools) {

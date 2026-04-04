@@ -89,6 +89,25 @@ EOF
 fi
 
 
+# Update .gitignore if needed
+GITIGNORE=".gitignore"
+if [ ! -f "$GITIGNORE" ]; then
+    touch "$GITIGNORE"
+fi
+
+REQUIRED_IGNORES=(
+    ".beads/"
+    ".agent/memory/session-handover.md"
+    ".agent/memory/current-task.md"
+)
+
+for ignore in "${REQUIRED_IGNORES[@]}"; do
+    if ! grep -qxF "$ignore" "$GITIGNORE"; then
+        echo -e "\n$ignore" >> "$GITIGNORE"
+        echo "[bootstrap] Added $ignore to .gitignore"
+    fi
+done
+
 chmod +x .agent/scripts/*.sh
 echo "[bootstrap] checking for recommended developer tools..."
 RECOMMENDED_TOOLS=("rtk" "bd" "bat" "rg")

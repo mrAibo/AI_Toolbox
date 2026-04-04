@@ -1,7 +1,17 @@
 # Ignore local AI state and temp files
 .beads/
 .agent/memory/session-handover.md
+.agent/memory/current-task.md
+
+# Common build and dependency artifacts
+node_modules/
+.venv/
+target/
+dist/
+build/
 docs/build/
+
+# Config and logs
 .env
 __pycache__/
 *.log
