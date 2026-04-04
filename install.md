@@ -68,7 +68,7 @@ claude mcp add sequential-thinking npx -y @modelcontextprotocol/server-sequentia
 
 **4. ⚡ Auto-Configure Terminal Hooks (CRITICAL)**
 If your agent framework (Claude Code, OpenCode, Gemini CLI) supports execution hooks or start parameters, you MUST configure them automatically right now:
-- Set `pre-command` hook to: `.agent/scripts/hook-pre-command.sh` (or `.ps1` on Windows).
+- Set `pre-command` hook to: `.agent/scripts/hook-pre-command.sh "$COMMAND"` (or `.ps1 "$COMMAND"` on Windows).
 - Set `post-command` / `stop` hook to: `.agent/scripts/hook-stop.sh` (or `.ps1`).
 - *If you configure this via a local JSON/TOML settings file (like `.claude.json` or `.opencode.yml`), create/update it now in the project root.*
 

@@ -1,3 +1,9 @@
+# AI Toolbox Pre-command hook
+# Usage: powershell -File .agent/scripts/hook-pre-command.ps1 "command to run"
+# 
+# This hook should be called by the AI Agent BEFORE executing a command.
+# It checks if the command is "heavy" and recommends the 'rtk' wrapper.
+
 param(
   [string]$Command
 )
