@@ -26,8 +26,10 @@ The repository enforces a strict separation between human instructions, AI workf
 AI_Toolbox/
 ├── README.md               # Human-facing overview (You are here)
 ├── AGENT.md                # The AI's primary execution contract
-├── SKILL.md                # Antigravity Skill manifest
+├── SKILL.md                # Antigravity Skill manifest (Antigravity-only)
 ├── GEMINI.md               # Antigravity context guide
+├── CLAUDE.md               # Claude Code router file
+├── .cursorrules            # Cursor router file
 ├── .gitignore              # Ignores local output and temporary files
 │
 ├── .agent/                 # The AI's "Brain"
@@ -38,24 +40,30 @@ AI_Toolbox/
 │   │   └── session-handover.md        # Unfinished work for the next session
 │   │
 │   ├── rules/              # Hard execution constraints
+│   │   ├── safety-rules.md            # Prevention of destructive commands
+│   │   ├── testing-rules.md           # Verification requirements (Bug Fix Seq)
 │   │   ├── stack-rules.md             # Allowed languages & dependencies
-│   │   ├── testing-rules.md           # Verification requirements
-│   │   └── safety-rules.md            # Prevention of destructive commands
+│   │   └── antigravity.md             # Antigravity-specific extensions
 │   │
 │   ├── scripts/            # Automation & Hooks
 │   │   ├── bootstrap.sh / .ps1        # Initial repo setup
-│   │   ├── hook-pre-command.sh / .ps1 # Terminal safety guard
-│   │   └── hook-stop.sh / .ps1        # Memory consolidation guard
+│   │   ├── hook-pre-command.sh / .ps1 # Terminal safety guard (rtk check)
+│   │   ├── hook-stop.sh / .ps1        # Memory consolidation guard
+│   │   ├── verify-commit.sh / .ps1    # Git pre-commit logic
+│   │   └── sync-task.sh / .ps1        # Task tracker synchronization
 │   │
-│   └── templates/          # Standardized formats
-│       ├── adr-template.md            # Architecture Decision Record
-│       ├── antigravity-plan.md        # Antigravity native plan
-│       ├── issue-template.md          # Internal bug/issue report
-│       └── task-template.md           # Task definition
-│
-└── workflows/          # Antigravity Slash Commands
-    ├── start.md / sync.md         # Routine automation
-    └── handover.md                # Session wrap-up
+│   ├── templates/          # Standardized formats
+│   │   ├── adr-template.md            # Architecture Decision Record
+│   │   ├── antigravity-plan.md        # Antigravity native plan
+│   │   ├── issue-template.md          # Internal bug/issue report
+│   │   ├── task-template.md           # Task definition
+│   │   └── clients/                   # Client-specific configs (.claude.json)
+│   │
+│   └── workflows/          # Antigravity Slash Commands
+│       ├── start.md / sync.md         # Routine automation
+│       ├── handover.md                # Session wrap-up
+│       ├── plan.md                    # Planning mode
+│       └── adr.md                     # ADR creation
 │
 ├── docs/                   # Detailed human guides (Setup, MCP, FAQ)
 ├── examples/               # Sample workflows
