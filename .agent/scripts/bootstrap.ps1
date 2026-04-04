@@ -71,7 +71,18 @@ if (-not (Test-Path ".agent/memory/runbook.md") -or (Get-Item ".agent/memory/run
 }
 
 if (-not (Test-Path ".agent/memory/integration-contracts.md") -or (Get-Item ".agent/memory/integration-contracts.md").Length -eq 0) {
-    Set-Content -Path ".agent/memory/integration-contracts.md" -Value "# Integration Contracts" -Encoding utf8
+    $ICContent = @'
+# Integration Contracts
+
+This file documents the contracts between different components, services, or third-party integrations (e.g. APIs, database schemas, library versions).
+
+## Active Contracts
+- [None yet]
+
+## Potential Conflicts
+- [None yet]
+'@
+    Set-Content -Path ".agent/memory/integration-contracts.md" -Value $ICContent -Encoding utf8
 }
 
 if (-not (Test-Path ".agent/memory/session-handover.md") -or (Get-Item ".agent/memory/session-handover.md").Length -eq 0) {

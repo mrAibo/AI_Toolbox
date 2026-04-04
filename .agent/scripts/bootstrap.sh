@@ -22,7 +22,17 @@ EOF
 fi
 
 if [ ! -s .agent/memory/integration-contracts.md ]; then
-echo "# Integration Contracts" > .agent/memory/integration-contracts.md
+cat << 'EOF' > .agent/memory/integration-contracts.md
+# Integration Contracts
+
+This file documents the contracts between different components, services, or third-party integrations (e.g. APIs, database schemas, library versions).
+
+## Active Contracts
+- [None yet]
+
+## Potential Conflicts
+- [None yet]
+EOF
 fi
 
 if [ ! -s .agent/memory/session-handover.md ]; then
