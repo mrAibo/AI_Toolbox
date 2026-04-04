@@ -2,12 +2,14 @@ $ErrorActionPreference = "Stop"
 
 Write-Host "[stop] consolidating session memory..."
 
-if (Test-Path ".agent/memory/session-handover.md") {
+$RepoRoot = "$(git rev-parse --show-toplevel)"
+
+if (Test-Path "$RepoRoot/.agent/memory/session-handover.md") {
   Write-Host "[stop] session handover file exists"
 }
 
-if (Test-Path ".agent/scripts/sync-task.ps1") {
-  & .\.agent\scripts\sync-task.ps1
+if (Test-Path "$RepoRoot/.agent/scripts/sync-task.ps1") {
+  & "$RepoRoot/.agent/scripts/sync-task.ps1"
 }
 
 Write-Host "[stop] remember to update:"

@@ -1,4 +1,4 @@
-# AI Toolbox Protocol (Cursor)
+# AI Toolbox Protocol (Windsurf)
 
 1. **BOOT:** Run the sync-task script (`.sh` on Unix, `.ps1` on Windows) and read `.agent/memory/current-task.md` before starting.
 2. **SAFETY:** Use `rtk` for all heavy executions (tests, builds).
