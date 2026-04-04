@@ -87,8 +87,8 @@ Each AI client has its own way of handling hooks. If your client supports them, 
 
 If you are an agent without direct `mcp add` commands, inform the user they need to manually configure these servers in their respective MCP config files.
 
-## Step 5: Update `.gitignore`
-Append the following definitions to the project's existing `.gitignore`. If it does not exist, create it:
+## Step 5: Verify `.gitignore` (Optional)
+The bootstrap script from Step 2 already handles updating the `.gitignore`. You can verify that the following definitions exist in the project's `.gitignore`:
 
 ```text
 # AI Toolbox specific

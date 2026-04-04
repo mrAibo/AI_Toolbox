@@ -1,4 +1,5 @@
 {
+  "NOTE": "EXPERIMENTAL: Claude Code hook API is evolving. This is a conceptual template.",
   "hooks": {
     "pre-command": ".agent/scripts/hook-pre-command.sh \"$COMMAND\"",
     "post-command": ".agent/scripts/hook-stop.sh",

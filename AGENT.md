@@ -170,8 +170,6 @@ The next session should be able to continue with minimal explanation.
 
 ---
 
----
-
 ## 11. Client-Specific Extensions
 
 Some AI assistant environments provide additional capabilities or specific rules. If an extension exists for your environment in the `[.agent/rules/](.agent/rules/)` directory, please follow it:

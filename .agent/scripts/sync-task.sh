@@ -9,10 +9,20 @@ if command -v bd &> /dev/null; then
 else
     # Fallback: Preserve existing manual entries or initialize if missing/empty
     if [ ! -f .agent/memory/current-task.md ] || [ ! -s .agent/memory/current-task.md ]; then
-        echo "# Tasks (Manual)" > .agent/memory/current-task.md
-        echo "" >> .agent/memory/current-task.md
-        echo "- [ ] Define your first task here..." >> .agent/memory/current-task.md
-        echo "[sync-task] Initialized manual task file in .agent/memory/current-task.md"
+        cat << 'EOF' > .agent/memory/current-task.md
+# Task: Short title
+
+- Status: ready
+- Priority: medium
+- Owner: AI agent
+- Related files:
+- Goal:
+- Steps:
+    - [ ] Step 1
+- Verification:
+- Notes:
+EOF
+        echo "[sync-task] Initialized structured task in .agent/memory/current-task.md"
     else
         echo "[sync-task] Beads (bd) not installed. Keeping existing manual task entries."
     fi
