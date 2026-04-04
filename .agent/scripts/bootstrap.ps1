@@ -131,14 +131,17 @@ if (Test-Path ".git") {
     $BashHook = @'
 #!/bin/bash
 # AI Toolbox Pre-commit wrapper (BASH)
-powershell.exe -ExecutionPolicy Bypass -File .agent/scripts/verify-commit.ps1
+REPO_ROOT="$(git rev-parse --show-toplevel)"
+powershell.exe -ExecutionPolicy Bypass -File "$REPO_ROOT/.agent/scripts/verify-commit.ps1"
 '@
     Set-Content -Path ".git/hooks/pre-commit" -Value $BashHook -Encoding utf8
 
     # 2. Batch wrapper (for native Windows CMD/Git)
     $BatchHook = @'
 @echo off
-powershell.exe -ExecutionPolicy Bypass -File .agent/scripts/verify-commit.ps1
+REM AI Toolbox Pre-commit wrapper (BATCH)
+for /f "tokens=*" %%i in ('git rev-parse --show-toplevel') do set REPO_ROOT=%%i
+powershell.exe -ExecutionPolicy Bypass -File "%REPO_ROOT%\.agent\scripts\verify-commit.ps1"
 '@
     Set-Content -Path ".git/hooks/pre-commit.bat" -Value $BatchHook -Encoding utf8
 }

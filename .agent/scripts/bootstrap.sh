@@ -126,10 +126,9 @@ if [ -d ".git" ]; then
     cat << 'EOF' > .git/hooks/pre-commit
 #!/bin/bash
 # AI Toolbox Pre-commit wrapper
-# Calls the cross-platform verification logic.
-
-if [ -f ".agent/scripts/verify-commit.sh" ]; then
-    bash .agent/scripts/verify-commit.sh
+REPO_ROOT="$(git rev-parse --show-toplevel)"
+if [ -f "$REPO_ROOT/.agent/scripts/verify-commit.sh" ]; then
+    bash "$REPO_ROOT/.agent/scripts/verify-commit.sh"
 fi
 EOF
     chmod +x .git/hooks/pre-commit
