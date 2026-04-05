@@ -463,6 +463,112 @@ if (-not (Test-Path ".agent/rules/qwen-code.md") -or (Get-Item ".agent/rules/qwe
     Set-Content -Path ".agent/rules/qwen-code.md" -Value $QwenCodeContent -Encoding utf8
 }
 
+# TDD Rules
+$TddContent = @'
+# TDD Rules
+
+**When TDD is mandatory:** For all code changes.
+**Cycle:** RED → GREEN → REFACTOR. Never write production code without a failing test.
+- Write the smallest failing test first
+- Make it pass with the simplest possible code
+- Refactor only when tests are green
+- Run tests via `rtk test` after every change
+
+See also: [testing-rules.md](testing-rules.md)
+'@
+if (-not (Test-Path ".agent/rules/tdd-rules.md") -or (Get-Item ".agent/rules/tdd-rules.md").Length -eq 0) {
+    Set-Content -Path ".agent/rules/tdd-rules.md" -Value $TddContent -Encoding utf8
+}
+
+# MCP Server Rules
+$McpContent = @'
+# MCP Server Rules
+
+**Before connecting:** Verify server identity and auth requirements.
+**During sessions:** Log all tool calls, handle errors gracefully.
+**After sessions:** Document which servers were used and what was accomplished.
+- Never expose secrets in tool output
+- Validate tool responses before passing to the model
+- Use MCP only when local skills are insufficient
+
+See also: [integration-contracts.md](../memory/integration-contracts.md)
+'@
+if (-not (Test-Path ".agent/rules/mcp-rules.md") -or (Get-Item ".agent/rules/mcp-rules.md").Length -eq 0) {
+    Set-Content -Path ".agent/rules/mcp-rules.md" -Value $McpContent -Encoding utf8
+}
+
+# Status Reporting Rules
+$StatusContent = @'
+# Status Reporting Rules
+
+**Report at these moments:**
+1. Step transitions (unified workflow steps)
+2. Skill activation (which rule/workflow was triggered)
+3. Tool usage (rtk, beads, MCP calls)
+4. Multi-agent spawn/complete
+5. Errors/blockers
+
+**Status file format:** Update `.agent/memory/active-session.md` with current step, active skills/tools, multi-agent status.
+**Session end:** Write summary to `.agent/memory/session-handover.md`.
+'@
+if (-not (Test-Path ".agent/rules/status-reporting.md") -or (Get-Item ".agent/rules/status-reporting.md").Length -eq 0) {
+    Set-Content -Path ".agent/rules/status-reporting.md" -Value $StatusContent -Encoding utf8
+}
+
+# Template Usage Rules
+$TemplateContent = @'
+# Template Usage Rules
+
+**When to use templates:**
+- Existing skills don't cover the need
+- Specialized technology or pattern
+- User explicitly asks for template guidance
+
+**Process:**
+1. Gap analysis — what's missing?
+2. Search available templates (`.agent/templates/`)
+3. Select most appropriate template
+4. Adapt to project context
+5. Document any deviations
+6. Execute with the template as guide
+
+See also: [architecture-decisions.md](../memory/architecture-decisions.md)
+'@
+if (-not (Test-Path ".agent/rules/template-usage.md") -or (Get-Item ".agent/rules/template-usage.md").Length -eq 0) {
+    Set-Content -Path ".agent/rules/template-usage.md" -Value $TemplateContent -Encoding utf8
+}
+
+# Tool Integration Guide
+$ToolIntContent = @'
+# Tool Integration Guide
+
+## rtk (Runtime Toolkit)
+- Wraps heavy commands: `rtk test`, `rtk build`, `rtk lint`
+- Tracks token usage across sessions
+- Hook integration via `rtk init -g`
+
+## Beads (Task Tracker)
+- `bd create`, `bd ready`, `bd list`, `bd close`
+- Task state exported to `.agent/memory/current-task.md`
+
+## MCP Servers
+- context7 (documentation lookup)
+- sequential-thinking (complex reasoning)
+
+## Superpowers → AI Toolbox Mapping
+| Superpower Skill | AI Toolbox Equivalent |
+|---|---|
+| TDD Workflow | `.agent/rules/tdd-rules.md` |
+| Code Review | `.agent/workflows/code-review.md` |
+| Multi-Agent | `.agent/workflows/multi-agent.md` |
+| Templates | `.agent/rules/template-usage.md` |
+
+See also: [template-usage.md](template-usage.md), [unified-workflow.md](../workflows/unified-workflow.md), [mcp-guide.md](../../docs/mcp-guide.md)
+'@
+if (-not (Test-Path ".agent/rules/tool-integrations.md") -or (Get-Item ".agent/rules/tool-integrations.md").Length -eq 0) {
+    Set-Content -Path ".agent/rules/tool-integrations.md" -Value $ToolIntContent -Encoding utf8
+}
+
 Write-Host "[bootstrap] creating AI auto-discovery router files..."
 
 $ClaudeContent = @'
@@ -577,12 +683,8 @@ if (-not (Test-Path ".windsurfrules") -or (Get-Item ".windsurfrules").Length -eq
     Set-Content -Path ".windsurfrules" -Value $WindsurfContent -Encoding utf8
 }
 
-# Qwen Code router (Full Tier) — guard: preserve manual edits
-$ClientDir = ".agent/templates/clients"
-if ((Test-Path "$ClientDir/QWEN.md") -and (-not (Test-Path "QWEN.md") -or (Get-Item "QWEN.md").Length -eq 0)) {
-    Copy-Item -Path "$ClientDir/QWEN.md" -Destination "QWEN.md" -Force
-    Write-Host "[bootstrap] Installed QWEN.md (Full Tier)"
-} elseif (-not (Test-Path "QWEN.md") -or (Get-Item "QWEN.md").Length -eq 0) {
+# Qwen Code router (Full Tier) — guard: preserve manual edits (inline only, no template dependency)
+if (-not (Test-Path "QWEN.md") -or (Get-Item "QWEN.md").Length -eq 0) {
     $QwenFull = @'
 # AI Toolbox Protocol (Qwen Code) -- Tier: Full
 
@@ -615,11 +717,8 @@ Refer to [AGENT.md](AGENT.md) for the full operational contract.
     Set-Content -Path "QWEN.md" -Value $QwenFull -Encoding utf8
 }
 
-# Aider router + config (Basic Tier) — guard: preserve manual edits
-if ((Test-Path "$ClientDir/CONVENTIONS.md") -and (-not (Test-Path "CONVENTIONS.md") -or (Get-Item "CONVENTIONS.md").Length -eq 0)) {
-    Copy-Item -Path "$ClientDir/CONVENTIONS.md" -Destination "CONVENTIONS.md" -Force
-    Write-Host "[bootstrap] Installed CONVENTIONS.md (Basic Tier)"
-} elseif (-not (Test-Path "CONVENTIONS.md") -or (Get-Item "CONVENTIONS.md").Length -eq 0) {
+# Aider router (Basic Tier) — inline only, no template dependency
+if (-not (Test-Path "CONVENTIONS.md") -or (Get-Item "CONVENTIONS.md").Length -eq 0) {
     $AiderFull = @'
 # AI Toolbox Protocol (Aider) -- Tier: Basic
 
@@ -658,15 +757,36 @@ Refer to [AGENT.md](AGENT.md) for the full operational contract.
 '@
     Set-Content -Path "CONVENTIONS.md" -Value $AiderFull -Encoding utf8
 }
-if ((Test-Path "$ClientDir/.aider.conf.yml") -and (-not (Test-Path ".aider.conf.yml") -or (Get-Item ".aider.conf.yml").Length -eq 0)) {
-    Copy-Item -Path "$ClientDir/.aider.conf.yml" -Destination ".aider.conf.yml" -Force
-    Write-Host "[bootstrap] Installed .aider.conf.yml"
+# Aider config file — inline fallback
+if (-not (Test-Path ".aider.conf.yml") -or (Get-Item ".aider.conf.yml").Length -eq 0) {
+    $AiderConf = @'
+# Aider configuration -- AI Toolbox project
+model: null
+read:
+  - AGENT.md
+  - .agent/rules/safety-rules.md
+  - .agent/rules/testing-rules.md
+  - .agent/rules/stack-rules.md
+auto-commits: true
+'@
+    Set-Content -Path ".aider.conf.yml" -Value $AiderConf -Encoding utf8
 }
 
-# Client-specific templates (guard: preserve manual edits)
-if ((Test-Path "$ClientDir/.claude.json") -and (-not (Test-Path ".claude.json") -or (Get-Item ".claude.json").Length -eq 0)) {
-    Copy-Item -Path "$ClientDir/.claude.json" -Destination ".claude.json" -Force
-    Write-Host "[bootstrap] Installed .claude.json hooks"
+# Claude hooks config — inline fallback
+if (-not (Test-Path ".claude.json") -or (Get-Item ".claude.json").Length -eq 0) {
+    $ClaudeHooks = @'
+{
+  "hooks": {
+    "pre-command": [
+      "powershell -ExecutionPolicy Bypass -File .agent/scripts/hook-pre-command.ps1 \"$COMMAND\""
+    ],
+    "post-command": [
+      "powershell -ExecutionPolicy Bypass -File .agent/scripts/hook-stop.ps1"
+    ]
+  }
+}
+'@
+    Set-Content -Path ".claude.json" -Value $ClaudeHooks -Encoding utf8
 }
 
 if (Test-Path ".git") {
@@ -710,7 +830,8 @@ if (-not (Test-Path $GitignoreFile)) {
 $RequiredIgnores = @(
     ".beads/",
     ".agent/memory/session-handover.md",
-    ".agent/memory/current-task.md"
+    ".agent/memory/current-task.md",
+    ".agent/memory/.tool-stats.json"
 )
 
 $ExistingIgnores = Get-Content $GitignoreFile -ErrorAction SilentlyContinue

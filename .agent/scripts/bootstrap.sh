@@ -442,6 +442,102 @@ Qwen Code is a **Full-Tier** client with access to hooks, multi-agent orchestrat
 EOF
 fi
 
+if [ ! -s .agent/rules/tdd-rules.md ]; then
+cat << 'EOF' > .agent/rules/tdd-rules.md
+# TDD Rules
+
+**When TDD is mandatory:** For all code changes.
+**Cycle:** RED → GREEN → REFACTOR. Never write production code without a failing test.
+- Write the smallest failing test first
+- Make it pass with the simplest possible code
+- Refactor only when tests are green
+- Run tests via `rtk test` after every change
+
+See also: [testing-rules.md](testing-rules.md)
+EOF
+fi
+
+if [ ! -s .agent/rules/mcp-rules.md ]; then
+cat << 'EOF' > .agent/rules/mcp-rules.md
+# MCP Server Rules
+
+**Before connecting:** Verify server identity and auth requirements.
+**During sessions:** Log all tool calls, handle errors gracefully.
+**After sessions:** Document which servers were used and what was accomplished.
+- Never expose secrets in tool output
+- Validate tool responses before passing to the model
+- Use MCP only when local skills are insufficient
+
+See also: [integration-contracts.md](../memory/integration-contracts.md)
+EOF
+fi
+
+if [ ! -s .agent/rules/status-reporting.md ]; then
+cat << 'EOF' > .agent/rules/status-reporting.md
+# Status Reporting Rules
+
+**Report at these moments:**
+1. Step transitions (unified workflow steps)
+2. Skill activation (which rule/workflow was triggered)
+3. Tool usage (rtk, beads, MCP calls)
+4. Multi-agent spawn/complete
+5. Errors/blockers
+
+**Status file format:** Update `.agent/memory/active-session.md` with current step, active skills/tools, multi-agent status.
+**Session end:** Write summary to `.agent/memory/session-handover.md`.
+EOF
+fi
+
+if [ ! -s .agent/rules/template-usage.md ]; then
+cat << 'EOF' > .agent/rules/template-usage.md
+# Template Usage Rules
+
+**When to use templates:**
+- Existing skills don't cover the need
+- Specialized technology or pattern
+- User explicitly asks for template guidance
+
+**Process:**
+1. Gap analysis — what's missing?
+2. Search available templates (`.agent/templates/`)
+3. Select most appropriate template
+4. Adapt to project context
+5. Document any deviations
+6. Execute with the template as guide
+
+See also: [architecture-decisions.md](../memory/architecture-decisions.md)
+EOF
+fi
+
+if [ ! -s .agent/rules/tool-integrations.md ]; then
+cat << 'EOF' > .agent/rules/tool-integrations.md
+# Tool Integration Guide
+
+## rtk (Runtime Toolkit)
+- Wraps heavy commands: `rtk test`, `rtk build`, `rtk lint`
+- Tracks token usage across sessions
+- Hook integration via `rtk init -g`
+
+## Beads (Task Tracker)
+- `bd create`, `bd ready`, `bd list`, `bd close`
+- Task state exported to `.agent/memory/current-task.md`
+
+## MCP Servers
+- context7 (documentation lookup)
+- sequential-thinking (complex reasoning)
+
+## Superpowers → AI Toolbox Mapping
+| Superpower Skill | AI Toolbox Equivalent |
+|---|---|
+| TDD Workflow | `.agent/rules/tdd-rules.md` |
+| Code Review | `.agent/workflows/code-review.md` |
+| Multi-Agent | `.agent/workflows/multi-agent.md` |
+| Templates | `.agent/rules/template-usage.md` |
+
+See also: [template-usage.md](template-usage.md), [unified-workflow.md](../workflows/unified-workflow.md), [mcp-guide.md](../../docs/mcp-guide.md)
+EOF
+fi
+
 echo "[bootstrap] creating AI auto-discovery router files..."
 # CLAUDE.md is a committed file — only create/update if missing or empty
 if [ ! -s CLAUDE.md ]; then

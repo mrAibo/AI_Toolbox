@@ -99,16 +99,16 @@ bd ready  # What's next?
 
 ## Tool Coordination Matrix
 
-| Step | Primary Tool | Auto-Trigger | Manual Override |
+| Step | Primary Tool | Hint Source | Manual Override |
 |------|-------------|-------------|-----------------|
-| 1. TASK | Beads | `sync-task.sh/.ps1` | `bd create` |
+| 1. TASK | Beads | `sync-task.sh/.ps1` exports task state | `bd create` |
 | 2. BRAINSTORM | Superpowers / AGENT.md | AGENT.md §7 | `prompts/01-planning.md` |
 | 3. PLAN | Superpowers / AGENT.md | AGENT.md §3 | — |
 | 4. ISOLATE | Git worktrees | Optional | `git worktree add` |
-| 5. IMPLEMENT | TDD + rtk | `hook-pre-command.sh/.ps1` | `rtk test` |
-| 6. REVIEW | AI Toolbox Rules | `code-review.md` | — |
-| 7. VERIFY | rtk + Superpowers | `.agent/rules/testing-rules.md` | `rtk test` |
-| 8. FINISH | Beads + Memory | `hook-stop.sh/.ps1` | `branch-finish.md` |
+| 5. IMPLEMENT | TDD + rtk | `hook-pre-command.sh/.ps1` enforces rtk prefix | `rtk test` |
+| 6. REVIEW | AI Toolbox Rules | See `code-review.md` | — |
+| 7. VERIFY | rtk + Superpowers | See `.agent/rules/testing-rules.md` | `rtk test` |
+| 8. FINISH | Beads + Memory | `hook-stop.sh/.ps1` consolidates session | `branch-finish.md` |
 | 9. CLOSE | Beads | — | `bd close` |
 
 ---

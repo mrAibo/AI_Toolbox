@@ -210,11 +210,11 @@ When existing skills (TDD, Planning, Debugging) are insufficient, use the 413+ s
 
 ---
 
-## 11.2. Automatic Skill Activation
+## 11.2. Context-Driven Skill Selection
 
-**MANDATORY:** Skills and workflows activate automatically based on context. Once triggered, the agent **MUST** follow the defined workflow without deviation. No manual selection is needed.
+**SHOULD:** When the agent recognizes one of the trigger patterns below, it **SHOULD** follow the referenced workflow. The `sync-task` script provides additional keyword-based hints at session start and end. The agent reads these signals and self-activates the appropriate skill.
 
-| Trigger | Auto-Activated Skill | What Happens |
+| Trigger | Suggested Skill | What Happens |
 |---------|----------------------|-------------|
 | Test command detected (`rtk test`, `pytest`, etc.) | **[TDD Rules](.agent/rules/tdd-rules.md)** | **Enforce** RED-GREEN-REFACTOR cycle |
 | Task title contains "fix", "bug", "issue" | **[Bug-Fix Workflow](.agent/workflows/bug-fix.md)** | **Run** 5 phases: Repro → Identify → Fix → Verify → Record |
