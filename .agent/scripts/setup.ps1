@@ -52,26 +52,39 @@ if (Get-Command aider -ErrorAction SilentlyContinue) {
   Write-Host "  ✅ Aider ($ver)" -ForegroundColor Green
 }
 
-# GUI-based clients (no CLI binary — detect via common install paths)
-if ((Get-Command cursor -ErrorAction SilentlyContinue) -or
+# GUI-based clients (detect via install paths — unreliable, user can override)
+
+# Cursor: common install locations
+$CursorFound = (Get-Command cursor -ErrorAction SilentlyContinue) -or
     (Test-Path "$env:LOCALAPPDATA\Programs\cursor") -or
-    (Test-Path "$env:USERPROFILE\.cursor")) {
+    (Test-Path "$env:LOCALAPPDATA\Programs\Cursor") -or
+    (Test-Path "$env:USERPROFILE\.cursor") -or
+    (Test-Path "$env:USERPROFILE\AppData\Local\Programs\Cursor")
+if ($CursorFound) {
   $Clients += "cursor"
   $ClientNames += "Cursor (GUI)"
   Write-Host "  ✅ Cursor (GUI)" -ForegroundColor Green
 }
 
-if ((Get-Command cline -ErrorAction SilentlyContinue) -or
+# Cline/RooCode: VS Code extension — check extension storage + data dirs
+$ClineFound = (Get-Command cline -ErrorAction SilentlyContinue) -or
     (Test-Path "$env:USERPROFILE\.cline") -or
-    (Test-Path "$env:USERPROFILE\.roocode")) {
+    (Test-Path "$env:USERPROFILE\.roocode") -or
+    ((Test-Path "$env:USERPROFILE\.vscode\extensions") -and (Get-ChildItem "$env:USERPROFILE\.vscode\extensions" -Filter "*cline*" -ErrorAction SilentlyContinue).Count -gt 0) -or
+    ((Test-Path "$env:USERPROFILE\.vscode\extensions") -and (Get-ChildItem "$env:USERPROFILE\.vscode\extensions" -Filter "*roo*" -ErrorAction SilentlyContinue).Count -gt 0)
+if ($ClineFound) {
   $Clients += "cline"
   $ClientNames += "Cline / RooCode (VS Code extension)"
   Write-Host "  ✅ Cline / RooCode (VS Code extension)" -ForegroundColor Green
 }
 
-if ((Get-Command windsurf -ErrorAction SilentlyContinue) -or
+# Windsurf: IDE — check common install locations
+$WindsurfFound = (Get-Command windsurf -ErrorAction SilentlyContinue) -or
     (Test-Path "$env:LOCALAPPDATA\Programs\windsurf") -or
-    (Test-Path "$env:USERPROFILE\.windsurf")) {
+    (Test-Path "$env:LOCALAPPDATA\Programs\Windsurf") -or
+    (Test-Path "$env:USERPROFILE\.windsurf") -or
+    (Test-Path "$env:ProgramFiles\Windsurf")
+if ($WindsurfFound) {
   $Clients += "windsurf"
   $ClientNames += "Windsurf (GUI)"
   Write-Host "  ✅ Windsurf (GUI)" -ForegroundColor Green
@@ -285,34 +298,38 @@ for ($i = 0; $i -lt $Clients.Count; $i++) {
     "qwen" {
       New-Item -ItemType Directory -Force -Path ".qwen" | Out-Null
       @'
-#!/bin/bash
-REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
-case "$QWEN_HOOK_TYPE" in
-  pre-command) bash "$REPO_ROOT/.agent/scripts/hook-pre-command.sh" "$QWEN_COMMAND" ;;
-  post-command) bash "$REPO_ROOT/.agent/scripts/hook-stop.sh" ;;
-  session-start) bash "$REPO_ROOT/.agent/scripts/sync-task.sh" && cat "$REPO_ROOT/.agent/memory/current-task.md" 2>/dev/null ;;
-esac
-'@ | Set-Content ".qwen/hooks.sh" -Encoding utf8
-      Write-Host "    ✅ .qwen/hooks.sh created" -ForegroundColor Green
+# Qwen Code hook wrapper (PowerShell)
+$RepoRoot = git rev-parse --show-toplevel 2>$null
+if (-not $RepoRoot) { $RepoRoot = (Get-Location).Path }
+if ($env:QWEN_HOOK_TYPE -eq "pre-command") {
+    & powershell -ExecutionPolicy Bypass -File "$RepoRoot/.agent/scripts/hook-pre-command.ps1" "$env:QWEN_COMMAND"
+} elseif ($env:QWEN_HOOK_TYPE -eq "post-command") {
+    & "$RepoRoot/.agent/scripts/hook-stop.ps1"
+} elseif ($env:QWEN_HOOK_TYPE -eq "session-start") {
+    & "$RepoRoot/.agent/scripts/sync-task.ps1"
+    Get-Content "$RepoRoot/.agent/memory/current-task.md" 2>$null
+}
+'@ | Set-Content ".qwen/hooks.ps1" -Encoding utf8
+      Write-Host "    ✅ .qwen/hooks.ps1 created" -ForegroundColor Green
     }
     "cursor" {
       New-Item -ItemType Directory -Force -Path ".cursor" | Out-Null
       @'
-{"pre-command":"bash .agent/scripts/hook-pre-command.sh \"$COMMAND\"","post-command":"bash .agent/scripts/hook-stop.sh","session-start":"bash .agent/scripts/sync-task.sh && cat .agent/memory/current-task.md"}
+{"pre-command":"powershell -ExecutionPolicy Bypass -File .agent/scripts/hook-pre-command.ps1","post-command":"powershell -ExecutionPolicy Bypass -File .agent/scripts/hook-stop.ps1","session-start":"powershell -ExecutionPolicy Bypass -File .agent/scripts/sync-task.ps1"}
 '@ | Set-Content ".cursor/hooks.json" -Encoding utf8
       Write-Host "    ✅ .cursor/hooks.json created" -ForegroundColor Green
     }
     "cline" {
       New-Item -ItemType Directory -Force -Path ".cline" | Out-Null
       @'
-{"pre-command":"bash .agent/scripts/hook-pre-command.sh \"$COMMAND\"","post-command":"bash .agent/scripts/hook-stop.sh","session-start":"bash .agent/scripts/sync-task.sh && cat .agent/memory/current-task.md"}
+{"pre-command":"powershell -ExecutionPolicy Bypass -File .agent/scripts/hook-pre-command.ps1","post-command":"powershell -ExecutionPolicy Bypass -File .agent/scripts/hook-stop.ps1","session-start":"powershell -ExecutionPolicy Bypass -File .agent/scripts/sync-task.ps1"}
 '@ | Set-Content ".cline/hooks.json" -Encoding utf8
       Write-Host "    ✅ .cline/hooks.json created" -ForegroundColor Green
     }
     "windsurf" {
       New-Item -ItemType Directory -Force -Path ".windsurf" | Out-Null
       @'
-{"pre-command":"bash .agent/scripts/hook-pre-command.sh \"$COMMAND\"","post-command":"bash .agent/scripts/hook-stop.sh","session-start":"bash .agent/scripts/sync-task.sh && cat .agent/memory/current-task.md"}
+{"pre-command":"powershell -ExecutionPolicy Bypass -File .agent/scripts/hook-pre-command.ps1","post-command":"powershell -ExecutionPolicy Bypass -File .agent/scripts/hook-stop.ps1","session-start":"powershell -ExecutionPolicy Bypass -File .agent/scripts/sync-task.ps1"}
 '@ | Set-Content ".windsurf/hooks.json" -Encoding utf8
       Write-Host "    ✅ .windsurf/hooks.json created" -ForegroundColor Green
     }
