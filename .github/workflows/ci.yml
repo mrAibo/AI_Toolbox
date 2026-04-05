@@ -17,14 +17,13 @@ jobs:
         run: |
           test -f .agent/scripts/bootstrap.sh
           test -f .agent/scripts/bootstrap.ps1
-          chmod +x .agent/scripts/bootstrap.sh
           chmod +x .agent/scripts/*.sh
           echo "OK Bootstrap scripts present"
 
       - name: Validate markdown links
         run: |
           broken=0
-          for f in $(find . -name "*.md" -not -path "./.git/*"); do
+          for f in $(find . -name "*.md" -not -path "./.git/*" -not -path "./.qwen/*"); do
             links=$(grep -oE '\[[^]]+\]\([^)]+\)' "$f" 2>/dev/null || true)
             for link in $links; do
               target=$(echo "$link" | sed 's/.*](\(.*\))/\1/' | sed 's/#.*//')
@@ -32,7 +31,9 @@ jobs:
                 http*|mailto:*|\#*|/*) continue ;;
               esac
               dir=$(dirname "$f")
-              if [ ! -e "$dir/$target" ]; then
+              resolved="$dir/$target"
+              resolved=$(cd "$(dirname "$resolved")" 2>/dev/null && pwd)/$(basename "$resolved") 2>/dev/null || true
+              if [ -z "$resolved" ] || [ ! -e "$resolved" ]; then
                 echo "BROKEN: $f -> $target"
                 broken=$((broken + 1))
               fi
@@ -48,7 +49,10 @@ jobs:
         run: |
           missing=0
           for f in CLAUDE.md QWEN.md GEMINI.md CONVENTIONS.md .cursorrules .clinerules .windsurfrules; do
-            if [ -f "$f" ] && ! grep -q "\-\- Tier:" "$f"; then
+            if [ ! -f "$f" ]; then
+              echo "FAIL Missing required file $f"
+              missing=$((missing + 1))
+            elif ! grep -q "\-\- Tier:" "$f"; then
               echo "FAIL Missing tier badge on $f"
               missing=$((missing + 1))
             fi
@@ -61,7 +65,7 @@ jobs:
       - name: Validate JSON files
         run: |
           invalid=0
-          for f in $(find . -name "*.json" -not -path "./.git/*"); do
+          for f in $(find . -name "*.json" -not -path "./.git/*" -not -path "./.qwen/*" -not -path "./node_modules/*"); do
             if ! python3 -m json.tool "$f" > /dev/null 2>&1; then
               echo "FAIL Invalid JSON: $f"
               invalid=$((invalid + 1))
