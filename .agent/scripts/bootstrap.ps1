@@ -1,4 +1,5 @@
-$ErrorActionPreference = "Stop"
+# bootstrap.ps1 — AI Toolbox repo initialization (Windows)
+# No $ErrorActionPreference = "Stop" — must be resilient; one failure must not kill the whole script.
 
 Write-Host "[bootstrap] preparing AI Toolbox structure..."
 

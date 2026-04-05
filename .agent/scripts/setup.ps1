@@ -1,7 +1,6 @@
 ﻿# AI Toolbox Setup Script — One-command setup with client selection
 # Usage: powershell -ExecutionPolicy Bypass -File .agent/scripts/setup.ps1
-
-$ErrorActionPreference = "Stop"
+# No $ErrorActionPreference = "Stop" — must be resilient.
 
 $RepoRoot = git rev-parse --show-toplevel 2>$null
 if (-not $RepoRoot) { $RepoRoot = (Get-Location).Path }
@@ -136,6 +135,9 @@ Write-Host "🔧 Running bootstrap..." -ForegroundColor Yellow
 
 if (Test-Path ".agent/scripts/bootstrap.ps1") {
   & powershell -ExecutionPolicy Bypass -File ".agent/scripts/bootstrap.ps1"
+  if ($LASTEXITCODE -ne 0) {
+    Write-Host "  ⚠️  Bootstrap exited with code $LASTEXITCODE" -ForegroundColor Yellow
+  }
 }
 
 Write-Host ""
