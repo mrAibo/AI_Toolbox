@@ -12,6 +12,11 @@ if (Test-Path "$RepoRoot/.agent/scripts/sync-task.ps1") {
   & "$RepoRoot/.agent/scripts/sync-task.ps1"
 }
 
+# Auto-refresh Beads task context (like Template Bridge PreCompact hook)
+if (Get-Command bd -ErrorAction SilentlyContinue) {
+  bd prime 2>$null
+}
+
 Write-Host "[stop] remember to update:"
 Write-Host "  - .agent/memory/architecture-decisions.md"
 Write-Host "  - .agent/memory/integration-contracts.md"

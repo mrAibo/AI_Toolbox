@@ -58,6 +58,8 @@ If the user asks for a new project, a new subsystem, or a large feature:
 6. Create the work structure in Beads
 7. Execute only the next ready task
 
+For the complete 9-step process (TASK → BRAINSTORM → PLAN → ISOLATE → IMPLEMENT → REVIEW → VERIFY → FINISH → CLOSE), follow **[.agent/workflows/unified-workflow.md](.agent/workflows/unified-workflow.md)**.
+
 The workflow order is:
 
 Brainstorm -> Architecture decision -> Task creation -> Implementation -> Verification -> Memory update
