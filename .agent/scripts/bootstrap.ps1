@@ -21,7 +21,7 @@ $Today = Get-Date -Format "yyyy-MM-dd"
 $ADRContent = @"
 # Architecture Decision Records (ADRs)
 
-This file tracks major architectural decisions. Use the format from `../templates/adr-template.md`.
+This file tracks major architectural decisions. Use the format from `` `../templates/adr-template.md`` `.
 
 ### ADR-0000: Use AI Toolbox for Repository Governance
 - Status: accepted
