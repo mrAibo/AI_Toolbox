@@ -2,7 +2,7 @@
 
 A robust, reusable foundation for terminal-based AI-assisted development. 
 
-This repository provides a strict workflow contract for AI agents like **Claude Code**, **OpenCode**, and **Gemini CLI**. It solves the three biggest problems of terminal-based AI development: Context Bloat, Project Amnesia, and Execution Drift.
+This repository provides a strict workflow contract for AI agents like **Claude Code**, **Qwen Code**, and **Gemini CLI**. It solves the three biggest problems of terminal-based AI development: Context Bloat, Project Amnesia, and Execution Drift.
 
 ---
 
@@ -95,7 +95,7 @@ This workflow assumes the use of a few key tools to keep the AI disciplined:
    A local vector database for storing episodic bug fixes and project experience.
 4. **Terminal AI Agents**
    - **[RooCode](https://github.com/RooCode/RooCode)**: An open-source, powerful terminal agent for VS Code.
-   - **[OpenCode](https://opencode.ai/)**: An open-source terminal alternative.
+   - **[Qwen Code](https://github.com/QwenLM/qwen-code)**: Alibaba's terminal AI agent using Qwen models.
    - **[Gemini CLI](https://geminicli.com)**: Google's console AI agent using Gemini models.
    - **[Aider](https://aider.chat/)**: (Optional) AI pair programming in your terminal.
 5. **[MCP Servers](https://modelcontextprotocol.io/)**

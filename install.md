@@ -1,6 +1,6 @@
 # AI Toolbox Installation Instructions (For AI Agents)
 
-You are an AI assistant (such as Claude Code, OpenCode, Gemini CLI, or Antigravity) and the user has asked you to install the "AI Toolbox" workflow into the current repository/directory.
+You are an AI assistant (such as Claude Code, Qwen Code, Gemini CLI, RooCode/Cline, Cursor, Windsurf, Aider, or Antigravity) and the user has asked you to install the "AI Toolbox" workflow into the current repository/directory.
 
 ## Phase 0: Environment Discovery
 Before you start, identify your own environment:

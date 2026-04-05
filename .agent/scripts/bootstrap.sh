@@ -127,8 +127,63 @@ fi
 if [ ! -s .agent/rules/antigravity.md ]; then
 cat << 'EOF' > .agent/rules/antigravity.md
 # Antigravity Environment Specifics
-Use native slash commands in `.agent/workflows/` (`/start`, `/plan`, `/sync`, `/handover`).
-Maintain native artifacts: `implementation_plan.md`, `task.md`, `walkthrough.md`.
+
+This file defines how to work with the **AI Toolbox** when using the **Antigravity** assistant environment.
+
+---
+
+## Native Workflows (Slash Commands)
+
+Use the built-in slash commands defined in `.agent/workflows/` for routine operations:
+
+- `/start`: Performs the **Boot Sequence** (restores context, syncs tasks).
+- `/plan`: Generates an **Implementation Plan** from the template.
+- `/sync`: Synchronizes `bd` (Beads) state with project memory and artifacts.
+- `/adr`: Records an **Architecture Decision Record** (ADR).
+- `/handover`: Finalizes the session, updates memory, and generates a walkthrough.
+
+---
+
+## Artifact Management
+
+Antigravity uses native artifacts to display structured project information. Maintain these as first-class citizens:
+
+- **Implementation Plan:** Use `/plan` to trigger the `implementation_plan.md` artifact.
+- **Task Tracking:** Always maintain the `task.md` artifact. Sync it with `/sync`.
+- **Session Walkthrough:** Always generate a `walkthrough.md` artifact during the `/handover` workflow.
+
+---
+
+## Antigravity Memory Coordination
+
+While the AI Toolbox uses `.agent/memory/` for universal storage, Antigravity-specific artifacts provide the visual representation. Ensure they are always synchronized before concluding a session.
+EOF
+fi
+
+if [ ! -s .agent/rules/qwen-code.md ]; then
+cat << 'EOF' > .agent/rules/qwen-code.md
+# Qwen Code Environment Specifics
+
+Qwen Code is a **Full-Tier** client with access to hooks, multi-agent orchestration, plan mode, and sync automation.
+
+## SubAgent Configuration
+- Use the `agent` tool to spawn sub-agents for parallel task execution.
+- Specify `subagent_type` as `general-purpose` for complex research/tasks or `Explore` for fast codebase exploration.
+- Coordinate sub-agents via `.agent/memory/` files to maintain shared state.
+
+## Hook Setup
+- **Pre-command hook:** `.agent/scripts/hook-pre-command.sh` (or `.ps1`) — enforces `rtk` prefix for heavy commands.
+- **Stop hook:** `.agent/scripts/hook-stop.sh` (or `.ps1`) — triggers memory consolidation on session end.
+- Configure hooks in your Qwen Code settings analogously to Claude Code's `.claude.json` hook configuration.
+
+## Plan Mode
+- Use plan mode before major architectural changes.
+- Document plans in `.agent/memory/current-task.md` after approval.
+
+## Multi-Agent Coordination
+- When spawning multiple agents, provide clear, independent prompts.
+- Use `.agent/memory/session-handover.md` to track sub-agent outcomes.
+- Refer to `QWEN.md` for Full-Tier feature details.
 EOF
 fi
 
@@ -180,14 +235,26 @@ This project uses the **AI Toolbox** workflow framework. Read this file carefull
 * **Workflow Engine:** AI Toolbox (AGENT.md)
 * **Task Tracker:** Beads (bd)
 * **Execution Wrapper:** RTK (Token-Safe Execution)
-* **Languages/Frameworks:** [List your project's languages here]
+* **Languages/Frameworks:** [List your project's languages here, e.g. TypeScript, Python]
 
-## 3. Key Files & Entrypoints
+## 3. Architectural Patterns
+* **Memory Management:** Repository-based project memory in `.agent/memory/`.
+* **Decision Tracking:** Architecture Decision Records (ADRs) in `.agent/memory/architecture-decisions.md`.
+
+## 4. Coding Conventions & Style Guide
+* **Workflow Rule:** Follow the [AGENT.md](AGENT.md) Boot Sequence.
+* **Naming:** [Inferred: Standard kebab-case for files, camelCase for variables]
+
+## 5. Key Files & Entrypoints
 * **Main Contract:** [AGENT.md](AGENT.md)
 * **Handover Log:** [.agent/memory/session-handover.md](.agent/memory/session-handover.md)
 * **Rules:** [.agent/rules/](.agent/rules/)
 
-## 4. Limitations (Basic Tier)
+## 6. Development & Testing Workflow
+* **Booting:** Start every session by reading AGENT.md and the memory files listed above.
+* **Testing:** Prefer running tests explicitly. Avoid large automated commands if token budgets are a concern.
+
+## 7. Limitations (Basic Tier)
 * No hook automation -- sync and handover must be done manually.
 * No multi-agent support.
 * Safety rules are recommendations only, not enforced by the toolchain.

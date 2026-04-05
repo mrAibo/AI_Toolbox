@@ -146,11 +146,67 @@ if (-not (Test-Path ".agent/rules/stack-rules.md") -or (Get-Item ".agent/rules/s
 
 $AntigravityContent = @'
 # Antigravity Environment Specifics
-Use native slash commands in `.agent/workflows/` (`/start`, `/plan`, `/sync`, `/handover`).
-Maintain native artifacts: `implementation_plan.md`, `task.md`, `walkthrough.md`.
+
+This file defines how to work with the **AI Toolbox** when using the **Antigravity** assistant environment.
+
+---
+
+## Native Workflows (Slash Commands)
+
+Use the built-in slash commands defined in `.agent/workflows/` for routine operations:
+
+- `/start`: Performs the **Boot Sequence** (restores context, syncs tasks).
+- `/plan`: Generates an **Implementation Plan** from the template.
+- `/sync`: Synchronizes `bd` (Beads) state with project memory and artifacts.
+- `/adr`: Records an **Architecture Decision Record** (ADR).
+- `/handover`: Finalizes the session, updates memory, and generates a walkthrough.
+
+---
+
+## Artifact Management
+
+Antigravity uses native artifacts to display structured project information. Maintain these as first-class citizens:
+
+- **Implementation Plan:** Use `/plan` to trigger the `implementation_plan.md` artifact.
+- **Task Tracking:** Always maintain the `task.md` artifact. Sync it with `/sync`.
+- **Session Walkthrough:** Always generate a `walkthrough.md` artifact during the `/handover` workflow.
+
+---
+
+## Antigravity Memory Coordination
+
+While the AI Toolbox uses `.agent/memory/` for universal storage, Antigravity-specific artifacts provide the visual representation. Ensure they are always synchronized before concluding a session.
 '@
 if (-not (Test-Path ".agent/rules/antigravity.md") -or (Get-Item ".agent/rules/antigravity.md").Length -eq 0) {
     Set-Content -Path ".agent/rules/antigravity.md" -Value $AntigravityContent -Encoding utf8
+}
+
+$QwenCodeContent = @'
+# Qwen Code Environment Specifics
+
+Qwen Code is a **Full-Tier** client with access to hooks, multi-agent orchestration, plan mode, and sync automation.
+
+## SubAgent Configuration
+- Use the `agent` tool to spawn sub-agents for parallel task execution.
+- Specify `subagent_type` as `general-purpose` for complex research/tasks or `Explore` for fast codebase exploration.
+- Coordinate sub-agents via `.agent/memory/` files to maintain shared state.
+
+## Hook Setup
+- **Pre-command hook:** `.agent/scripts/hook-pre-command.sh` (or `.ps1`) — enforces `rtk` prefix for heavy commands.
+- **Stop hook:** `.agent/scripts/hook-stop.sh` (or `.ps1`) — triggers memory consolidation on session end.
+- Configure hooks in your Qwen Code settings analogously to Claude Code's `.claude.json` hook configuration.
+
+## Plan Mode
+- Use plan mode before major architectural changes.
+- Document plans in `.agent/memory/current-task.md` after approval.
+
+## Multi-Agent Coordination
+- When spawning multiple agents, provide clear, independent prompts.
+- Use `.agent/memory/session-handover.md` to track sub-agent outcomes.
+- Refer to `QWEN.md` for Full-Tier feature details.
+'@
+if (-not (Test-Path ".agent/rules/qwen-code.md") -or (Get-Item ".agent/rules/qwen-code.md").Length -eq 0) {
+    Set-Content -Path ".agent/rules/qwen-code.md" -Value $QwenCodeContent -Encoding utf8
 }
 
 $RootFiles = @("README.md", "AGENT.md")
@@ -204,30 +260,6 @@ $WindsurfContent = @'
 Details in [AGENT.md](AGENT.md).
 '@
 
-$QwenContent = @'
-# AI Toolbox Protocol (Qwen Code) -- Tier: Full
-
-1. **BOOT:** Detect `.agent/`? Read `AGENT.md` section 2 (Boot Sequence) and run the sync-task script (`.sh` on Unix, `.ps1` on Windows) before starting any task.
-2. **SAFETY:** All heavy terminal commands MUST be run via `rtk`.
-3. **HANDOVER:** Maintain project history in `.agent/memory/session-handover.md` at the end of every task or session.
-
-Full-Tier features: Hooks, Multi-Agent, Plan Mode, Sync automation.
-
-Details in [AGENT.md](AGENT.md).
-'@
-
-$AiderConventionsContent = @'
-# AI Toolbox Protocol (Aider) -- Tier: Basic
-
-> **Note:** These are soft reminders, not enforced guardrails.
-
-1. **BOOT:** Read `.agent/memory/current-task.md` before starting.
-2. **SAFETY:** Prefer safe, reversible operations.
-3. **HANDOVER:** Update `.agent/memory/session-handover.md` before finishing.
-
-Details in [AGENT.md](AGENT.md).
-'@
-
 $GeminiContent = @'
 # AI Toolbox Protocol (Gemini CLI) -- Tier: Basic
 
@@ -243,21 +275,33 @@ This project uses the **AI Toolbox** workflow framework. Read this file carefull
 3. **HANDOVER:** Update `.agent/memory/session-handover.md` before finishing your session.
 
 ## 1. Project Overview & Purpose
-* **Primary Goal:** [Describe your project`s main purpose here]
+* **Primary Goal:** [Describe your project's main purpose here]
 * **Workflow Standard:** This project adheres to the AI Toolbox development lifecycle.
 
 ## 2. Core Technologies & Stack
 * **Workflow Engine:** AI Toolbox (AGENT.md)
 * **Task Tracker:** Beads (bd)
 * **Execution Wrapper:** RTK (Token-Safe Execution)
-* **Languages/Frameworks:** [List your project`s languages here]
+* **Languages/Frameworks:** [List your project's languages here, e.g. TypeScript, Python]
 
-## 3. Key Files & Entrypoints
+## 3. Architectural Patterns
+* **Memory Management:** Repository-based project memory in `.agent/memory/`.
+* **Decision Tracking:** Architecture Decision Records (ADRs) in `.agent/memory/architecture-decisions.md`.
+
+## 4. Coding Conventions & Style Guide
+* **Workflow Rule:** Follow the [AGENT.md](AGENT.md) Boot Sequence.
+* **Naming:** [Inferred: Standard kebab-case for files, camelCase for variables]
+
+## 5. Key Files & Entrypoints
 * **Main Contract:** [AGENT.md](AGENT.md)
 * **Handover Log:** [.agent/memory/session-handover.md](.agent/memory/session-handover.md)
 * **Rules:** [.agent/rules/](.agent/rules/)
 
-## 4. Limitations (Basic Tier)
+## 6. Development & Testing Workflow
+* **Booting:** Start every session by reading AGENT.md and the memory files listed above.
+* **Testing:** Prefer running tests explicitly. Avoid large automated commands if token budgets are a concern.
+
+## 7. Limitations (Basic Tier)
 * No hook automation -- sync and handover must be done manually.
 * No multi-agent support.
 * Safety rules are recommendations only, not enforced by the toolchain.
