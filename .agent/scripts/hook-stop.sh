@@ -23,4 +23,16 @@ echo "  - .agent/memory/architecture-decisions.md"
 echo "  - .agent/memory/integration-contracts.md"
 echo "  - .agent/memory/session-handover.md"
 
+# Write session summary to session-handover.md if active-session.md exists
+if [ -f "$REPO_ROOT/.agent/memory/active-session.md" ]; then
+  echo ""
+  echo "[stop] 📊 Session summary available in .agent/memory/active-session.md"
+  echo "[stop] Writing final summary to session-handover.md..."
+  if [ -f "$REPO_ROOT/.agent/memory/session-handover.md" ]; then
+    echo "" >> "$REPO_ROOT/.agent/memory/session-handover.md"
+    echo "## Session Summary — $(date -u '+%Y-%m-%d %H:%M UTC')" >> "$REPO_ROOT/.agent/memory/session-handover.md"
+    cat "$REPO_ROOT/.agent/memory/active-session.md" >> "$REPO_ROOT/.agent/memory/session-handover.md"
+  fi
+fi
+
 echo "[stop] repository left in recoverable state"

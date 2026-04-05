@@ -2,6 +2,8 @@
 
 This workflow defines when and how to spawn sub-agents for parallel execution.
 
+For status reporting rules (when and how the agent reports progress), see **[.agent/rules/status-reporting.md](../rules/status-reporting.md)**.
+
 ---
 
 ## When to Use Multi-Agent
@@ -37,19 +39,34 @@ Break the work into 2-5 independent sub-tasks. Each task must have:
 - No dependency on other sub-task results
 
 ### Step 2: Spawn Agents in Parallel
-Launch all agents in a single message with multiple tool calls:
+
+Report each agent spawn:
 
 ```
-agent: "Audit bootstrap.sh for X, Y, Z"     → general-purpose
-agent: "Audit bootstrap.ps1 for X, Y, Z"   → general-purpose
-agent: "Find all config files in project"   → Explore
+🤖 Spawning Agent 1/3: Audit bootstrap.sh (general-purpose)
+🤖 Spawning Agent 2/3: Audit bootstrap.ps1 (general-purpose)
+🤖 Spawning Agent 3/3: Check broken links (Explore)
 ```
+
+Launch all agents in a single message with multiple tool calls.
 
 ### Step 3: Collect and Synthesize
+
+Report each agent completion:
+
+```
+🤖 Agent 1/3 complete: 5 issues found in bootstrap.sh
+🤖 Agent 2/3 complete: 3 issues found in bootstrap.ps1
+🤖 Agent 3/3 complete: All links valid
+```
+
+Then synthesize:
 - Wait for all agents to complete
 - Merge results into a single summary
 - Resolve any contradictions
 - Report to user with consolidated findings
+
+Update `.agent/memory/active-session.md` with final agent count and results.
 
 ---
 

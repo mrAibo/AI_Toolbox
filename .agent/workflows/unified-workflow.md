@@ -2,6 +2,8 @@
 
 This is the PRIMARY workflow for all AI Toolbox projects. All tools work together automatically.
 
+For status reporting rules (when and how the agent reports progress), see **[.agent/rules/status-reporting.md](../rules/status-reporting.md)**.
+
 ---
 
 ## The 9-Step Process

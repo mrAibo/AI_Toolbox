@@ -166,6 +166,8 @@ For all behavioral constraints and destructive-action prevention, refer to **[.a
 
 For Model Context Protocol (MCP) usage constraints, refer to **[.agent/rules/mcp-rules.md](.agent/rules/mcp-rules.md)**.
 
+For status reporting rules (when and how to report progress to the user), refer to **[.agent/rules/status-reporting.md](.agent/rules/status-reporting.md)**.
+
 **Core Safety Principle:**
 Do not perform destructive, irreversible, or high-risk actions (delete files, rewrite large parts, force-push) without explicit user intent.
 

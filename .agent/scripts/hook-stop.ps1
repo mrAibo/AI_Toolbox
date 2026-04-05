@@ -22,4 +22,15 @@ Write-Host "  - .agent/memory/architecture-decisions.md"
 Write-Host "  - .agent/memory/integration-contracts.md"
 Write-Host "  - .agent/memory/session-handover.md"
 
+# Write session summary to session-handover.md if active-session.md exists
+if (Test-Path "$RepoRoot/.agent/memory/active-session.md") {
+  Write-Host ""
+  Write-Host "[stop] 📊 Session summary available in .agent/memory/active-session.md"
+  Write-Host "[stop] Writing final summary to session-handover.md..."
+  if (Test-Path "$RepoRoot/.agent/memory/session-handover.md") {
+    "`n## Session Summary — $(Get-Date -Format 'yyyy-MM-dd HH:mm UTC')" | Out-File -FilePath "$RepoRoot/.agent/memory/session-handover.md" -Append -Encoding utf8
+    Get-Content "$RepoRoot/.agent/memory/active-session.md" -Raw | Out-File -FilePath "$RepoRoot/.agent/memory/session-handover.md" -Append -Encoding utf8
+  }
+}
+
 Write-Host "[stop] repository left in recoverable state"

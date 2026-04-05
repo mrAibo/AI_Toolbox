@@ -47,7 +47,8 @@ AI_Toolbox/
 │   │   ├── architecture-decisions.md  # Long-term architecture ADRs
 │   │   ├── integration-contracts.md   # APIs, schemas, data expectations
 │   │   ├── runbook.md                 # Recurring operational procedures
-│   │   └── session-handover.md        # Unfinished work for the next session
+│   │   ├── session-handover.md        # Unfinished work for the next session
+│   │   └── active-session.md          # Live status of current session
 │   │
 │   ├── rules/                    # Hard execution constraints
 │   │   ├── safety-rules.md            # Prevention of destructive commands
@@ -58,7 +59,8 @@ AI_Toolbox/
 │   │   ├── mcp-rules.md               # MCP server usage constraints
 │   │   ├── tool-integrations.md       # How rtk, Beads, Superpowers work together
 │   │   ├── tdd-rules.md               # Mandatory RED-GREEN-REFACTOR cycle
-│   │   └── template-usage.md          # When to use 413+ specialist templates
+│   │   ├── template-usage.md          # When to use 413+ specialist templates
+│   │   └── status-reporting.md        # When/how the agent reports progress
 │   │
 │   ├── scripts/                  # Automation & Hooks
 │   │   ├── bootstrap.sh / .ps1        # Initial repo setup
