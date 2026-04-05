@@ -88,22 +88,40 @@ AI_Toolbox/
 This workflow assumes the use of a few key tools to keep the AI disciplined:
 
 1. **[rtk (Rust Token Killer)](https://github.com/rtk-ai/rtk)**
-   A console proxy optimizer. Heavy commands (like `pytest`, `mvn test`, `npm run build`) and large logs must be read through `rtk`. It compresses errors and tracebacks by 80%, saving tokens and keeping the AI focused.
+   A console proxy optimizer. Heavy commands (like `pytest`, `mvn test`, `npm run build`) and large logs must be read through `rtk`. It compresses errors and tracebacks by 60-90%, saving tokens and keeping the AI focused. **Setup:** `cargo install rtk` + `rtk init -g`.
 2. **[Beads](https://github.com/steveyegge/beads)** (Optional but recommended)
-   A local CLI task tracker. It moves the execution plan out of the AI's chat context and into a Git-backed graph.
-3. **[Claude-Mem](https://github.com/thedotmack/claude-mem)** (Optional)
-   A local vector database for storing episodic bug fixes and project experience.
-4. **Terminal AI Agents**
+   A local CLI task tracker. It moves the execution plan out of the AI's chat context and into a Git-backed graph. **Setup:** `go install github.com/steveyegge/beads@latest` + `bd init`.
+3. **[Superpowers](https://github.com/obra/superpowers)**
+   Engineering process skills: TDD, Planning, Debugging, Code Review, Git Worktrees. Referenced via `.agent/rules/` — no separate install needed.
+4. **[Template Bridge](https://github.com/maslennikov-ig/template-bridge)** & **[Superpowers](https://github.com/obra/superpowers)**
+   Plugins for managing rigid TDD workflows and accessing 413+ expert agent templates.
+5. **Terminal AI Agents**
    - **[RooCode](https://github.com/RooCode/RooCode)**: An open-source, powerful terminal agent for VS Code.
    - **[Qwen Code](https://github.com/QwenLM/qwen-code)**: Alibaba's terminal AI agent using Qwen models.
    - **[Gemini CLI](https://geminicli.com)**: Google's console AI agent using Gemini models.
    - **[Aider](https://aider.chat/)**: (Optional) AI pair programming in your terminal.
-5. **[MCP Servers](https://modelcontextprotocol.io/)**
-   Model Context Protocol (MCP) integrations for GitHub, Docs, Databases, etc., to connect agents safely to resources.
-6. **[context7](https://github.com/context7/context7)**
+6. **[MCP Servers](https://modelcontextprotocol.io/)**
+   Model Context Protocol (MCP) integrations for GitHub, Docs, Databases, etc., to connect agents safely to resources. **Setup:** See [docs/mcp-guide.md](docs/mcp-guide.md).
+7. **[context7](https://github.com/context7/context7)**
    Lazy-loading tool for providing up-to-date documentation accurately to the agent.
-7. **[Template Bridge](https://github.com/maslennikov-ig/template-bridge) & [Superpowers](https://github.com/obra/superpowers)**
-   Plugins for managing rigid TDD workflows and accessing expert agent templates.
+
+Full integration details, commands, and how everything works together: **[.agent/rules/tool-integrations.md](.agent/rules/tool-integrations.md)**.
+
+### The Complete Flow
+
+```
+User: "Build feature X"
+  → Beads:     bd create "feature X" → task in graph
+  → Superpowers: brainstorming → clarify requirements
+  → Beads:     bd create subtasks → decomposed work
+  → For each subtask:
+      → Superpowers: test-driven-development OR systematic-debugging
+      → rtk: rtk test → shows only failures (60-90% less tokens)
+      → MCP: context7 → docs on demand
+      → Beads: bd close → task done
+  → Superpowers: verification-before-completion → final check
+  → Beads: bd close "feature X complete" → done
+```
 
 ---
 

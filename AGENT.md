@@ -196,6 +196,22 @@ For maximum efficiency and context safety, use these recommended binary tools:
 - **Beads (bd):** Git-backed CLI task tracker for out-of-context planning.
 - **bat & rg (ripgrep):** Modern alternatives to `cat` and `grep` for faster, cleaner file inspection.
 
-AI Toolbox scripts (like `bootstrap`) automatically check for these tools and provide installation hints.
+For detailed integration guides, setup commands, and how these tools work together, see **[.agent/rules/tool-integrations.md](.agent/rules/tool-integrations.md)**.
+
+---
+
+## 13. External Project Integrations
+
+The AI Toolbox builds on established open-source projects. Each serves a specific purpose:
+
+| Project | Role in AI Toolbox | Setup |
+|---------|-------------------|-------|
+| **[rtk](https://github.com/rtk-ai/rtk)** | Token optimization (60-90% savings) | `cargo install rtk` + `rtk init -g` |
+| **[Beads](https://github.com/steveyegge/beads)** | Graph-based task tracking | `go install .../beads@latest` + `bd init` |
+| **[Superpowers](https://github.com/obra/superpowers)** | Engineering process discipline | Referenced via `.agent/rules/` — no install needed |
+| **[Template Bridge](https://github.com/maslennikov-ig/template-bridge)** | 413+ specialist agent templates | Claude Code plugin or manual access |
+| **[MCP Servers](https://modelcontextprotocol.io/)** | External resources (docs, web, GitHub) | See [docs/mcp-guide.md](docs/mcp-guide.md) |
+
+Full integration details: **[.agent/rules/tool-integrations.md](.agent/rules/tool-integrations.md)**.
 
 ---
