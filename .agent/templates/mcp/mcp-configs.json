@@ -1,0 +1,78 @@
+{
+  "_comment": "AI Toolbox MCP Configuration — Copy to your AI client's MCP config",
+  "_usage": "Each server has a 'description' and 'args'. Install dependencies first (npm/npx).",
+  "_compatibility": "Works with Claude Code (claude mcp add), Qwen Code, and other MCP-compatible clients.",
+
+  "servers": {
+    "context7": {
+      "description": "Lazy-load up-to-date documentation and API references. Prevents the AI from using outdated knowledge.",
+      "command": "npx",
+      "args": ["-y", "@upstash/context7-mcp"],
+      "env": {},
+      "tier": "recommended",
+      "trust": "read-only"
+    },
+
+    "sequential-thinking": {
+      "description": "Structured step-by-step reasoning for complex debugging and logic problems. Prevents hallucination loops.",
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-sequential-thinking"],
+      "env": {},
+      "tier": "recommended",
+      "trust": "read-only"
+    },
+
+    "filesystem": {
+      "description": "Controlled file system access. Restricts the AI to specific directories to prevent accidental damage.",
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-filesystem", "."],
+      "env": {},
+      "tier": "optional",
+      "trust": "read-write"
+    },
+
+    "github": {
+      "description": "Access GitHub repositories — read issues, PRs, and code. Requires GITHUB_TOKEN env variable.",
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-github"],
+      "env": {
+        "GITHUB_TOKEN": "your-token-here"
+      },
+      "tier": "optional",
+      "trust": "read-only"
+    },
+
+    "memory": {
+      "description": "Long-term memory for the AI. Stores and retrieves context across sessions (local SQLite-based).",
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-memory"],
+      "env": {},
+      "tier": "optional",
+      "trust": "read-write"
+    },
+
+    "fetch": {
+      "description": "Fetch web content into context. Useful for reading documentation URLs the user provides.",
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-fetch"],
+      "env": {},
+      "tier": "optional",
+      "trust": "read-only"
+    }
+  },
+
+  "profiles": {
+    "minimal": {
+      "description": "Bare minimum — documentation + reasoning.",
+      "servers": ["context7", "sequential-thinking"]
+    },
+    "developer": {
+      "description": "Recommended for daily development.",
+      "servers": ["context7", "sequential-thinking", "filesystem", "fetch"]
+    },
+    "full": {
+      "description": "All servers. Requires GITHUB_TOKEN for GitHub integration.",
+      "servers": ["context7", "sequential-thinking", "filesystem", "github", "memory", "fetch"]
+    }
+  }
+}

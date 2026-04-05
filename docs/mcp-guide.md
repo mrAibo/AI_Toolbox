@@ -1,22 +1,142 @@
 # MCP Guide
 
 ## Purpose
-This document explains how model context protocol integrations fit into the repository workflow.
 
-## General guidance
-- Add MCP integrations only when they solve a real workflow problem
-- Keep the core workflow functional even if a connector is missing
-- Document any new integration in `integration-contracts.md`
-- Record operational notes in `runbook.md`
+This document explains how Model Context Protocol (MCP) integrations fit into the AI Toolbox workflow and how to set them up.
 
-## Useful categories
-- Documentation MCPs
-- Issue and repository MCPs
-- Planning or reasoning MCPs (e.g., Sequential Thinking)
-- Tool search or lazy loading layers
+---
 
-## Recommended MCPs
-- **Sequential Thinking MCP**: Highly recommended for the *micro-level*. While the AI Toolbox handles the macro-project management (via Beads and `.agent/rules/`), Sequential Thinking helps the agent dynamically solve complex debugging or logic problems step-by-step within a single session without falling into hallucination loops.
+## What is MCP?
 
-## Rule
-If an MCP changes the workflow, the repository memory must reflect that change.
+MCP is an open standard that allows AI clients (Claude Code, Qwen Code, etc.) to connect to external resources through **servers**. Each server provides a set of **tools** the AI can call during a session.
+
+**Analogy:** MCP servers are like browser extensions for your AI — they give it new capabilities without changing its core behavior.
+
+---
+
+## Recommended MCP Servers
+
+### 🥇 Tier: Essential
+
+| Server | Purpose | Trust Level |
+|--------|---------|-------------|
+| **context7** | Lazy-load up-to-date documentation and API references | Read-only |
+| **sequential-thinking** | Structured step-by-step reasoning for complex problems | Read-only |
+
+### 🥈 Tier: Recommended
+
+| Server | Purpose | Trust Level |
+|--------|---------|-------------|
+| **filesystem** | Controlled file access within specific directories | Read-write |
+| **fetch** | Fetch web content (documentation, articles) into context | Read-only |
+
+### 🥉 Tier: Optional
+
+| Server | Purpose | Trust Level |
+|--------|---------|-------------|
+| **github** | Read/write issues, PRs, code | Read-only (recommended) |
+| **memory** | Long-term cross-session memory (local SQLite) | Read-write |
+
+---
+
+## Setup
+
+### Step 1: Choose a Profile
+
+| Profile | Servers | When to Use |
+|---------|---------|-------------|
+| **minimal** | context7, sequential-thinking | Quick tasks, low token budget |
+| **developer** | + filesystem, fetch | Daily development (recommended) |
+| **full** | All servers | Full project work, needs GITHUB_TOKEN |
+
+### Step 2: Install via Claude Code
+
+```bash
+# Minimal
+claude mcp add context7 npx -y @upstash/context7-mcp
+claude mcp add sequential-thinking npx -y @modelcontextprotocol/server-sequential-thinking
+
+# Developer (recommended)
+claude mcp add filesystem npx -y @modelcontextprotocol/server-filesystem .
+claude mcp add fetch npx -y @modelcontextprotocol/server-fetch
+
+# Full (with GitHub)
+claude mcp add github npx -y @modelcontextprotocol/server-github
+claude mcp add memory npx -y @modelcontextprotocol/server-memory
+```
+
+### Step 3: Install via Qwen Code
+
+Add to your Qwen Code MCP configuration:
+
+```json
+{
+  "mcpServers": {
+    "context7": {
+      "command": "npx",
+      "args": ["-y", "@upstash/context7-mcp"]
+    },
+    "sequential-thinking": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-sequential-thinking"]
+    }
+  }
+}
+```
+
+### Step 4: Verify
+
+Start your AI client and ask: *"List your available MCP servers and their capabilities."*
+
+Expected output: The servers you configured with their tool descriptions.
+
+---
+
+## Security Rules
+
+### Core Principle
+
+> **Never grant write access unless the AI explicitly needs it.**
+
+### Trust Levels
+
+| Level | What the AI Can Do | Risk |
+|-------|--------------------|------|
+| **read-only** | Read data, fetch docs, search | Low |
+| **read-write** | Modify files, create resources | Medium |
+
+### Best Practices
+
+1. **Start with read-only** — upgrade only when needed
+2. **Scope filesystem access** — restrict to project directory (`.`), never `/` or `$HOME`
+3. **Never expose secrets** — `GITHUB_TOKEN` should be an env variable, not hardcoded
+4. **Audit server sources** — only use official or well-maintained MCP servers
+5. **Review tool calls** — check what the AI actually invoked before it executes
+
+### Prohibited Configurations
+
+- ❌ Filesystem MCP with root (`/`) or home (`$HOME`) directory access
+- ❌ GitHub MCP with write permissions unless explicitly required
+- ❌ MCP servers from untrusted/unknown sources
+- ❌ Hardcoded tokens or credentials in config files
+
+---
+
+## When MCP Changes the Workflow
+
+If an MCP integration changes how the AI works:
+
+1. Record the change in `.agent/memory/integration-contracts.md`
+2. Update operational notes in `.agent/memory/runbook.md`
+3. Update this guide if the change is permanent
+
+---
+
+## Troubleshooting
+
+| Problem | Solution |
+|---------|----------|
+| `npx: command not found` | Install Node.js / ensure `npx` is in PATH |
+| Server times out | Check internet connection; some MCP servers require npm registry access |
+| AI can't find a tool | Verify server started successfully; run `npx -y <server>` manually to test |
+| Token errors with context7 | context7 queries external APIs — ensure no firewall blocks the request |
