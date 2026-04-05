@@ -220,25 +220,7 @@ When possible, use one of these approaches:
 - verification-first
 - reproduce -> fix -> verify
 
----
-
-## Bug fix workflow
-
-For bug fixes, prefer this sequence:
-1. Reproduce the problem
-2. Identify the likely cause
-3. Implement the fix
-4. Re-run verification
-5. Record durable knowledge if the bug was non-trivial
-
----
-
-## Terminal output discipline
-
-- Prefer concise test output
-- Use `rtk` for heavy test runs where possible
-- Avoid pasting very large raw output into context
-- Summarize failures clearly and precisely
+The chosen approach depends on the task, but verification is always required.
 
 ---
 
@@ -252,6 +234,15 @@ For bug fixes, prefer this sequence:
 
 ---
 
+## Terminal output discipline
+
+- Prefer concise test output
+- Use `rtk` for heavy test runs where possible
+- Avoid pasting very large raw output into context
+- Summarize failures clearly and precisely
+
+---
+
 ## Change validation
 
 For each meaningful code change, verify at least one of the following:
@@ -260,6 +251,17 @@ For each meaningful code change, verify at least one of the following:
 - command output is correct
 - file output is correct
 - integration behavior matches the expected contract
+
+---
+
+## Bug fix workflow
+
+For bug fixes, prefer this sequence:
+1. Reproduce the problem
+2. Identify the likely cause
+3. Implement the fix
+4. Re-run verification
+5. Record durable knowledge if the bug was non-trivial
 
 ---
 
@@ -301,6 +303,7 @@ If a new dependency is necessary:
 - Prefer existing project tools over new tools
 - Prefer standard libraries over extra dependencies when practical
 - Prefer stable, well-documented technologies over trendy ones
+- Prefer explicit compatibility over assumptions
 
 ---
 
@@ -309,6 +312,7 @@ If a new dependency is necessary:
 The following tools are preferred in this repository when available:
 - `rtk` for heavy terminal output and log compression
 - `Beads` for task tracking and execution order
+- `Claude-Mem` for episodic problem/solution memory
 - `AGENT.md` and `.agent/memory/*.md` for durable workflow memory
 
 ---
@@ -608,13 +612,13 @@ Refer to [AGENT.md](AGENT.md) for the full operational contract.
 '@
     Set-Content -Path "CONVENTIONS.md" -Value $AiderFull -Encoding utf8
 }
-if (Test-Path "$ClientDir/.aider.conf.yml") {
+if ((Test-Path "$ClientDir/.aider.conf.yml") -and (-not (Test-Path ".aider.conf.yml") -or (Get-Item ".aider.conf.yml").Length -eq 0)) {
     Copy-Item -Path "$ClientDir/.aider.conf.yml" -Destination ".aider.conf.yml" -Force
     Write-Host "[bootstrap] Installed .aider.conf.yml"
 }
 
-# Client-specific templates
-if (Test-Path "$ClientDir/.claude.json") {
+# Client-specific templates (guard: preserve manual edits)
+if ((Test-Path "$ClientDir/.claude.json") -and (-not (Test-Path ".claude.json") -or (Get-Item ".claude.json").Length -eq 0)) {
     Copy-Item -Path "$ClientDir/.claude.json" -Destination ".claude.json" -Force
     Write-Host "[bootstrap] Installed .claude.json hooks"
 }
