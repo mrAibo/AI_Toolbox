@@ -52,9 +52,34 @@ if (Get-Command aider -ErrorAction SilentlyContinue) {
   Write-Host "  ✅ Aider ($ver)" -ForegroundColor Green
 }
 
+# GUI-based clients (no CLI binary — detect via common install paths)
+if ((Get-Command cursor -ErrorAction SilentlyContinue) -or
+    (Test-Path "$env:LOCALAPPDATA\Programs\cursor") -or
+    (Test-Path "$env:USERPROFILE\.cursor")) {
+  $Clients += "cursor"
+  $ClientNames += "Cursor (GUI)"
+  Write-Host "  ✅ Cursor (GUI)" -ForegroundColor Green
+}
+
+if ((Get-Command cline -ErrorAction SilentlyContinue) -or
+    (Test-Path "$env:USERPROFILE\.cline") -or
+    (Test-Path "$env:USERPROFILE\.roocode")) {
+  $Clients += "cline"
+  $ClientNames += "Cline / RooCode (VS Code extension)"
+  Write-Host "  ✅ Cline / RooCode (VS Code extension)" -ForegroundColor Green
+}
+
+if ((Get-Command windsurf -ErrorAction SilentlyContinue) -or
+    (Test-Path "$env:LOCALAPPDATA\Programs\windsurf") -or
+    (Test-Path "$env:USERPROFILE\.windsurf")) {
+  $Clients += "windsurf"
+  $ClientNames += "Windsurf (GUI)"
+  Write-Host "  ✅ Windsurf (GUI)" -ForegroundColor Green
+}
+
 if ($Clients.Count -eq 0) {
   Write-Host "  ⚠️  No supported AI clients detected." -ForegroundColor Yellow
-  Write-Host "  Supported: Claude Code, Qwen Code, Gemini CLI, Aider"
+  Write-Host "  Supported: Claude Code, Qwen Code, Gemini CLI, Aider, Cursor, Cline, Windsurf"
   Write-Host "  Install one first, then re-run this setup."
   Write-Host ""
   Write-Host "  Continuing with bootstrap only..."
@@ -163,6 +188,12 @@ if (-not (Get-Command rtk -ErrorAction SilentlyContinue)) {
 } else {
   try { $ver = (rtk --version 2>$null) } catch { $ver = "installed" }
   Write-Host "  ✅ rtk already installed ($ver)" -ForegroundColor Green
+  $initRtk = Read-Host "  Configure rtk hooks for $PrimaryClient? [Y/n] "
+  if ([string]::IsNullOrWhiteSpace($initRtk)) { $initRtk = "y" }
+  if ($initRtk -match '^[Yy]$') {
+    Write-Host "  ✅ Configuring hooks: rtk init -g"
+    rtk init -g
+  }
 }
 
 # ---------------------------------------------------------------
@@ -298,7 +329,7 @@ if ($PrimaryClient) {
 } else {
   Write-Host "  Primary client: none detected"
 }
-Write-Host "  Router files:   8 created"
+Write-Host "  Router files:   7 created"
 
 if ($Stack) {
   Write-Host "  Project stack:  $Stack"

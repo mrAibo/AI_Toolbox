@@ -69,19 +69,19 @@ if [ -f "package.json" ]; then
 
     # Fix 5b: Scan import statements for framework-specific templates
     FRAMEWORKS_FOUND=""
-    if grep -rq '"next"' . --include="*.tsx" --include="*.ts" --include="*.js" 2>/dev/null; then
+    if grep -rq '"next"' src/ . --include="*.tsx" --include="*.ts" --include="*.js" --exclude-dir=node_modules --exclude-dir=.git 2>/dev/null; then
         FRAMEWORKS_FOUND="$FRAMEWORKS_FOUND web-frameworks/nextjs"
     fi
-    if grep -rq '"react"' . --include="*.tsx" --include="*.ts" --include="*.js" 2>/dev/null; then
+    if grep -rq '"react"' src/ . --include="*.tsx" --include="*.ts" --include="*.js" --exclude-dir=node_modules --exclude-dir=.git 2>/dev/null; then
         FRAMEWORKS_FOUND="$FRAMEWORKS_FOUND frontend/react"
     fi
-    if grep -rq '"express"' . --include="*.ts" --include="*.js" 2>/dev/null; then
+    if grep -rq '"express"' src/ . --include="*.ts" --include="*.js" --exclude-dir=node_modules --exclude-dir=.git 2>/dev/null; then
         FRAMEWORKS_FOUND="$FRAMEWORKS_FOUND api-rest/express"
     fi
-    if grep -rq '"@prisma/client"' . --include="*.ts" --include="*.js" 2>/dev/null; then
+    if grep -rq '"@prisma/client"' src/ . --include="*.ts" --include="*.js" --exclude-dir=node_modules --exclude-dir=.git 2>/dev/null; then
         FRAMEWORKS_FOUND="$FRAMEWORKS_FOUND database/prisma"
     fi
-    if grep -rq '"jest"' . --include="*.json" 2>/dev/null; then
+    if grep -rq '"jest"' . --include="*.json" --exclude-dir=node_modules --exclude-dir=.git 2>/dev/null; then
         FRAMEWORKS_FOUND="$FRAMEWORKS_FOUND testing/jest"
     fi
 

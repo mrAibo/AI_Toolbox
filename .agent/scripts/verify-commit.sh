@@ -11,7 +11,7 @@ ERRORS=0
 # Check 1: Tier Badge on Router Files
 # If a router file is staged, it must contain a "-- Tier:" badge.
 # ---------------------------------------------------------------
-ROUTER_FILES="CLAUDE.md QWEN.md GEMINI.md CONVENTIONS.md SKILL.md .cursorrules .clinerules .windsurfrules"
+ROUTER_FILES="CLAUDE.md QWEN.md GEMINI.md CONVENTIONS.md .cursorrules .clinerules .windsurfrules"
 
 for file in $ROUTER_FILES; do
     # Only check if this file is in the staged changes

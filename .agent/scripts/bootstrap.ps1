@@ -101,6 +101,11 @@ if (-not (Test-Path ".agent/memory/active-session.md") -or (Get-Item ".agent/mem
     Set-Content -Path ".agent/memory/active-session.md" -Value $ActiveSessionContent -Encoding utf8
 }
 
+# Initialize tool usage tracking file
+if (-not (Test-Path ".agent/memory/.tool-stats.json") -or (Get-Item ".agent/memory/.tool-stats.json").Length -eq 0) {
+    Set-Content -Path ".agent/memory/.tool-stats.json" -Value '{"rtk": 0, "beads": 0, "mcp": 0}' -Encoding utf8
+}
+
 if (-not (Test-Path ".agent/memory/integration-contracts.md") -or (Get-Item ".agent/memory/integration-contracts.md").Length -eq 0) {
     $ICContent = @'
 # Integration Contracts
@@ -117,7 +122,24 @@ This file documents the contracts between different components, services, or thi
 }
 
 if (-not (Test-Path ".agent/memory/session-handover.md") -or (Get-Item ".agent/memory/session-handover.md").Length -eq 0) {
-    Set-Content -Path ".agent/memory/session-handover.md" -Value "# Session Handover" -Encoding utf8
+    Set-Content -Path ".agent/memory/session-handover.md" -Value @"
+# Session Handover
+
+## Completed
+- [What was done]
+- [Files changed]
+- [Tests added/passed]
+
+## In Progress
+- [Current task ID and status]
+- [Next recommended step]
+- [Any blockers]
+
+## Stats
+- Tokens saved (rtk): ~0
+- MCP queries: 0
+- Sub-agents used: 0
+"@ -Encoding utf8
 }
 
 if (-not (Test-Path ".agent/memory/current-task.md") -or (Get-Item ".agent/memory/current-task.md").Length -eq 0) {

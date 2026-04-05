@@ -34,20 +34,20 @@ if [ -f "$REPO_ROOT/.agent/memory/active-session.md" ]; then
     echo "[stop] 📈 Tool usage this session:"
     if command -v python3 &> /dev/null; then
       python3 -c "
-import json
-with open('$STATS_FILE') as f:
+import json, sys
+with open(sys.argv[1]) as f:
     stats = json.load(f)
 for tool, count in sorted(stats.items(), key=lambda x: -x[1]):
     print(f'  → {tool}: {count} uses')
-" 2>/dev/null || echo "  (stats file unreadable)"
+" "$STATS_FILE" 2>/dev/null || echo "  (stats file unreadable)"
     elif command -v python &> /dev/null; then
       python -c "
-import json
-with open('$STATS_FILE') as f:
+import json, sys
+with open(sys.argv[1]) as f:
     stats = json.load(f)
 for tool, count in sorted(stats.items(), key=lambda x: -x[1]):
     print(f'  → {tool}: {count} uses')
-" 2>/dev/null || echo "  (stats file unreadable)"
+" "$STATS_FILE" 2>/dev/null || echo "  (stats file unreadable)"
     else
       cat "$STATS_FILE"
     fi

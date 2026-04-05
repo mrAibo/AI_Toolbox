@@ -52,10 +52,29 @@ if command -v aider &> /dev/null; then
   echo "  ✅ Aider ($AIDER_VERSION)"
 fi
 
+# GUI-based clients (no CLI binary — detect via common install paths)
+if command -v cursor &> /dev/null || [ -d "$HOME/.cursor" ] || [ -d "$HOME/.config/cursor" ] || [ -d "$LOCALAPPDATA/Programs/cursor" ] 2>/dev/null; then
+  CLIENTS+=("cursor")
+  CLIENT_NAMES+=("Cursor (GUI)")
+  echo "  ✅ Cursor (GUI)"
+fi
+
+if command -v cline &> /dev/null || [ -d "$HOME/.cline" ] || [ -d "$HOME/.config/cline" ] || [ -d "$HOME/.roocode" ] 2>/dev/null; then
+  CLIENTS+=("cline")
+  CLIENT_NAMES+=("Cline / RooCode (VS Code extension)")
+  echo "  ✅ Cline / RooCode (VS Code extension)"
+fi
+
+if command -v windsurf &> /dev/null || [ -d "$HOME/.windsurf" ] || [ -d "$HOME/.config/windsurf" ] 2>/dev/null; then
+  CLIENTS+=("windsurf")
+  CLIENT_NAMES+=("Windsurf (GUI)")
+  echo "  ✅ Windsurf (GUI)"
+fi
+
 # If no clients found, show message
 if [ ${#CLIENTS[@]} -eq 0 ]; then
   echo "  ⚠️  No supported AI clients detected."
-  echo "  Supported: Claude Code, Qwen Code, Gemini CLI, Aider"
+  echo "  Supported: Claude Code, Qwen Code, Gemini CLI, Aider, Cursor, Cline, Windsurf"
   echo "  Install one first, then re-run this setup."
   echo ""
   echo "  Continuing with bootstrap only..."
@@ -165,6 +184,12 @@ if ! command -v rtk &> /dev/null; then
   fi
 else
   echo "  ✅ rtk already installed ($(rtk --version 2>/dev/null || echo "installed"))"
+  read -p "  Configure rtk hooks for $PRIMARY_CLIENT? [Y/n] " init_rtk
+  init_rtk=${init_rtk:-y}
+  if [[ "$init_rtk" =~ ^[Yy]$ ]]; then
+    echo "  ✅ Configuring hooks: rtk init -g"
+    rtk init -g
+  fi
 fi
 
 # ---------------------------------------------------------------
@@ -302,7 +327,7 @@ echo "✅ Setup complete!"
 echo "==================================="
 echo ""
 echo "  Primary client: ${PRIMARY_CLIENT:-none detected}"
-echo "  Router files:   8 created"
+echo "  Router files:   7 created"
 if [ -n "$STACK" ]; then
   echo "  Project stack:  $STACK"
 fi

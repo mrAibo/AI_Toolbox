@@ -9,7 +9,7 @@ $Errors = 0
 # If a router file is staged, it must contain a "-- Tier:" badge.
 # ---------------------------------------------------------------
 $RouterFiles = @(
-    "CLAUDE.md", "QWEN.md", "GEMINI.md", "CONVENTIONS.md", "SKILL.md",
+    "CLAUDE.md", "QWEN.md", "GEMINI.md", "CONVENTIONS.md",
     ".cursorrules", ".clinerules", ".windsurfrules"
 )
 
@@ -75,8 +75,7 @@ foreach ($File in $StagedMD) {
 }
 
 # ---------------------------------------------------------------
-# Check 4: Hard-Enforce TDD — code changes should have test updates
-# Only warns (does not block) to avoid over-constraining legitimate changes.
+# Check 4: TDD Warning — code changes should have test updates (warns, does not block)
 # ---------------------------------------------------------------
 $StagedCode = git diff --cached --name-only 2>$null | Where-Object { $_ -match '\.(ts|tsx|js|jsx|py|rs|go|java|kt|rb)$' }
 

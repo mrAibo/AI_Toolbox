@@ -13,12 +13,12 @@ if (Get-Command bd -ErrorAction SilentlyContinue) {
     Write-Host "[sync-task] Task state exported to $TaskPath"
 
     # Detect task type from Beads output and suggest workflow
-    $TaskTitle = Get-Content $TaskPath -First 1 -ErrorAction SilentlyContinue
-    if ($TaskTitle -match 'fix|bug|issue|error|crash') {
+    $TaskOutput = Get-Content $TaskPath -First 1 -ErrorAction SilentlyContinue
+    if ($TaskOutput -match 'fix|bug|issue|error|crash') {
         Write-Host "[sync-task] 🐛 Bug fix detected — suggesting Bug-Fix Workflow"
-    } elseif ($TaskTitle -match 'refactor|rewrite|migrate|rename') {
+    } elseif ($TaskOutput -match 'refactor|rewrite|migrate|rename') {
         Write-Host "[sync-task] 🔧 Refactor detected — suggesting Code Review Workflow"
-    } elseif ($TaskTitle -match 'feature|build|create|add|implement') {
+    } elseif ($TaskOutput -match 'feature|build|create|add|implement') {
         Write-Host "[sync-task] 🚀 Feature detected — suggesting Unified Workflow (9 steps)"
     }
 } else {
@@ -76,19 +76,19 @@ if (Test-Path "package.json") {
     Write-Host "[sync-task] 💡 Templates available: api-rest, database, ui-analysis"
 
     # Fix 5b: Scan import statements for framework-specific templates
-    if (Select-String -Pattern '"next"' -Include '*.tsx','*.ts','*.js' -Path . -ErrorAction SilentlyContinue) {
+    if (Select-String -Pattern '"next"' -Include '*.tsx','*.ts','*.js' -Path . -Exclude @('node_modules/*', '.git/*') -ErrorAction SilentlyContinue) {
         Write-Host "[sync-task] 💡 Detected: web-frameworks/nextjs"
     }
-    if (Select-String -Pattern '"react"' -Include '*.tsx','*.ts','*.js' -Path . -ErrorAction SilentlyContinue) {
+    if (Select-String -Pattern '"react"' -Include '*.tsx','*.ts','*.js' -Path . -Exclude @('node_modules/*', '.git/*') -ErrorAction SilentlyContinue) {
         Write-Host "[sync-task] 💡 Detected: frontend/react"
     }
-    if (Select-String -Pattern '"express"' -Include '*.ts','*.js' -Path . -ErrorAction SilentlyContinue) {
+    if (Select-String -Pattern '"express"' -Include '*.ts','*.js' -Path . -Exclude @('node_modules/*', '.git/*') -ErrorAction SilentlyContinue) {
         Write-Host "[sync-task] 💡 Detected: api-rest/express"
     }
-    if (Select-String -Pattern '"@prisma/client"' -Include '*.ts','*.js' -Path . -ErrorAction SilentlyContinue) {
+    if (Select-String -Pattern '"@prisma/client"' -Include '*.ts','*.js' -Path . -Exclude @('node_modules/*', '.git/*') -ErrorAction SilentlyContinue) {
         Write-Host "[sync-task] 💡 Detected: database/prisma"
     }
-    if (Select-String -Pattern '"jest"' -Include '*.json' -Path . -ErrorAction SilentlyContinue) {
+    if (Select-String -Pattern '"jest"' -Include '*.json' -Path . -Exclude @('node_modules/*', '.git/*') -ErrorAction SilentlyContinue) {
         Write-Host "[sync-task] 💡 Detected: testing/jest"
     }
 } elseif (Test-Path "Cargo.toml") {

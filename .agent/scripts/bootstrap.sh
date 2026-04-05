@@ -38,7 +38,24 @@ EOF
 fi
 
 if [ ! -s .agent/memory/session-handover.md ]; then
-echo "# Session Handover" > .agent/memory/session-handover.md
+cat << 'EOF' > .agent/memory/session-handover.md
+# Session Handover
+
+## Completed
+- [What was done]
+- [Files changed]
+- [Tests added/passed]
+
+## In Progress
+- [Current task ID and status]
+- [Next recommended step]
+- [Any blockers]
+
+## Stats
+- Tokens saved (rtk): ~0
+- MCP queries: 0
+- Sub-agents used: 0
+EOF
 fi
 
 if [ ! -s .agent/memory/current-task.md ]; then
@@ -116,6 +133,13 @@ cat << 'EOF' > .agent/memory/active-session.md
 - Steps completed: 0/9
 - Subtasks done: 0/0
 - Tokens saved (rtk): ~0
+EOF
+fi
+
+# Initialize tool usage tracking file
+if [ ! -f .agent/memory/.tool-stats.json ]; then
+cat << 'EOF' > .agent/memory/.tool-stats.json
+{"rtk": 0, "beads": 0, "mcp": 0}
 EOF
 fi
 

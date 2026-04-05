@@ -35,20 +35,23 @@ if ($Command -match '^(cat|less|tail|head) .+\.log' -and $Command -notmatch '^rt
 # Track tool usage for session statistics
 function Track-Tool {
   param([string]$Tool)
-  if (Test-Path $StatsFile) {
-    try {
-      $stats = Get-Content $StatsFile -Raw | ConvertFrom-Json
-      if ($stats.$Tool) { $stats.$Tool += 1 } else { $stats | Add-Member -NotePropertyName $Tool -NotePropertyValue 1 }
-      $stats | ConvertTo-Json -Depth 3 | Set-Content $StatsFile -Encoding utf8
-    } catch {
-      # Stats file corrupted — ignore silently
-    }
+  # Initialize stats file if missing
+  if (-not (Test-Path $StatsFile)) {
+    @{ "rtk" = 0; "beads" = 0; "mcp" = 0 } | ConvertTo-Json | Set-Content $StatsFile -Encoding utf8
+  }
+  # Increment counter
+  try {
+    $stats = Get-Content $StatsFile -Raw | ConvertFrom-Json
+    if ($stats.$Tool) { $stats.$Tool += 1 } else { $stats | Add-Member -NotePropertyName $Tool -NotePropertyValue 1 }
+    $stats | ConvertTo-Json -Depth 3 | Set-Content $StatsFile -Encoding utf8
+  } catch {
+    # Stats file corrupted — ignore silently
   }
 }
 
 # Detect which tool is being used
-if ($Command -match 'rtk.*(test|build|lint)') { Track-Tool "rtk" }
-if ($Command -match 'bd\s+(create|ready|list|close)') { Track-Tool "beads" }
+if ($Command -match '^rtk ') { Track-Tool "rtk" }
+if ($Command -match '^bd\s+') { Track-Tool "beads" }
 if ($Command -match 'claude\s+mcp|context7|sequential-thinking') { Track-Tool "mcp" }
 
 exit 0

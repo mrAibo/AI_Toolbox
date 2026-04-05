@@ -29,8 +29,12 @@ fi
 track_tool() {
   local tool="$1"
   local file="$STATS_FILE"
+  # Initialize stats file if missing
+  if [ ! -f "$file" ]; then
+    echo '{"rtk": 0, "beads": 0, "mcp": 0}' > "$file"
+  fi
+  # Increment counter
   if [ -f "$file" ]; then
-    # Simple increment — in production use jq
     count=$(grep -o "\"$tool\": [0-9]*" "$file" 2>/dev/null | grep -o '[0-9]*' || echo "0")
     count=$((count + 1))
     sed -i "s/\"$tool\": [0-9]*/\"$tool\": $count/" "$file" 2>/dev/null || true
@@ -39,8 +43,8 @@ track_tool() {
 
 # Detect which tool is being used
 case "$cmd" in
-  *rtk*test*|*rtk*build*|*rtk*lint*) track_tool "rtk" ;;
-  *bd\ create*|*bd\ ready*|*bd\ list*|*bd\ close*) track_tool "beads" ;;
+  *rtk*test*|*rtk*build*|*rtk*lint*|rtk\ *) track_tool "rtk" ;;
+  *bd\ create*|*bd\ ready*|*bd\ list*|*bd\ close*|bd\ *) track_tool "beads" ;;
   *claude\ mcp*|*context7*|*sequential-thinking*) track_tool "mcp" ;;
 esac
 

@@ -43,7 +43,7 @@ This is the **Definitive Boot Sequence**. All agents must follow this procedure 
 2. **Context Recovery:** Read `.agent/memory/architecture-decisions.md` and `.agent/memory/integration-contracts.md`.
 3. **Work-in-Progress Check:** Read `.agent/memory/session-handover.md` if it exists.
 4. **Task Synchronization:** Run `.agent/scripts/sync-task.sh` (or `.ps1` on Windows) to update `.agent/memory/current-task.md` with the latest state from the task tracker.
-5. **Session Status Init:** If `.agent/memory/active-session.md` is empty or missing, initialize it from the template in `.agent/memory/active-session.md`.
+5. **Session Status Init:** If `.agent/memory/active-session.md` is empty or missing, initialize it with the template structure (created by bootstrap at `.agent/memory/active-session.md`).
 6. **Summarization:** Briefly summarize the recovered context, current state, available tools, and the next planned task before continuing.
 
 Purpose:
