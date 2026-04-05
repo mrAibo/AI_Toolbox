@@ -74,10 +74,37 @@ if (Get-Command bd -ErrorAction SilentlyContinue) {
 # Fix 5: Suggest specialist templates based on detected stack
 if (Test-Path "package.json") {
     Write-Host "[sync-task] 💡 Templates available: api-rest, database, ui-analysis"
+
+    # Fix 5b: Scan import statements for framework-specific templates
+    if (Select-String -Pattern '"next"' -Include '*.tsx','*.ts','*.js' -Path . -ErrorAction SilentlyContinue) {
+        Write-Host "[sync-task] 💡 Detected: web-frameworks/nextjs"
+    }
+    if (Select-String -Pattern '"react"' -Include '*.tsx','*.ts','*.js' -Path . -ErrorAction SilentlyContinue) {
+        Write-Host "[sync-task] 💡 Detected: frontend/react"
+    }
+    if (Select-String -Pattern '"express"' -Include '*.ts','*.js' -Path . -ErrorAction SilentlyContinue) {
+        Write-Host "[sync-task] 💡 Detected: api-rest/express"
+    }
+    if (Select-String -Pattern '"@prisma/client"' -Include '*.ts','*.js' -Path . -ErrorAction SilentlyContinue) {
+        Write-Host "[sync-task] 💡 Detected: database/prisma"
+    }
+    if (Select-String -Pattern '"jest"' -Include '*.json' -Path . -ErrorAction SilentlyContinue) {
+        Write-Host "[sync-task] 💡 Detected: testing/jest"
+    }
 } elseif (Test-Path "Cargo.toml") {
     Write-Host "[sync-task] 💡 Templates available: programming-languages/rust, devops-infrastructure"
+    if (Select-String -Pattern 'tokio' -Path Cargo.toml -ErrorAction SilentlyContinue) {
+        Write-Host "[sync-task] 💡 Detected: tokio async runtime"
+    }
+    if (Select-String -Pattern 'actix' -Path Cargo.toml -ErrorAction SilentlyContinue) {
+        Write-Host "[sync-task] 💡 Detected: actix-web framework"
+    }
 } elseif ((Test-Path "pyproject.toml") -or (Test-Path "requirements.txt")) {
     Write-Host "[sync-task] 💡 Templates available: programming-languages/python, ai-specialists"
+    if ((Select-String -Pattern 'django' -Path pyproject.toml,requirements.txt -ErrorAction SilentlyContinue) -or
+        (Select-String -Pattern 'fastapi' -Path pyproject.toml,requirements.txt -ErrorAction SilentlyContinue)) {
+        Write-Host "[sync-task] 💡 Detected: web framework (django/fastapi)"
+    }
 } elseif (Test-Path "go.mod") {
     Write-Host "[sync-task] 💡 Templates available: programming-languages/go, devops-infrastructure"
 } elseif ((Test-Path "pom.xml") -or (Test-Path "build.gradle")) {

@@ -66,10 +66,44 @@ fi
 # Fix 5: Suggest specialist templates based on detected stack
 if [ -f "package.json" ]; then
     echo "[sync-task] 💡 Templates available: api-rest, database, ui-analysis"
+
+    # Fix 5b: Scan import statements for framework-specific templates
+    FRAMEWORKS_FOUND=""
+    if grep -rq '"next"' . --include="*.tsx" --include="*.ts" --include="*.js" 2>/dev/null; then
+        FRAMEWORKS_FOUND="$FRAMEWORKS_FOUND web-frameworks/nextjs"
+    fi
+    if grep -rq '"react"' . --include="*.tsx" --include="*.ts" --include="*.js" 2>/dev/null; then
+        FRAMEWORKS_FOUND="$FRAMEWORKS_FOUND frontend/react"
+    fi
+    if grep -rq '"express"' . --include="*.ts" --include="*.js" 2>/dev/null; then
+        FRAMEWORKS_FOUND="$FRAMEWORKS_FOUND api-rest/express"
+    fi
+    if grep -rq '"@prisma/client"' . --include="*.ts" --include="*.js" 2>/dev/null; then
+        FRAMEWORKS_FOUND="$FRAMEWORKS_FOUND database/prisma"
+    fi
+    if grep -rq '"jest"' . --include="*.json" 2>/dev/null; then
+        FRAMEWORKS_FOUND="$FRAMEWORKS_FOUND testing/jest"
+    fi
+
+    if [ -n "$FRAMEWORKS_FOUND" ]; then
+        echo "[sync-task] 💡 Detected frameworks:$FRAMEWORKS_FOUND"
+    fi
 elif [ -f "Cargo.toml" ]; then
     echo "[sync-task] 💡 Templates available: programming-languages/rust, devops-infrastructure"
+    if grep -rq "tokio" Cargo.toml 2>/dev/null; then
+        echo "[sync-task] 💡 Detected: tokio async runtime"
+    fi
+    if grep -rq "actix" Cargo.toml 2>/dev/null; then
+        echo "[sync-task] 💡 Detected: actix-web framework"
+    fi
 elif [ -f "pyproject.toml" ] || [ -f "requirements.txt" ]; then
     echo "[sync-task] 💡 Templates available: programming-languages/python, ai-specialists"
+    if grep -rq "django" pyproject.toml requirements.txt 2>/dev/null; then
+        echo "[sync-task] 💡 Detected: Django framework"
+    fi
+    if grep -rq "fastapi" pyproject.toml requirements.txt 2>/dev/null; then
+        echo "[sync-task] 💡 Detected: FastAPI framework"
+    fi
 elif [ -f "go.mod" ]; then
     echo "[sync-task] 💡 Templates available: programming-languages/go, devops-infrastructure"
 elif [ -f "pom.xml" ] || [ -f "build.gradle" ]; then

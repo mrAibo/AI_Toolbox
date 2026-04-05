@@ -233,6 +233,67 @@ if [ -n "$PRIMARY_CLIENT" ]; then
 fi
 
 # ---------------------------------------------------------------
+# Step 7: Register hooks for ALL detected clients
+# ---------------------------------------------------------------
+echo ""
+echo "🔗 Registering AI Toolbox hooks for all detected clients..."
+
+for i in "${!CLIENTS[@]}"; do
+  client="${CLIENTS[$i]}"
+  echo ""
+  echo "  → ${CLIENT_NAMES[$i]}:"
+
+  case "$client" in
+    claude)
+      if [ -f ".agent/templates/clients/.claude.json" ]; then
+        cp .agent/templates/clients/.claude.json .claude.json
+        echo "    ✅ .claude.json hooks installed"
+      else
+        echo "    ⚠️  .claude.json template not found"
+      fi
+      ;;
+    qwen)
+      mkdir -p .qwen
+      cat > .qwen/hooks.sh << 'QWENEOF'
+#!/bin/bash
+REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
+case "$QWEN_HOOK_TYPE" in
+  pre-command) bash "$REPO_ROOT/.agent/scripts/hook-pre-command.sh" "$QWEN_COMMAND" ;;
+  post-command) bash "$REPO_ROOT/.agent/scripts/hook-stop.sh" ;;
+  session-start) bash "$REPO_ROOT/.agent/scripts/sync-task.sh" && cat "$REPO_ROOT/.agent/memory/current-task.md" 2>/dev/null ;;
+esac
+QWENEOF
+      chmod +x .qwen/hooks.sh
+      echo "    ✅ .qwen/hooks.sh created"
+      ;;
+    cursor)
+      mkdir -p .cursor
+      cat > .cursor/hooks.json << 'CURSOREOF'
+{"pre-command":"bash .agent/scripts/hook-pre-command.sh \"$COMMAND\"","post-command":"bash .agent/scripts/hook-stop.sh","session-start":"bash .agent/scripts/sync-task.sh && cat .agent/memory/current-task.md"}
+CURSOREOF
+      echo "    ✅ .cursor/hooks.json created"
+      ;;
+    cline|roocode)
+      mkdir -p .cline
+      cat > .cline/hooks.json << 'CLINEEOF'
+{"pre-command":"bash .agent/scripts/hook-pre-command.sh \"$COMMAND\"","post-command":"bash .agent/scripts/hook-stop.sh","session-start":"bash .agent/scripts/sync-task.sh && cat .agent/memory/current-task.md"}
+CLINEEOF
+      echo "    ✅ .cline/hooks.json created"
+      ;;
+    windsurf)
+      mkdir -p .windsurf
+      cat > .windsurf/hooks.json << 'WSEOF'
+{"pre-command":"bash .agent/scripts/hook-pre-command.sh \"$COMMAND\"","post-command":"bash .agent/scripts/hook-stop.sh","session-start":"bash .agent/scripts/sync-task.sh && cat .agent/memory/current-task.md"}
+WSEOF
+      echo "    ✅ .windsurf/hooks.json created"
+      ;;
+    gemini|aider)
+      echo "    ℹ️  Basic Tier — hooks not supported (soft reminders only)"
+      ;;
+  esac
+done
+
+# ---------------------------------------------------------------
 # Summary
 # ---------------------------------------------------------------
 echo ""

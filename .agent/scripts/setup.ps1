@@ -226,6 +226,65 @@ if ($PrimaryClient) {
 }
 
 # ---------------------------------------------------------------
+# Step 7: Register hooks for ALL detected clients
+# ---------------------------------------------------------------
+Write-Host ""
+Write-Host "🔗 Registering AI Toolbox hooks for all detected clients..." -ForegroundColor Cyan
+
+for ($i = 0; $i -lt $Clients.Count; $i++) {
+  $client = $Clients[$i]
+  Write-Host ""
+  Write-Host "  → $($ClientNames[$i]):" -ForegroundColor Yellow
+
+  switch ($client) {
+    "claude" {
+      if (Test-Path ".agent/templates/clients/.claude.json") {
+        Copy-Item ".agent/templates/clients/.claude.json" ".claude.json" -Force
+        Write-Host "    ✅ .claude.json hooks installed" -ForegroundColor Green
+      } else {
+        Write-Host "    ⚠️  .claude.json template not found" -ForegroundColor Yellow
+      }
+    }
+    "qwen" {
+      New-Item -ItemType Directory -Force -Path ".qwen" | Out-Null
+      @'
+#!/bin/bash
+REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
+case "$QWEN_HOOK_TYPE" in
+  pre-command) bash "$REPO_ROOT/.agent/scripts/hook-pre-command.sh" "$QWEN_COMMAND" ;;
+  post-command) bash "$REPO_ROOT/.agent/scripts/hook-stop.sh" ;;
+  session-start) bash "$REPO_ROOT/.agent/scripts/sync-task.sh" && cat "$REPO_ROOT/.agent/memory/current-task.md" 2>/dev/null ;;
+esac
+'@ | Set-Content ".qwen/hooks.sh" -Encoding utf8
+      Write-Host "    ✅ .qwen/hooks.sh created" -ForegroundColor Green
+    }
+    "cursor" {
+      New-Item -ItemType Directory -Force -Path ".cursor" | Out-Null
+      @'
+{"pre-command":"bash .agent/scripts/hook-pre-command.sh \"$COMMAND\"","post-command":"bash .agent/scripts/hook-stop.sh","session-start":"bash .agent/scripts/sync-task.sh && cat .agent/memory/current-task.md"}
+'@ | Set-Content ".cursor/hooks.json" -Encoding utf8
+      Write-Host "    ✅ .cursor/hooks.json created" -ForegroundColor Green
+    }
+    "cline" {
+      New-Item -ItemType Directory -Force -Path ".cline" | Out-Null
+      @'
+{"pre-command":"bash .agent/scripts/hook-pre-command.sh \"$COMMAND\"","post-command":"bash .agent/scripts/hook-stop.sh","session-start":"bash .agent/scripts/sync-task.sh && cat .agent/memory/current-task.md"}
+'@ | Set-Content ".cline/hooks.json" -Encoding utf8
+      Write-Host "    ✅ .cline/hooks.json created" -ForegroundColor Green
+    }
+    "windsurf" {
+      New-Item -ItemType Directory -Force -Path ".windsurf" | Out-Null
+      @'
+{"pre-command":"bash .agent/scripts/hook-pre-command.sh \"$COMMAND\"","post-command":"bash .agent/scripts/hook-stop.sh","session-start":"bash .agent/scripts/sync-task.sh && cat .agent/memory/current-task.md"}
+'@ | Set-Content ".windsurf/hooks.json" -Encoding utf8
+      Write-Host "    ✅ .windsurf/hooks.json created" -ForegroundColor Green
+    }
+    "gemini" { Write-Host "    ℹ️  Basic Tier — hooks not supported (soft reminders only)" -ForegroundColor Gray }
+    "aider" { Write-Host "    ℹ️  Basic Tier — hooks not supported (soft reminders only)" -ForegroundColor Gray }
+  }
+}
+
+# ---------------------------------------------------------------
 # Summary
 # ---------------------------------------------------------------
 Write-Host ""

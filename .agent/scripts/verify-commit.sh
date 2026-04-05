@@ -67,6 +67,26 @@ for file in $STAGED_MD; do
 done
 
 # ---------------------------------------------------------------
+# Check 4: Hard-Enforce TDD — code changes should have test updates
+# Only warns (does not block) to avoid over-constraining legitimate changes.
+# ---------------------------------------------------------------
+STAGED_CODE=$(git diff --cached --name-only 2>/dev/null | grep -E '\.(ts|tsx|js|jsx|py|rs|go|java|kt|rb)$' || true)
+
+if [ -n "$STAGED_CODE" ]; then
+    # Check if any test files are also staged
+    STAGED_TESTS=$(git diff --cached --name-only 2>/dev/null | grep -iE '(test|spec|_test\.|\.test\.)' || true)
+
+    if [ -z "$STAGED_TESTS" ]; then
+        echo "⚠️  AI Toolbox TDD Warning: Code changes detected without test file changes."
+        echo "   Per .agent/rules/tdd-rules.md, all code changes should have corresponding tests."
+        echo "   Staged code files:"
+        echo "$STAGED_CODE" | sed 's/^/     /'
+        echo "   Consider adding or updating tests before committing."
+        echo ""
+    fi
+fi
+
+# ---------------------------------------------------------------
 # Result
 # ---------------------------------------------------------------
 if [ $ERRORS -gt 0 ]; then

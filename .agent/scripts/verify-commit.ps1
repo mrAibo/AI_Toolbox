@@ -75,6 +75,25 @@ foreach ($File in $StagedMD) {
 }
 
 # ---------------------------------------------------------------
+# Check 4: Hard-Enforce TDD — code changes should have test updates
+# Only warns (does not block) to avoid over-constraining legitimate changes.
+# ---------------------------------------------------------------
+$StagedCode = git diff --cached --name-only 2>$null | Where-Object { $_ -match '\.(ts|tsx|js|jsx|py|rs|go|java|kt|rb)$' }
+
+if ($StagedCode) {
+    $StagedTests = git diff --cached --name-only 2>$null | Where-Object { $_ -match '(?i)(test|spec|_test\.|\.test\.)' }
+
+    if (-not $StagedTests) {
+        Write-Host "⚠️  AI Toolbox TDD Warning: Code changes detected without test file changes."
+        Write-Host "   Per .agent/rules/tdd-rules.md, all code changes should have corresponding tests."
+        Write-Host "   Staged code files:"
+        $StagedCode | ForEach-Object { Write-Host "     $_" }
+        Write-Host "   Consider adding or updating tests before committing."
+        Write-Host ""
+    }
+}
+
+# ---------------------------------------------------------------
 # Result
 # ---------------------------------------------------------------
 if ($Errors -gt 0) {
