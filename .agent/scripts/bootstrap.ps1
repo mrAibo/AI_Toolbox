@@ -307,16 +307,6 @@ If a new dependency is necessary:
 
 ---
 
-## AI workflow tools
-
-The following tools are preferred in this repository when available:
-- `rtk` for heavy terminal output and log compression
-- `Beads` for task tracking and execution order
-- `Claude-Mem` for episodic problem/solution memory
-- `AGENT.md` and `.agent/memory/*.md` for durable workflow memory
-
----
-
 ## Language and framework discipline
 
 - Do not mix multiple paradigms or frameworks without a clear reason
@@ -332,6 +322,17 @@ The following tools are preferred in this repository when available:
 - Avoid unnecessary code generation layers
 - Avoid hidden magic in setup and execution
 - Prefer commands and workflows that can be explained in a short runbook
+
+---
+
+## AI workflow tools
+
+The following tools are preferred in this repository when available:
+
+- `rtk` for heavy terminal output and log compression
+- `Beads` for task tracking and execution order
+- `Claude-Mem` for episodic problem/solution memory
+- `AGENT.md` and `.agent/memory/*.md` for durable workflow memory
 
 ---
 
@@ -530,13 +531,12 @@ if (-not (Test-Path ".windsurfrules") -or (Get-Item ".windsurfrules").Length -eq
     Set-Content -Path ".windsurfrules" -Value $WindsurfContent -Encoding utf8
 }
 
-# Qwen Code router (Full Tier)
+# Qwen Code router (Full Tier) — guard: preserve manual edits
 $ClientDir = ".agent/templates/clients"
-if (-not (Test-Path $ClientDir)) { New-Item -ItemType Directory -Path $ClientDir | Out-Null }
-if (Test-Path "$ClientDir/QWEN.md") {
+if ((Test-Path "$ClientDir/QWEN.md") -and (-not (Test-Path "QWEN.md") -or (Get-Item "QWEN.md").Length -eq 0)) {
     Copy-Item -Path "$ClientDir/QWEN.md" -Destination "QWEN.md" -Force
     Write-Host "[bootstrap] Installed QWEN.md (Full Tier)"
-} else {
+} elseif (-not (Test-Path "QWEN.md") -or (Get-Item "QWEN.md").Length -eq 0) {
     $QwenFull = @'
 # AI Toolbox Protocol (Qwen Code) -- Tier: Full
 
@@ -569,11 +569,11 @@ Refer to [AGENT.md](AGENT.md) for the full operational contract.
     Set-Content -Path "QWEN.md" -Value $QwenFull -Encoding utf8
 }
 
-# Aider router + config (Basic Tier)
-if (Test-Path "$ClientDir/CONVENTIONS.md") {
+# Aider router + config (Basic Tier) — guard: preserve manual edits
+if ((Test-Path "$ClientDir/CONVENTIONS.md") -and (-not (Test-Path "CONVENTIONS.md") -or (Get-Item "CONVENTIONS.md").Length -eq 0)) {
     Copy-Item -Path "$ClientDir/CONVENTIONS.md" -Destination "CONVENTIONS.md" -Force
     Write-Host "[bootstrap] Installed CONVENTIONS.md (Basic Tier)"
-} else {
+} elseif (-not (Test-Path "CONVENTIONS.md") -or (Get-Item "CONVENTIONS.md").Length -eq 0) {
     $AiderFull = @'
 # AI Toolbox Protocol (Aider) -- Tier: Basic
 

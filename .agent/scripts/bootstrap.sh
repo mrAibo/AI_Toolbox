@@ -289,16 +289,6 @@ If a new dependency is necessary:
 
 ---
 
-## AI workflow tools
-
-The following tools are preferred in this repository when available:
-- `rtk` for heavy terminal output and log compression
-- `Beads` for task tracking and execution order
-- `Claude-Mem` for episodic problem/solution memory
-- `AGENT.md` and `.agent/memory/*.md` for durable workflow memory
-
----
-
 ## Language and framework discipline
 
 - Do not mix multiple paradigms or frameworks without a clear reason
@@ -314,6 +304,17 @@ The following tools are preferred in this repository when available:
 - Avoid unnecessary code generation layers
 - Avoid hidden magic in setup and execution
 - Prefer commands and workflows that can be explained in a short runbook
+
+---
+
+## AI workflow tools
+
+The following tools are preferred in this repository when available:
+
+- `rtk` for heavy terminal output and log compression
+- `Beads` for task tracking and execution order
+- `Claude-Mem` for episodic problem/solution memory
+- `AGENT.md` and `.agent/memory/*.md` for durable workflow memory
 
 ---
 
@@ -502,11 +503,11 @@ Details in [AGENT.md](AGENT.md).
 EOF
 fi
 
-# Full-Tier: Qwen Code CLI router
-if [ -f ".agent/templates/clients/QWEN.md" ]; then
+# Full-Tier: Qwen Code CLI router (guard: preserve manual edits)
+if [ -f ".agent/templates/clients/QWEN.md" ] && [ ! -s QWEN.md ]; then
     cp .agent/templates/clients/QWEN.md QWEN.md
     echo "[bootstrap] Installed QWEN.md (Full Tier)"
-else
+elif [ ! -s QWEN.md ]; then
 cat << 'EOF' > QWEN.md
 # AI Toolbox Protocol (Qwen Code) -- Tier: Full
 
@@ -538,11 +539,11 @@ Refer to [AGENT.md](AGENT.md) for the full operational contract.
 EOF
 fi
 
-# Basic-Tier: Aider router + config
-if [ -f ".agent/templates/clients/CONVENTIONS.md" ]; then
+# Basic-Tier: Aider router + config (guard: preserve manual edits)
+if [ -f ".agent/templates/clients/CONVENTIONS.md" ] && [ ! -s CONVENTIONS.md ]; then
     cp .agent/templates/clients/CONVENTIONS.md CONVENTIONS.md
     echo "[bootstrap] Installed CONVENTIONS.md (Basic Tier)"
-else
+elif [ ! -s CONVENTIONS.md ]; then
 cat << 'EOF' > CONVENTIONS.md
 # AI Toolbox Protocol (Aider) -- Tier: Basic
 
