@@ -8,7 +8,8 @@ Before you start, identify your own environment:
 2.  **Platform Identity:** 
     - If you are **Claude Code**, you can use `mcp add` commands.
     - If you are **Antigravity**, you have access to **native slash-command workflows** and **artifacts**; prioritize these.
-    - If you are **Gemini CLI** or **OpenCode**, follow the generic terminal instructions.
+    - If you are **Gemini CLI**, **Aider**, **Cursor**, or **Windsurf**, follow the generic terminal instructions.
+    - If you are **Qwen Code** or **RooCode/Cline**, you have file-based routing; follow the instructions in your respective router file.
 3.  **Tooling:** Check if you have direct access to `git`, `npx`, `go`, and `cargo`.
 
 ## Step 1: Download the core files

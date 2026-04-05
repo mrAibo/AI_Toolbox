@@ -141,6 +141,39 @@ If something is inferred rather than verified:
 - say so
 - document the uncertainty
 - avoid irreversible actions based on the assumption
+
+---
+
+## Change scope rule
+
+Keep changes as small and local as possible.
+
+Avoid broad rewrites when a focused change is enough.
+Do not refactor unrelated parts of the system during a targeted fix unless the user asks for it.
+
+---
+
+## Repository integrity rule
+
+The repository should remain understandable and recoverable after each session.
+
+That means:
+- memory files should be updated when needed
+- unfinished work should be handed over clearly
+- no silent breaking changes should be introduced
+- the next session should be able to continue safely
+
+---
+
+## Communication rule
+
+If a task has real risk, communicate the risk before proceeding.
+
+Examples:
+- destructive migrations
+- removing compatibility layers
+- changing public interfaces
+- replacing a key dependency
 EOF
 fi
 
@@ -189,6 +222,36 @@ For bug fixes, prefer this sequence:
 - Use `rtk` for heavy test runs where possible
 - Avoid pasting very large raw output into context
 - Summarize failures clearly and precisely
+
+---
+
+## Required behavior
+
+- Run tests when tests exist
+- If there are no tests, run the most relevant verification command
+- If no command exists, inspect the result in the most direct practical way
+- Check the actual output instead of assuming success
+- Mention what was verified and what remains unverified
+
+---
+
+## Change validation
+
+For each meaningful code change, verify at least one of the following:
+- tests pass
+- build succeeds
+- command output is correct
+- file output is correct
+- integration behavior matches the expected contract
+
+---
+
+## Reporting rule
+
+When reporting completion, mention:
+- what was changed
+- how it was verified
+- what is still uncertain, if anything
 EOF
 fi
 
@@ -229,6 +292,33 @@ The following tools are preferred in this repository when available:
 - `rtk` for heavy terminal output and log compression
 - `Beads` for task tracking and execution order
 - `AGENT.md` and `.agent/memory/*.md` for durable workflow memory
+
+---
+
+## Language and framework discipline
+
+- Do not mix multiple paradigms or frameworks without a clear reason
+- Do not introduce a framework just to avoid writing a small amount of code
+- Avoid dependency sprawl
+- Keep the stack understandable for future sessions
+
+---
+
+## Build and runtime discipline
+
+- Keep the build process simple and reproducible
+- Avoid unnecessary code generation layers
+- Avoid hidden magic in setup and execution
+- Prefer commands and workflows that can be explained in a short runbook
+
+---
+
+## Documentation rule
+
+Any meaningful stack decision must be reflected in:
+- `architecture-decisions.md` for the decision itself
+- `integration-contracts.md` if interfaces are affected
+- `runbook.md` if operating procedures are affected
 EOF
 fi
 
@@ -240,7 +330,7 @@ This file defines how to work with the **AI Toolbox** when using the **Antigravi
 
 ---
 
-## Native Workflows (Slash Commands)
+## 🚀 Native Workflows (Slash Commands)
 
 Use the built-in slash commands defined in `.agent/workflows/` for routine operations:
 
@@ -252,7 +342,7 @@ Use the built-in slash commands defined in `.agent/workflows/` for routine opera
 
 ---
 
-## Artifact Management
+## 📄 Artifact Management
 
 Antigravity uses native artifacts to display structured project information. Maintain these as first-class citizens:
 
@@ -262,7 +352,7 @@ Antigravity uses native artifacts to display structured project information. Mai
 
 ---
 
-## Antigravity Memory Coordination
+## 🧩 Antigravity Memory Coordination
 
 While the AI Toolbox uses `.agent/memory/` for universal storage, Antigravity-specific artifacts provide the visual representation. Ensure they are always synchronized before concluding a session.
 EOF
@@ -438,6 +528,7 @@ Read these files at session start (in order):
 2. `.agent/memory/integration-contracts.md` -- API/schema contracts
 3. `.agent/memory/session-handover.md` -- Unfinished work from last session
 4. `.agent/memory/current-task.md` -- Active todo list
+5. `.agent/memory/runbook.md` -- Operational procedures (if present)
 
 Refer to [AGENT.md](AGENT.md) for the full operational contract.
 EOF
@@ -493,6 +584,8 @@ fi
 
 if [ -d ".git" ]; then
     echo "[bootstrap] Updating Git pre-commit safeguards..."
+    # Only write hook if it doesn't already exist (preserve manual customizations)
+    if [ ! -s .git/hooks/pre-commit ]; then
     cat << 'EOF' > .git/hooks/pre-commit
 #!/bin/bash
 # AI Toolbox Pre-commit wrapper
@@ -502,6 +595,7 @@ if [ -f "$REPO_ROOT/.agent/scripts/verify-commit.sh" ]; then
 fi
 EOF
     chmod +x .git/hooks/pre-commit
+    fi
 fi
 
 

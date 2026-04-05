@@ -22,5 +22,6 @@ Read these files at session start (in order):
 2. `.agent/memory/integration-contracts.md` -- API/schema contracts
 3. `.agent/memory/session-handover.md` -- Unfinished work from last session
 4. `.agent/memory/current-task.md` -- Active todo list
+5. `.agent/memory/runbook.md` -- Operational procedures (if present)
 
 Refer to [AGENT.md](AGENT.md) for the full operational contract.

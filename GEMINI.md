@@ -43,4 +43,4 @@ This project uses the **AI Toolbox** workflow framework. Read this file carefull
 * No multi-agent support.
 * Safety rules are recommendations only, not enforced by the toolchain.
 
-Refer to [AGENT.md](AGENT.md) for the full operational contract.
+Refer to [AGENT.md](AGENT.md) for the full operational contract.  

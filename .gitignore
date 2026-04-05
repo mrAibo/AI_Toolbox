@@ -11,9 +11,17 @@ dist/
 build/
 docs/build/
 
-# AI Toolbox client routers (generated locally, NOT committed)
+# AI Toolbox client routers (generated locally by bootstrap; committed as reference)
+# Note: .gitignore has no effect on already-tracked files.
+
+# Locally-generated JSON config (not committed)
 .claude.json
+
+# Standard-Tier router files (committed as reference, but local edits may differ)
 .cursorrules
 .clinerules
 .windsurfrules
-.aider.conf.yml
+
+# Session memory files (committed as templates, locally overridden during work)
+.agent/memory/session-handover.md
+.agent/memory/current-task.md
