@@ -4,6 +4,8 @@ This file defines how work must be verified before it is considered complete.
 
 The purpose is to prevent false completion, unverified assumptions, and silent regressions.
 
+For the mandatory TDD process (RED-GREEN-REFACTOR), see **[tdd-rules.md](tdd-rules.md)**.
+
 ---
 
 ## Core rule

@@ -142,6 +142,8 @@ Brainstorming should produce structure, not noise.
 
 Before reporting success, follow the **[.agent/rules/testing-rules.md](.agent/rules/testing-rules.md)**.
 
+For the mandatory TDD process (RED-GREEN-REFACTOR), follow **[.agent/rules/tdd-rules.md](.agent/rules/tdd-rules.md)**.
+
 **Bug Fix Sequence:**
 For a structured bug-fix process, follow **[.agent/workflows/bug-fix.md](.agent/workflows/bug-fix.md)**:
 1. **Reproduce** the problem with a test or command.
@@ -149,6 +151,8 @@ For a structured bug-fix process, follow **[.agent/workflows/bug-fix.md](.agent/
 3. **Implement** the fix.
 4. **Verify** using the reproduction step.
 5. **Record** durable knowledge if the bug was non-trivial.
+
+Before merging or marking a task complete, run the **[.agent/workflows/code-review.md](.agent/workflows/code-review.md)** self-review checklist.
 
 Never say that something works unless it has been checked.
 
@@ -173,6 +177,7 @@ Before ending a meaningful work session:
 2. Update session handover
 3. Make sure the next step is clear
 4. Leave the repository in a recoverable state
+5. If a task is complete, run **[.agent/workflows/branch-finish.md](.agent/workflows/branch-finish.md)** to finalize
 
 The next session should be able to continue with minimal explanation.
 
