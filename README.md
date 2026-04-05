@@ -76,7 +76,7 @@ AI_Toolbox/
 │   │   ├── task-template.md           # Task definition
 │   │   ├── multi-agent-coordination.md # Sub-agent task tracking
 │   │   ├── clients/                   # Client-specific configs (QWEN.md, CONVENTIONS.md, .aider.conf.yml, .claude.json)
-│   │   └── mcp/                       # MCP configs for all 8 AI clients
+│   │   └── mcp/                       # MCP configs (6 clients + master config)
 │   │
 │   └── workflows/                # Antigravity Slash Commands
 │       ├── start.md / sync.md         # Routine automation

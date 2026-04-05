@@ -1,0 +1,22 @@
+Ausnahme beim Aufrufen von "GetFullPath" mit 1 Argument(en):  "Das angegebene Pfadformat wird nicht unterstÅtzt."
+In Zeile:1 Zeichen:475
++ ... ectoryName; $resolved = [System.IO.Path]::GetFullPath([System.IO.Path ...
++                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (:) [], MethodInvocationException
+    + FullyQualifiedErrorId : NotSupportedException
+ 
+Ausnahme beim Aufrufen von "GetFullPath" mit 1 Argument(en):  "Das angegebene Pfadformat wird nicht unterstÅtzt."
+In Zeile:1 Zeichen:475
++ ... ectoryName; $resolved = [System.IO.Path]::GetFullPath([System.IO.Path ...
++                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (:) [], MethodInvocationException
+    + FullyQualifiedErrorId : NotSupportedException
+ 
+Ausnahme beim Aufrufen von "GetFullPath" mit 1 Argument(en):  "Das angegebene Pfadformat wird nicht unterstÅtzt."
+In Zeile:1 Zeichen:475
++ ... ectoryName; $resolved = [System.IO.Path]::GetFullPath([System.IO.Path ...
++                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (:) [], MethodInvocationException
+    + FullyQualifiedErrorId : NotSupportedException
+ 
+BROKEN: C:\Users\crown\Downloads\Projects\AI_Toolbox\examples\parallel-review.md - (resolved: C:\Users\crown\Downloads\Projects\AI_Toolbox\examples\path)
