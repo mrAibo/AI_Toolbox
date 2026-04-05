@@ -201,7 +201,7 @@ Some AI assistant environments provide additional capabilities or specific rules
 
 ---
 
-## 11.1. Specialist Templates (Template Bridge)
+## 12. Specialist Templates (Template Bridge)
 
 When existing skills (TDD, Planning, Debugging) are insufficient, use the 413+ specialist templates:
 
@@ -210,7 +210,7 @@ When existing skills (TDD, Planning, Debugging) are insufficient, use the 413+ s
 
 ---
 
-## 11.2. Context-Driven Skill Selection
+## 13. Context-Driven Skill Selection
 
 **SHOULD:** When the agent recognizes one of the trigger patterns below, it **SHOULD** follow the referenced workflow. The `sync-task` script provides additional keyword-based hints at session start and end. The agent reads these signals and self-activates the appropriate skill.
 
@@ -233,7 +233,7 @@ The agent announces skill activation:
 
 ---
 
-## 12. The Toolbox Toolkit
+## 14. The Toolbox Toolkit
 
 For maximum efficiency and context safety, use these recommended binary tools:
 
@@ -245,7 +245,7 @@ For detailed integration guides, setup commands, and how these tools work togeth
 
 ---
 
-## 13. External Project Integrations
+## 15. External Project Integrations
 
 The AI Toolbox builds on established open-source projects. Each serves a specific purpose:
 
