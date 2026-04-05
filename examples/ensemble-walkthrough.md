@@ -59,7 +59,9 @@ The AI analyzes the request:
 
 ---
 
-## Step 4: IMPLEMENT (TDD → .agent/rules/tdd-rules.md)
+## Step 5: IMPLEMENT (TDD → .agent/rules/tdd-rules.md)
+
+*(Steps 1-4 covered earlier: TASK, BRAINSTORM, PLAN, ISOLATE skipped — not needed for this example)*
 
 ### Subtask 1: Define User repository interface
 
@@ -113,7 +115,7 @@ $ rtk git commit -m "feat: define UserRepository interface with in-memory impl"
 
 ---
 
-## Step 5: REVIEW (.agent/workflows/code-review.md)
+## Step 6: REVIEW (.agent/workflows/code-review.md)
 
 ```
 ## Changes
@@ -132,7 +134,7 @@ $ rtk git commit -m "feat: define UserRepository interface with in-memory impl"
 
 ---
 
-## Step 6: VERIFY (Superpowers → testing-rules.md)
+## Step 7: VERIFY (Superpowers → .agent/rules/testing-rules.md)
 
 ```bash
 $ rtk test
@@ -144,7 +146,7 @@ $ rtk lint
 
 ---
 
-## Step 7: FINISH (.agent/workflows/branch-finish.md)
+## Step 8: FINISH (.agent/workflows/branch-finish.md)
 
 Session handover updated:
 
@@ -157,7 +159,7 @@ Session handover updated:
 
 ---
 
-## Step 8: CLOSE (Beads)
+## Step 9: CLOSE (Beads)
 
 ```bash
 $ bd close "bd-a1b2c3" "Completed: GET /users/:id endpoint with repository pattern"
@@ -173,9 +175,9 @@ bd-d4e5f6: Add POST /users endpoint [high]
 
 | Tool | When Active | What It Did |
 |------|-------------|-------------|
-| **Beads** | Start + End | Stored task, tracked progress, provided next task |
-| **Superpowers** | Steps 2,3,5,6 | Brainstorming, Planning, Review, Verification |
-| **TDD Rules** | Step 4 | Enforced RED-GREEN-REFACTOR for each subtask |
+| **Beads** | Steps 1,9 | Stored task, tracked progress, provided next task |
+| **Superpowers** | Steps 2,3,6,7 | Brainstorming, Planning, Review, Verification |
+| **TDD Rules** | Step 5 | Enforced RED-GREEN-REFACTOR for each subtask |
 | **rtk** | Every test/build | Compressed output by 60-90% (saved ~4000 tokens) |
 | **MCP context7** | On demand | Provided Express.js routing docs when asked |
 | **Templates** | Not needed | Existing skills were sufficient |

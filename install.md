@@ -106,12 +106,12 @@ MCP servers extend your AI agent with external resources (docs, web, GitHub, mem
     claude mcp add context7 npx -y @upstash/context7-mcp
     claude mcp add sequential-thinking npx -y @modelcontextprotocol/server-sequential-thinking
     ```
-*   **Qwen Code:** Add MCP servers to your Qwen Code MCP config (see `.agent/templates/clients/mcp-qwen.json`).
-*   **Cursor:** Copy `.agent/templates/clients/mcp-cursor.json` to `.cursor/settings.json`.
-*   **RooCode/Cline:** Copy `.agent/templates/clients/mcp-clinerules.json` to Cline MCP settings.
-*   **Windsurf:** Copy `.agent/templates/clients/mcp-windsurf.json` to Windsurf MCP settings.
-*   **Gemini CLI:** Copy `.agent/templates/clients/mcp-gemini.json` to Gemini CLI config (minimal profile).
-*   **Aider:** Add MCP section to `.aider.conf.yml` (see `.agent/templates/clients/mcp-aider.yml`).
+*   **Qwen Code:** Add MCP servers to your Qwen Code MCP config (see `.agent/templates/mcp/mcp-qwen.json`).
+*   **Cursor:** Copy `.agent/templates/mcp/mcp-cursor.json` to `.cursor/settings.json`.
+*   **RooCode/Cline:** Copy `.agent/templates/mcp/mcp-clinerules.json` to Cline MCP settings.
+*   **Windsurf:** Copy `.agent/templates/mcp/mcp-windsurf.json` to Windsurf MCP settings.
+*   **Gemini CLI:** Copy `.agent/templates/mcp/mcp-gemini.json` to Gemini CLI config (minimal profile).
+*   **Aider:** Add MCP section to `.aider.conf.yml` (see `.agent/templates/mcp/mcp-aider.yml`).
 
 Full guide: **[docs/mcp-guide.md](docs/mcp-guide.md)**.
 

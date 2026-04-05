@@ -68,7 +68,7 @@ Run the self-review checklist before finishing:
 
 **For multi-agent:** Each sub-agent's output must pass review independently.
 
-### 7. VERIFY (Superpowers → testing-rules.md)
+### 7. VERIFY (Superpowers → [.agent/rules/testing-rules.md](../rules/testing-rules.md))
 
 Final verification run:
 
@@ -99,14 +99,14 @@ bd ready  # What's next?
 
 | Step | Primary Tool | Auto-Trigger | Manual Override |
 |------|-------------|-------------|-----------------|
-| 1. TASK | Beads | `sync-task.sh` | `bd create` |
+| 1. TASK | Beads | `sync-task.sh/.ps1` | `bd create` |
 | 2. BRAINSTORM | Superpowers / AGENT.md | AGENT.md §7 | `prompts/01-planning.md` |
 | 3. PLAN | Superpowers / AGENT.md | AGENT.md §3 | — |
 | 4. ISOLATE | Git worktrees | Optional | `git worktree add` |
-| 5. IMPLEMENT | TDD + rtk | `hook-pre-command` | `rtk test` |
+| 5. IMPLEMENT | TDD + rtk | `hook-pre-command.sh/.ps1` | `rtk test` |
 | 6. REVIEW | AI Toolbox Rules | `code-review.md` | — |
-| 7. VERIFY | rtk + Superpowers | `testing-rules.md` | `rtk test` |
-| 8. FINISH | Beads + Memory | `hook-stop.sh` | `branch-finish.md` |
+| 7. VERIFY | rtk + Superpowers | `.agent/rules/testing-rules.md` | `rtk test` |
+| 8. FINISH | Beads + Memory | `hook-stop.sh/.ps1` | `branch-finish.md` |
 | 9. CLOSE | Beads | — | `bd close` |
 
 ---

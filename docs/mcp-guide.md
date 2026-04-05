@@ -86,7 +86,7 @@ Add to your Qwen Code MCP configuration:
 
 ### Step 2c: Install via Cursor
 
-Copy the config from `.agent/templates/clients/mcp-cursor.json` to your `.cursor/settings.json`:
+Copy the config from `.agent/templates/mcp/mcp-cursor.json` to your `.cursor/settings.json`:
 
 ```json
 {
@@ -101,15 +101,15 @@ Copy the config from `.agent/templates/clients/mcp-cursor.json` to your `.cursor
 
 ### Step 2d: Install via RooCode / Cline
 
-Copy the config from `.agent/templates/clients/mcp-clinerules.json` to your Cline MCP settings.
+Copy the config from `.agent/templates/mcp/mcp-clinerules.json` to your Cline MCP settings.
 
 ### Step 2e: Install via Windsurf
 
-Copy the config from `.agent/templates/clients/mcp-windsurf.json` to your Windsurf MCP settings.
+Copy the config from `.agent/templates/mcp/mcp-windsurf.json` to your Windsurf MCP settings.
 
 ### Step 2f: Install via Gemini CLI
 
-Copy the config from `.agent/templates/clients/mcp-gemini.json` to your Gemini CLI MCP config.
+Copy the config from `.agent/templates/mcp/mcp-gemini.json` to your Gemini CLI MCP config.
 Gemini CLI is Basic Tier — only minimal profile (context7 + sequential-thinking) is recommended.
 
 ### Step 2g: Install via Aider
