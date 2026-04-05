@@ -75,7 +75,8 @@ foreach ($File in $StagedMD) {
 }
 
 # ---------------------------------------------------------------
-# Check 4: TDD Warning — code changes should have test updates (warns, does not block)
+# Check 4: Enforce TDD — code changes must have test updates
+# Blocks unless: tests are staged, or commit msg contains "tdd-skip"
 # ---------------------------------------------------------------
 $StagedCode = git diff --cached --name-only 2>$null | Where-Object { $_ -match '\.(ts|tsx|js|jsx|py|rs|go|java|kt|rb)$' }
 
@@ -83,12 +84,20 @@ if ($StagedCode) {
     $StagedTests = git diff --cached --name-only 2>$null | Where-Object { $_ -match '(?i)(test|spec|_test\.|\.test\.)' }
 
     if (-not $StagedTests) {
-        Write-Host "⚠️  AI Toolbox TDD Warning: Code changes detected without test file changes."
-        Write-Host "   Per .agent/rules/tdd-rules.md, all code changes should have corresponding tests."
-        Write-Host "   Staged code files:"
-        $StagedCode | ForEach-Object { Write-Host "     $_" }
-        Write-Host "   Consider adding or updating tests before committing."
-        Write-Host ""
+        # Allow emergency bypass
+        $CommitMsg = git log --oneline -1 2>$null
+        if ($CommitMsg -match '(?i)tdd-skip') {
+            Write-Host "⏭️  AI Toolbox: TDD skip requested via commit message. Proceeding."
+        } else {
+            Write-Host "🚨 AI Toolbox TDD Violation: Code changes detected without test file changes."
+            Write-Host "   Per .agent/rules/tdd-rules.md, all code changes MUST have corresponding tests."
+            Write-Host "   Staged code files:"
+            $StagedCode | ForEach-Object { Write-Host "     $_" }
+            Write-Host ""
+            Write-Host "   To fix: Stage corresponding test files and commit again."
+            Write-Host "   Emergency bypass: git commit -m 'tdd-skip: reason'"
+            $Errors++
+        }
     }
 }
 

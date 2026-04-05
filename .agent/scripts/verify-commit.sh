@@ -67,8 +67,8 @@ for file in $STAGED_MD; do
 done
 
 # ---------------------------------------------------------------
-# Check 4: Hard-Enforce TDD — code changes should have test updates
-# Only warns (does not block) to avoid over-constraining legitimate changes.
+# Check 4: Enforce TDD — code changes must have test updates
+# Blocks commit unless tests are included OR commit message contains "tdd-skip"
 # ---------------------------------------------------------------
 STAGED_CODE=$(git diff --cached --name-only 2>/dev/null | grep -E '\.(ts|tsx|js|jsx|py|rs|go|java|kt|rb)$' || true)
 
@@ -77,12 +77,20 @@ if [ -n "$STAGED_CODE" ]; then
     STAGED_TESTS=$(git diff --cached --name-only 2>/dev/null | grep -iE '(test|spec|_test\.|\.test\.)' || true)
 
     if [ -z "$STAGED_TESTS" ]; then
-        echo "⚠️  AI Toolbox TDD Warning: Code changes detected without test file changes."
-        echo "   Per .agent/rules/tdd-rules.md, all code changes should have corresponding tests."
-        echo "   Staged code files:"
-        echo "$STAGED_CODE" | sed 's/^/     /'
-        echo "   Consider adding or updating tests before committing."
-        echo ""
+        # Allow override via commit message prefix
+        COMMIT_MSG=$(git log --oneline -1 2>/dev/null || echo "")
+        if echo "$COMMIT_MSG" | grep -qi "tdd-skip"; then
+            echo "⏭️  AI Toolbox: TDD skip requested via commit message. Proceeding."
+        else
+            echo "🚨 AI Toolbox TDD Enforcement: Code changes without test updates."
+            echo "   Per .agent/rules/tdd-rules.md, all code changes must have tests."
+            echo "   Staged code files:"
+            echo "$STAGED_CODE" | sed 's/^/     /'
+            echo ""
+            echo "   To fix: Stage corresponding test files and commit again."
+            echo "   To skip (emergency only): Include 'tdd-skip' in commit message."
+            ERRORS=$((ERRORS + 1))
+        fi
     fi
 fi
 
