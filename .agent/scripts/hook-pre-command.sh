@@ -7,7 +7,7 @@
 
 cmd="$1"
 
-HEAVY_COMMAND_REGEX="^(python|python3|mvn|gradlew|pytest|npm run|pnpm|yarn|db2cli|hdbcli|sqlplus|ansible-playbook|java |cargo|go |docker|docker-compose)"
+HEAVY_COMMAND_REGEX="^(python|python3|mvn|gradle|gradlew|pytest|npm run|pnpm|yarn|db2cli|hdbcli|sqlplus|ansible-playbook|java |cargo|go |docker|docker-compose)"
 
 if echo "$cmd" | grep -qE "$HEAVY_COMMAND_REGEX" && ! echo "$cmd" | grep -q "^rtk "; then
   echo "🚨 AI Toolbox Heavy Command Detected!"
