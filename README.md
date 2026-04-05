@@ -208,7 +208,26 @@ Full config templates, security rules, and troubleshooting: **[docs/mcp-guide.md
 
 ---
 
-### 1. Manual Initialization (Direct Clone)
+### 1. Quick Setup (Recommended)
+
+Run the one-command setup script — it detects your environment, installs optional tools, and configures everything:
+
+```bash
+# Linux/macOS
+bash .agent/scripts/setup.sh
+
+# Windows
+powershell -ExecutionPolicy Bypass -File .agent\scripts\setup.ps1
+```
+
+The script will:
+- ✅ Detect installed AI clients and let you pick a primary one
+- ✅ Run bootstrap (creates all router files and memory structure)
+- ✅ Detect your project stack (Node.js, Rust, Python, Go, etc.)
+- ✅ Offer to install rtk (token optimization) and Beads (task tracking)
+- ✅ Configure MCP servers for your primary client
+
+### 2. Manual Initialization (Direct Clone)
 1. **Set up the repo:** Clone this repository as a starting point.
 2. **Run the bootstrap script** for your OS to ensure all folders and router files exist:
    - Linux/macOS: `bash .agent/scripts/bootstrap.sh`
