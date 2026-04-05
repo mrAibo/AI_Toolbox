@@ -1,0 +1,82 @@
+name: "Bug Report"
+description: "Report a bug in the AI Toolbox framework"
+title: "[Bug]: "
+labels: ["bug", "triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to fill out this bug report!
+
+  - type: dropdown
+    id: component
+    attributes:
+      label: Affected Component
+      description: Which part of the AI Toolbox is affected?
+      options:
+        - Bootstrap Scripts (bootstrap.sh/ps1)
+        - Hook Scripts (hook-*.sh/ps1)
+        - Rule Files (.agent/rules/)
+        - Workflow Files (.agent/workflows/)
+        - Documentation (README, docs/)
+        - MCP Configuration
+        - Examples
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: Describe the bug clearly and concisely.
+      placeholder: "Expected behavior vs actual behavior"
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Steps to Reproduce
+      description: How can we reproduce this issue?
+      placeholder: |
+        1. Run bootstrap.sh on [OS]
+        2. Execute [command]
+        3. See error
+    validations:
+      required: true
+
+  - type: dropdown
+    id: os
+    attributes:
+      label: Operating System
+      options:
+        - Windows
+        - macOS
+        - Linux
+    validations:
+      required: true
+
+  - type: dropdown
+    id: ai-client
+    attributes:
+      label: AI Client
+      description: Which AI client were you using?
+      options:
+        - Claude Code
+        - Qwen Code
+        - Gemini CLI
+        - Cursor
+        - RooCode / Cline
+        - Windsurf
+        - Aider
+        - Not applicable
+    validations:
+      required: false
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Relevant Log Output
+      description: Paste any relevant log output. This will be auto-formatted.
+      render: shell

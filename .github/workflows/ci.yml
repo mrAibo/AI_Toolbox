@@ -1,0 +1,105 @@
+name: AI Toolbox CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  validate:
+    name: Validate Repository
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check bootstrap scripts are executable
+        run: |
+          test -x .agent/scripts/bootstrap.sh || (echo "bootstrap.sh is not executable" && exit 1)
+          echo "✅ bootstrap.sh is executable"
+
+      - name: Validate all markdown links
+        run: |
+          echo "Checking markdown links..."
+          broken=0
+          while IFS= read -r -d '' file; do
+            while IFS= read -r match; do
+              target=$(echo "$match" | sed -n 's/.*\](\(.*\))/\1/p' | sed 's/#.*//')
+              # Skip external links, anchors, root-relative paths
+              if echo "$target" | grep -qE '^https?://|^mailto:|^#|^/'; then
+                continue
+              fi
+              dir=$(dirname "$file")
+              resolved="$dir/$target"
+              if [ ! -e "$resolved" ]; then
+                echo "❌ BROKEN LINK in $file → $target"
+                broken=$((broken + 1))
+              fi
+            done < <(grep -oE '\[[^]]+\]\([^)]+\)' "$file" 2>/dev/null || true)
+          done < <(find . -name "*.md" -not -path "./.git/*" -print0)
+          if [ $broken -gt 0 ]; then
+            echo "❌ $broken broken links found"
+            exit 1
+          fi
+          echo "✅ All markdown links valid"
+
+      - name: Verify tier badges on router files
+        run: |
+          echo "Checking tier badges..."
+          missing=0
+          for file in CLAUDE.md QWEN.md GEMINI.md CONVENTIONS.md .cursorrules .clinerules .windsurfrules SKILL.md; do
+            if [ -f "$file" ] && ! grep -q "\-\- Tier:" "$file"; then
+              echo "❌ Missing tier badge on $file"
+              missing=$((missing + 1))
+            fi
+          done
+          if [ $missing -gt 0 ]; then
+            echo "❌ $missing files missing tier badges"
+            exit 1
+          fi
+          echo "✅ All tier badges present"
+
+      - name: Check bootstrap parity (content comparison)
+        run: |
+          echo "Comparing bootstrap.sh and bootstrap.ps1 generated content..."
+          # Extract heredoc content from both scripts and compare structure
+          sh_count=$(grep -c "cat << 'EOF'" .agent/scripts/bootstrap.sh || true)
+          ps1_count=$(grep -c "@'" .agent/scripts/bootstrap.ps1 || true)
+          if [ "$sh_count" != "$ps1_count" ]; then
+            echo "⚠️  Warning: bootstrap.sh has $sh_count heredocs, bootstrap.ps1 has $ps1_count"
+            echo "   This may indicate missing content in one of the scripts"
+          else
+            echo "✅ Bootstrap scripts have matching heredoc counts ($sh_count)"
+          fi
+
+      - name: Validate JSON files
+        run: |
+          echo "Validating JSON files..."
+          invalid=0
+          for file in $(find . -name "*.json" -not -path "./.git/*" -not -path "./node_modules/*"); do
+            if ! python3 -m json.tool "$file" > /dev/null 2>&1; then
+              echo "❌ Invalid JSON: $file"
+              invalid=$((invalid + 1))
+            fi
+          done
+          if [ $invalid -gt 0 ]; then
+            echo "❌ $invalid invalid JSON files"
+            exit 1
+          fi
+          echo "✅ All JSON files valid"
+
+      - name: Check for trailing newlines
+        run: |
+          echo "Checking trailing newlines on key files..."
+          missing=0
+          for file in $(find . -name "*.md" -not -path "./.git/*" -not -path "./node_modules/*"); do
+            if [ -s "$file" ] && [ "$(tail -c 1 "$file" | wc -l)" -eq 0 ]; then
+              echo "⚠️  Missing trailing newline: $file"
+              missing=$((missing + 1))
+            fi
+          done
+          if [ $missing -gt 0 ]; then
+            echo "⚠️  $missing files missing trailing newlines (warning only)"
+          else
+            echo "✅ All files have trailing newlines"
+          fi
