@@ -18,7 +18,7 @@ jobs:
           test -f .agent/scripts/bootstrap.sh || (echo "bootstrap.sh is missing" && exit 1)
           test -f .agent/scripts/bootstrap.ps1 || (echo "bootstrap.ps1 is missing" && exit 1)
           chmod +x .agent/scripts/bootstrap.sh .agent/scripts/*.sh
-          echo "✅ Bootstrap scripts present"
+          echo "OK: Bootstrap scripts present"
 
       - name: Validate markdown links
         run: |
@@ -27,23 +27,22 @@ jobs:
           while IFS= read -r -d '' file; do
             while IFS= read -r match; do
               target=$(echo "$match" | sed -n 's/.*\](\(.*\))/\1/p' | sed 's/#.*//')
-              # Skip external links, anchors, and root-relative paths
               if echo "$target" | grep -qE '^https?://|^mailto:|^#|^/'; then
                 continue
               fi
               dir=$(dirname "$file")
               resolved="$dir/$target"
               if [ ! -e "$resolved" ]; then
-                echo "❌ BROKEN LINK in $file → $target"
+                echo "BROKEN LINK in $file -> $target"
                 broken=$((broken + 1))
               fi
             done < <(grep -oE '\[[^]]+\]\([^)]+\)' "$file" 2>/dev/null || true)
           done < <(find . -name "*.md" -not -path "./.git/*" -print0 2>/dev/null || true)
           if [ "$broken" -gt 0 ]; then
-            echo "❌ $broken broken links found"
+            echo "FAIL: $broken broken links found"
             exit 1
           fi
-          echo "✅ All markdown links valid"
+          echo "OK: All markdown links valid"
 
       - name: Verify tier badges on router files
         run: |
@@ -51,26 +50,25 @@ jobs:
           missing=0
           for file in CLAUDE.md QWEN.md GEMINI.md CONVENTIONS.md .cursorrules .clinerules .windsurfrules; do
             if [ -f "$file" ] && ! grep -q "\-\- Tier:" "$file"; then
-              echo "❌ Missing tier badge on $file"
+              echo "FAIL: Missing tier badge on $file"
               missing=$((missing + 1))
             fi
           done
           if [ "$missing" -gt 0 ]; then
-            echo "❌ $missing files missing tier badges"
+            echo "FAIL: $missing files missing tier badges"
             exit 1
           fi
-          echo "✅ All tier badges present"
+          echo "OK: All tier badges present"
 
       - name: Check bootstrap parity (heredoc count comparison)
         run: |
-          echo "Comparing bootstrap.sh and bootstrap.ps1 generated content..."
+          echo "Comparing bootstrap.sh and bootstrap.ps1..."
           sh_count=$(grep -c "cat << 'EOF'" .agent/scripts/bootstrap.sh 2>/dev/null || echo "0")
           ps1_count=$(grep -c "@'" .agent/scripts/bootstrap.ps1 2>/dev/null || echo "0")
           if [ "$sh_count" != "$ps1_count" ]; then
-            echo "⚠️  Warning: bootstrap.sh has $sh_count heredocs, bootstrap.ps1 has $ps1_count"
-            echo "   This may indicate missing content in one of the scripts"
+            echo "WARNING: bootstrap.sh has $sh_count heredocs, bootstrap.ps1 has $ps1_count"
           else
-            echo "✅ Bootstrap scripts have matching heredoc counts ($sh_count)"
+            echo "OK: Bootstrap scripts have matching heredoc counts ($sh_count)"
           fi
 
       - name: Validate JSON files
@@ -79,15 +77,15 @@ jobs:
           invalid=0
           for file in $(find . -name "*.json" -not -path "./.git/*" -not -path "./node_modules/*" 2>/dev/null); do
             if ! python3 -m json.tool "$file" > /dev/null 2>&1; then
-              echo "❌ Invalid JSON: $file"
+              echo "FAIL: Invalid JSON: $file"
               invalid=$((invalid + 1))
             fi
           done
           if [ "$invalid" -gt 0 ]; then
-            echo "❌ $invalid invalid JSON files"
+            echo "FAIL: $invalid invalid JSON files"
             exit 1
           fi
-          echo "✅ All JSON files valid"
+          echo "OK: All JSON files valid"
 
       - name: Check for trailing newlines
         run: |
@@ -95,12 +93,12 @@ jobs:
           missing=0
           for file in $(find . -name "*.md" -not -path "./.git/*" -not -path "./node_modules/*" 2>/dev/null); do
             if [ -s "$file" ] && [ "$(tail -c 1 "$file" | wc -l)" -eq 0 ]; then
-              echo "⚠️  Missing trailing newline: $file"
+              echo "WARNING: Missing trailing newline: $file"
               missing=$((missing + 1))
             fi
           done
           if [ "$missing" -gt 0 ]; then
-            echo "⚠️  $missing files missing trailing newlines (warning only)"
+            echo "WARNING: $missing files missing trailing newlines (non-blocking)"
           else
-            echo "✅ All files have trailing newlines"
+            echo "OK: All files have trailing newlines"
           fi
