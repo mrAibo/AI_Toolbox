@@ -143,11 +143,12 @@ Brainstorming should produce structure, not noise.
 Before reporting success, follow the **[.agent/rules/testing-rules.md](.agent/rules/testing-rules.md)**.
 
 **Bug Fix Sequence:**
+For a structured bug-fix process, follow **[.agent/workflows/bug-fix.md](.agent/workflows/bug-fix.md)**:
 1. **Reproduce** the problem with a test or command.
 2. **Identify** the likely cause.
 3. **Implement** the fix.
 4. **Verify** using the reproduction step.
-5. **Record** durable knowledge if the bug was non-trivial. Use **[.agent/templates/issue-template.md](.agent/templates/issue-template.md)** for documentation.
+5. **Record** durable knowledge if the bug was non-trivial.
 
 Never say that something works unless it has been checked.
 
