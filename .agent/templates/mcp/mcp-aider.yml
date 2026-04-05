@@ -1,0 +1,11 @@
+# Aider MCP Configuration — add to your .aider.conf.yml
+# Each server uses npx for zero-install setup.
+# Aider is Basic Tier — minimal MCP profile (context7 + sequential-thinking).
+
+mcp:
+  context7:
+    command: npx
+    args: ["-y", "@upstash/context7-mcp"]
+  sequential-thinking:
+    command: npx
+    args: ["-y", "@modelcontextprotocol/server-sequential-thinking"]

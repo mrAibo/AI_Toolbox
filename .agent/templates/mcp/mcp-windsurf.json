@@ -1,0 +1,28 @@
+{
+  "_comment": "Windsurf MCP Configuration — add to your Windsurf settings MCP section",
+  "_usage": "Each server uses npx for zero-install setup. Copy to Windsurf MCP settings.",
+  "_source": "Based on .agent/templates/mcp/mcp-configs.json (developer profile)",
+
+  "mcpServers": {
+    "context7": {
+      "command": "npx",
+      "args": ["-y", "@upstash/context7-mcp"],
+      "env": {}
+    },
+    "sequential-thinking": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-sequential-thinking"],
+      "env": {}
+    },
+    "filesystem": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-filesystem", "."],
+      "env": {}
+    },
+    "fetch": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-fetch"],
+      "env": {}
+    }
+  }
+}

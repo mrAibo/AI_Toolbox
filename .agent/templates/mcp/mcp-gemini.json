@@ -1,0 +1,18 @@
+{
+  "_comment": "Gemini CLI MCP Configuration — add to your Gemini CLI MCP settings",
+  "_usage": "Each server uses npx for zero-install setup. Copy to Gemini CLI MCP config.",
+  "_source": "Based on .agent/templates/mcp/mcp-configs.json (minimal profile — Gemini CLI is Basic Tier)",
+
+  "mcpServers": {
+    "context7": {
+      "command": "npx",
+      "args": ["-y", "@upstash/context7-mcp"],
+      "env": {}
+    },
+    "sequential-thinking": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-sequential-thinking"],
+      "env": {}
+    }
+  }
+}

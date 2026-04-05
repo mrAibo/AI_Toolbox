@@ -1,0 +1,28 @@
+{
+  "_comment": "Cursor MCP Configuration — place in .cursor/settings.json",
+  "_usage": "Add this to your Cursor settings. Each server uses npx for zero-install setup.",
+  "_source": "Based on .agent/templates/mcp/mcp-configs.json (developer profile)",
+
+  "mcpServers": {
+    "context7": {
+      "command": "npx",
+      "args": ["-y", "@upstash/context7-mcp"],
+      "env": {}
+    },
+    "sequential-thinking": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-sequential-thinking"],
+      "env": {}
+    },
+    "filesystem": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-filesystem", "."],
+      "env": {}
+    },
+    "fetch": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-fetch"],
+      "env": {}
+    }
+  }
+}
