@@ -8,6 +8,5 @@ Steps for reference and automation:
 - **Environmental Check:** Verify presence of `.agent/` folder and recommended binaries (`rtk`, `bd`).
 - Read ADRs and Integration Contracts.
 - Read `.agent/memory/session-handover.md` if it exists.
-// turbo
 - Run `.agent/scripts/sync-task.sh` (or `.ps1` on Windows) to get the latest task state.
 - Summarize recovered context.

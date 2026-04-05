@@ -54,7 +54,9 @@ AI_Toolbox/
 │   │   ├── testing-rules.md           # Verification requirements (Bug Fix Seq)
 │   │   ├── stack-rules.md             # Allowed languages & dependencies
 │   │   ├── antigravity.md             # Antigravity-specific extensions
-│   │   └── qwen-code.md               # Qwen Code Full-Tier extensions
+│   │   ├── qwen-code.md               # Qwen Code Full-Tier extensions
+│   │   ├── mcp-rules.md               # MCP server usage constraints
+│   │   └── tool-integrations.md       # How rtk, Beads, Superpowers work together
 │   │
 │   ├── scripts/                  # Automation & Hooks
 │   │   ├── bootstrap.sh / .ps1        # Initial repo setup

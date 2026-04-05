@@ -52,7 +52,6 @@ The following tools are preferred in this repository when available:
 
 - `rtk` for heavy terminal output and log compression
 - `Beads` for task tracking and execution order
-- `Claude-Mem` for episodic problem/solution memory
 - `AGENT.md` and `.agent/memory/*.md` for durable workflow memory
 
 ---

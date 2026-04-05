@@ -4,7 +4,7 @@ set -e
 echo "[bootstrap] preparing AI Toolbox structure..."
 mkdir -p .agent/rules .agent/memory .agent/templates .agent/scripts .agent/workflows docs examples prompts
 
-touch README.md AGENT.md
+touch README.md AGENT.md  # ensure files exist if someone deleted them
 
 TODAY=$(date +%Y-%m-%d)
 if [ ! -s .agent/memory/architecture-decisions.md ]; then
@@ -313,7 +313,6 @@ The following tools are preferred in this repository when available:
 
 - `rtk` for heavy terminal output and log compression
 - `Beads` for task tracking and execution order
-- `Claude-Mem` for episodic problem/solution memory
 - `AGENT.md` and `.agent/memory/*.md` for durable workflow memory
 
 ---

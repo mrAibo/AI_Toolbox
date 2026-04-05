@@ -21,7 +21,3 @@ docs/build/
 .cursorrules
 .clinerules
 .windsurfrules
-
-# Session memory files (committed as templates, locally overridden during work)
-.agent/memory/session-handover.md
-.agent/memory/current-task.md
