@@ -1,11 +1,11 @@
-$ErrorActionPreference = "Stop"
 # sync-task.ps1
 # Export current task state to a static file for the AI to read.
 # Also detects task type and suggests the appropriate workflow.
 
-$RepoRoot = "$(git rev-parse --show-toplevel)"
-$TaskPath = "$RepoRoot/.agent/memory/current-task.md"
-$ActiveSession = "$RepoRoot/.agent/memory/active-session.md"
+$RepoRoot = git rev-parse --show-toplevel 2>$null
+if (-not $RepoRoot) { $RepoRoot = (Get-Location).Path }
+$TaskPath = "$RepoRoot\.agent\memory\current-task.md"
+$ActiveSession = "$RepoRoot\.agent\memory\active-session.md"
 
 Write-Host "[sync-task] Exporting current task tracker state to memory..."
 if (Get-Command bd -ErrorAction SilentlyContinue) {
@@ -48,10 +48,10 @@ if (Get-Command bd -ErrorAction SilentlyContinue) {
 if (Test-Path $ActiveSession) {
     $TaskInfo = Get-Content $TaskPath -First 3 -ErrorAction SilentlyContinue
     if ($TaskInfo) {
-        # Remove old Current Step section and append new one
+        # Remove old Current Step section (non-greedy: stops at next ## header) and append new one
         $Content = Get-Content $ActiveSession -Raw
-        if ($Content -match '(?s)## Current Step.*') {
-            $Content = $Content -replace '(?s)## Current Step.*', ''
+        if ($Content -match '(?s)## Current Step.*?(?=\n## |\z)') {
+            $Content = $Content -replace '(?s)## Current Step.*?(?=\n## |\z)', ''
         }
         $Content += "`n## Current Step`n- **Workflow:** Awaiting task analysis`n- **Task:** $($TaskInfo -join "`n")`n"
         $Content | Out-File -FilePath $ActiveSession -Encoding utf8
