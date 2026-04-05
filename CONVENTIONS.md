@@ -31,4 +31,4 @@ The following rule files define project standards. Please read and adhere to the
 - No multi-agent support.
 - No plan mode integration.
 
-Refer to [AGENT.md](AGENT.md) for the full operational contract. 
+Refer to [AGENT.md](AGENT.md) for the full operational contract.

@@ -1,6 +1,6 @@
 # Architecture Decision Records (ADRs)
 
-This file tracks major architectural decisions. Use the format from `.agent/templates/adr-template.md`.
+This file tracks major architectural decisions. Use the format from `../templates/adr-template.md`.
 
 ### ADR-0000: Use AI Toolbox for Repository Governance
 - Status: accepted

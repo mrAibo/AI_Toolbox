@@ -92,6 +92,7 @@ bd init
 |---------|---------|
 | `bd create "task" -p high` | Create a task |
 | `bd ready` | List tasks with no blockers |
+| `bd list` | List all tasks (used by sync-task scripts) |
 | `bd update <ID> --claim` | Claim a task atomically |
 | `bd show <ID>` | Show task details + audit trail |
 | `bd dep add <child> <parent>` | Add dependency |

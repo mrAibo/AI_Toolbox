@@ -21,7 +21,7 @@ $Today = Get-Date -Format "yyyy-MM-dd"
 $ADRContent = @"
 # Architecture Decision Records (ADRs)
 
-This file tracks major architectural decisions. Use the format from `.agent/templates/adr-template.md`.
+This file tracks major architectural decisions. Use the format from `../templates/adr-template.md`.
 
 ### ADR-0000: Use AI Toolbox for Repository Governance
 - Status: accepted
@@ -58,7 +58,7 @@ Use it for setup notes, recovery steps, repeated commands, and maintenance proce
 
 ## 3. Terminal procedure
 - Prefer concise command output
-- Use `rtk` for heavy test/build commands where available (e.g. `rtk run "npm test"`)
+- Use `rtk` for heavy test/build commands where available (e.g. `rtk test`, `rtk build`)
 - Avoid raw long log dumps into model context
 
 ## 4. Memory maintenance
@@ -627,8 +627,8 @@ if (Test-Path ".git") {
 #!/bin/bash
 # AI Toolbox Pre-commit wrapper (BASH)
 REPO_ROOT="$(git rev-parse --show-toplevel)"
-if [ -f "$REPO_ROOT/.agent/scripts/verify-commit.ps1" ]; then
-    powershell.exe -ExecutionPolicy Bypass -File "$REPO_ROOT/.agent/scripts/verify-commit.ps1"
+if [ -f "$REPO_ROOT/.agent/scripts/verify-commit.sh" ]; then
+    bash "$REPO_ROOT/.agent/scripts/verify-commit.sh"
 fi
 '@
         Set-Content -Path ".git/hooks/pre-commit" -Value $BashHook -Encoding utf8

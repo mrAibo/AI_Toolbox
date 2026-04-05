@@ -38,7 +38,7 @@ $ADRFile = Join-Path $RepoRoot ".agent/memory/architecture-decisions.md"
 
 if ((Test-Path $ADRFile) -and ((Get-Item $ADRFile).Length -gt 0)) {
     $Content = Get-Content $ADRFile -Raw
-    if ($Content -notmatch "^### ADR-") {
+    if ($Content -notmatch "(?m)^### ADR-") {
         Write-Host "⚠️  AI Toolbox Note: architecture-decisions.md exists but contains no ADR entries."
         Write-Host "   Use the '### ADR-XXXX' format to document architectural decisions."
         # Note: Warning only, not a block — does not increment $Errors

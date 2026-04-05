@@ -12,7 +12,7 @@ if ([string]::IsNullOrWhiteSpace($Command)) {
   exit 0
 }
 
-$HeavyCommandRegex = "^(python|python3|mvn|gradlew|pytest|npm run|pnpm|yarn|db2cli|hdbcli|sqlplus|ansible-playbook|java|cargo|go|docker|docker-compose|rtk build|rtk run|rtk test)"
+$HeavyCommandRegex = "^(python|python3|mvn|gradlew|pytest|npm run|pnpm|yarn|db2cli|hdbcli|sqlplus|ansible-playbook|java |cargo|go |docker|docker-compose)"
 
 if ($Command -match $HeavyCommandRegex -and $Command -notmatch '^rtk ') {
   Write-Host "🚨 AI Toolbox Heavy Command Detected!"
@@ -21,7 +21,7 @@ if ($Command -match $HeavyCommandRegex -and $Command -notmatch '^rtk ') {
   exit 1
 }
 
-if ($Command -match '^(cat|less|tail|head).+\.log$' -and $Command -notmatch '^rtk ') {
+if ($Command -match '^(cat|less|tail|head) .+\.log' -and $Command -notmatch '^rtk ') {
   Write-Host "🚨 AI Toolbox: Large log file detected!"
   Write-Host "Please use 'rtk read <file-path>' to read large logs efficiently."
   exit 1

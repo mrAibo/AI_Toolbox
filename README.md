@@ -34,8 +34,8 @@ AI_Toolbox/
 ├── .cursorrules                  # Cursor router file
 ├── .clinerules                   # RooCode / Cline router file
 ├── .windsurfrules                # Windsurf router file
-├── .claude.json                  # Claude Code hook configuration
-├── .aider.conf.yml               # Aider configuration file
+├── .claude.json                  # Claude Code hook configuration (bootstrap-generated)
+├── .aider.conf.yml               # Aider configuration file (bootstrap-generated)
 ├── .gitignore                    # Ignores local output and temporary files
 │
 ├── .agent/                       # The AI's "Brain"

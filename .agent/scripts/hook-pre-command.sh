@@ -7,7 +7,7 @@
 
 cmd="$1"
 
-HEAVY_COMMAND_REGEX="^(python|python3|mvn|gradlew|pytest|npm run|pnpm|yarn|db2cli|hdbcli|sqlplus|ansible-playbook|java|cargo|go|docker|docker-compose|rtk build|rtk run|rtk test)"
+HEAVY_COMMAND_REGEX="^(python|python3|mvn|gradlew|pytest|npm run|pnpm|yarn|db2cli|hdbcli|sqlplus|ansible-playbook|java |cargo|go |docker|docker-compose)"
 
 if echo "$cmd" | grep -qE "$HEAVY_COMMAND_REGEX" && ! echo "$cmd" | grep -q "^rtk "; then
   echo "🚨 AI Toolbox Heavy Command Detected!"
@@ -16,7 +16,7 @@ if echo "$cmd" | grep -qE "$HEAVY_COMMAND_REGEX" && ! echo "$cmd" | grep -q "^rt
   exit 1
 fi
 
-if echo "$cmd" | grep -qE "^(cat|less|tail|head).+\.log$" && ! echo "$cmd" | grep -q "^rtk "; then
+if echo "$cmd" | grep -qE "^(cat|less|tail|head) .+\.log" && ! echo "$cmd" | grep -q "^rtk "; then
   echo "🚨 AI Toolbox: Large log file detected!"
   echo "Please use 'rtk read <file-path>' to read large logs efficiently."
   exit 1

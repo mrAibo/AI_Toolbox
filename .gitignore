@@ -16,6 +16,7 @@ docs/build/
 
 # Locally-generated JSON config (not committed)
 .claude.json
+.aider.conf.yml
 
 # Standard-Tier router files (committed as reference, but local edits may differ)
 .cursorrules

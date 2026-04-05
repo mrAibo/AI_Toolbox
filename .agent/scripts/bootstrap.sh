@@ -6,12 +6,45 @@ mkdir -p .agent/rules .agent/memory .agent/templates .agent/scripts .agent/workf
 
 touch README.md AGENT.md  # ensure files exist if someone deleted them
 
+if [ ! -s .agent/memory/runbook.md ]; then
+cat << 'EOF' > .agent/memory/runbook.md
+# Runbook
+
+This file stores recurring operational knowledge for the repository.
+Use it for setup notes, recovery steps, repeated commands, and maintenance procedures.
+
+## 1. Startup procedure
+1. Read `AGENT.md`
+2. Read `.agent/memory/architecture-decisions.md`
+3. Read `.agent/memory/integration-contracts.md`
+4. Read `.agent/memory/session-handover.md` if present
+5. Check Beads for current task state (`.agent/memory/current-task.md`)
+6. Continue with the next ready task
+
+## 2. Verification procedure
+- Run tests if tests exist
+- If no tests exist, run the most relevant verification command
+- Inspect the actual output
+- Do not mark work as complete without verification
+
+## 3. Terminal procedure
+- Prefer concise command output
+- Use `rtk` for heavy test/build commands where available (e.g. `rtk test`, `rtk build`)
+- Avoid raw long log dumps into model context
+
+## 4. Memory maintenance
+- Record architecture changes in `architecture-decisions.md`
+- Record integration expectations in `integration-contracts.md`
+- Record current unfinished state in `session-handover.md`
+EOF
+fi
+
 TODAY=$(date +%Y-%m-%d)
 if [ ! -s .agent/memory/architecture-decisions.md ]; then
 cat << EOF > .agent/memory/architecture-decisions.md
 # Architecture Decision Records (ADRs)
 
-This file tracks major architectural decisions. Use the format from \`.agent/templates/adr-template.md\`.
+This file tracks major architectural decisions. Use the format from \`../templates/adr-template.md\`.
 
 ### ADR-0000: Use AI Toolbox for Repository Governance
 - Status: accepted
@@ -80,7 +113,7 @@ Use it for setup notes, recovery steps, repeated commands, and maintenance proce
 
 ## 3. Terminal procedure
 - Prefer concise command output
-- Use `rtk` for heavy test/build commands where available (e.g. `rtk run "npm test"`)
+- Use `rtk` for heavy test/build commands where available (e.g. `rtk test`, `rtk build`)
 - Avoid raw long log dumps into model context
 
 ## 4. Memory maintenance

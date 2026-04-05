@@ -24,4 +24,4 @@
     "gemini-cli":   { "tier": "basic", "router_file": "GEMINI.md", "hooks": false, "multi_agent": false, "file_rules": true },
     "aider":        { "tier": "basic", "router_file": "CONVENTIONS.md", "config_file": ".aider.conf.yml", "hooks": false, "multi_agent": false, "file_rules": true }
   }
-}
+} 
