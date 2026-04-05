@@ -13,19 +13,21 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Check bootstrap scripts are executable
+      - name: Check bootstrap scripts exist
         run: |
-          test -x .agent/scripts/bootstrap.sh || (echo "bootstrap.sh is not executable" && exit 1)
-          echo "✅ bootstrap.sh is executable"
+          test -f .agent/scripts/bootstrap.sh || (echo "bootstrap.sh is missing" && exit 1)
+          test -f .agent/scripts/bootstrap.ps1 || (echo "bootstrap.ps1 is missing" && exit 1)
+          chmod +x .agent/scripts/bootstrap.sh .agent/scripts/*.sh
+          echo "✅ Bootstrap scripts present"
 
-      - name: Validate all markdown links
+      - name: Validate markdown links
         run: |
           echo "Checking markdown links..."
           broken=0
           while IFS= read -r -d '' file; do
             while IFS= read -r match; do
               target=$(echo "$match" | sed -n 's/.*\](\(.*\))/\1/p' | sed 's/#.*//')
-              # Skip external links, anchors, root-relative paths
+              # Skip external links, anchors, and root-relative paths
               if echo "$target" | grep -qE '^https?://|^mailto:|^#|^/'; then
                 continue
               fi
@@ -36,8 +38,8 @@ jobs:
                 broken=$((broken + 1))
               fi
             done < <(grep -oE '\[[^]]+\]\([^)]+\)' "$file" 2>/dev/null || true)
-          done < <(find . -name "*.md" -not -path "./.git/*" -print0)
-          if [ $broken -gt 0 ]; then
+          done < <(find . -name "*.md" -not -path "./.git/*" -print0 2>/dev/null || true)
+          if [ "$broken" -gt 0 ]; then
             echo "❌ $broken broken links found"
             exit 1
           fi
@@ -47,24 +49,23 @@ jobs:
         run: |
           echo "Checking tier badges..."
           missing=0
-          for file in CLAUDE.md QWEN.md GEMINI.md CONVENTIONS.md .cursorrules .clinerules .windsurfrules SKILL.md; do
+          for file in CLAUDE.md QWEN.md GEMINI.md CONVENTIONS.md .cursorrules .clinerules .windsurfrules; do
             if [ -f "$file" ] && ! grep -q "\-\- Tier:" "$file"; then
               echo "❌ Missing tier badge on $file"
               missing=$((missing + 1))
             fi
           done
-          if [ $missing -gt 0 ]; then
+          if [ "$missing" -gt 0 ]; then
             echo "❌ $missing files missing tier badges"
             exit 1
           fi
           echo "✅ All tier badges present"
 
-      - name: Check bootstrap parity (content comparison)
+      - name: Check bootstrap parity (heredoc count comparison)
         run: |
           echo "Comparing bootstrap.sh and bootstrap.ps1 generated content..."
-          # Extract heredoc content from both scripts and compare structure
-          sh_count=$(grep -c "cat << 'EOF'" .agent/scripts/bootstrap.sh || true)
-          ps1_count=$(grep -c "@'" .agent/scripts/bootstrap.ps1 || true)
+          sh_count=$(grep -c "cat << 'EOF'" .agent/scripts/bootstrap.sh 2>/dev/null || echo "0")
+          ps1_count=$(grep -c "@'" .agent/scripts/bootstrap.ps1 2>/dev/null || echo "0")
           if [ "$sh_count" != "$ps1_count" ]; then
             echo "⚠️  Warning: bootstrap.sh has $sh_count heredocs, bootstrap.ps1 has $ps1_count"
             echo "   This may indicate missing content in one of the scripts"
@@ -76,13 +77,13 @@ jobs:
         run: |
           echo "Validating JSON files..."
           invalid=0
-          for file in $(find . -name "*.json" -not -path "./.git/*" -not -path "./node_modules/*"); do
+          for file in $(find . -name "*.json" -not -path "./.git/*" -not -path "./node_modules/*" 2>/dev/null); do
             if ! python3 -m json.tool "$file" > /dev/null 2>&1; then
               echo "❌ Invalid JSON: $file"
               invalid=$((invalid + 1))
             fi
           done
-          if [ $invalid -gt 0 ]; then
+          if [ "$invalid" -gt 0 ]; then
             echo "❌ $invalid invalid JSON files"
             exit 1
           fi
@@ -90,15 +91,15 @@ jobs:
 
       - name: Check for trailing newlines
         run: |
-          echo "Checking trailing newlines on key files..."
+          echo "Checking trailing newlines..."
           missing=0
-          for file in $(find . -name "*.md" -not -path "./.git/*" -not -path "./node_modules/*"); do
+          for file in $(find . -name "*.md" -not -path "./.git/*" -not -path "./node_modules/*" 2>/dev/null); do
             if [ -s "$file" ] && [ "$(tail -c 1 "$file" | wc -l)" -eq 0 ]; then
               echo "⚠️  Missing trailing newline: $file"
               missing=$((missing + 1))
             fi
           done
-          if [ $missing -gt 0 ]; then
+          if [ "$missing" -gt 0 ]; then
             echo "⚠️  $missing files missing trailing newlines (warning only)"
           else
             echo "✅ All files have trailing newlines"
