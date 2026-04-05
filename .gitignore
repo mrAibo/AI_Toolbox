@@ -11,13 +11,10 @@ dist/
 build/
 docs/build/
 
-# Workspace and Testing
-test_fresh/
+# AI Toolbox client routers (generated locally, NOT committed)
 .claude.json
 .cursorrules
 .clinerules
 .windsurfrules
 GEMINI.md
-QWEN.md
-CONVENTIONS.md
 .aider.conf.yml
