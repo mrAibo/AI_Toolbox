@@ -1,0 +1,6 @@
+# Force LF line endings for all code and config files
+* text=auto eol=lf
+
+# Windows scripts should keep CRLF
+*.ps1 text eol=crlf
+*.bat text eol=crlf
