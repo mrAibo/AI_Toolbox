@@ -412,11 +412,6 @@ if (-not (Test-Path ".agent/rules/qwen-code.md") -or (Get-Item ".agent/rules/qwe
     Set-Content -Path ".agent/rules/qwen-code.md" -Value $QwenCodeContent -Encoding utf8
 }
 
-$RootFiles = @("README.md", "AGENT.md")
-foreach ($RootFile in $RootFiles) {
-    if (-not (Test-Path $RootFile)) { New-Item -ItemType File -Path $RootFile | Out-Null }
-}
-
 Write-Host "[bootstrap] creating AI auto-discovery router files..."
 
 $ClaudeContent = @'
