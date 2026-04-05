@@ -27,6 +27,32 @@ echo "  - .agent/memory/session-handover.md"
 if [ -f "$REPO_ROOT/.agent/memory/active-session.md" ]; then
   echo ""
   echo "[stop] 📊 Session summary available in .agent/memory/active-session.md"
+
+  # Display tool usage stats if available
+  STATS_FILE="$REPO_ROOT/.agent/memory/.tool-stats.json"
+  if [ -f "$STATS_FILE" ]; then
+    echo "[stop] 📈 Tool usage this session:"
+    if command -v python3 &> /dev/null; then
+      python3 -c "
+import json
+with open('$STATS_FILE') as f:
+    stats = json.load(f)
+for tool, count in sorted(stats.items(), key=lambda x: -x[1]):
+    print(f'  → {tool}: {count} uses')
+" 2>/dev/null || echo "  (stats file unreadable)"
+    elif command -v python &> /dev/null; then
+      python -c "
+import json
+with open('$STATS_FILE') as f:
+    stats = json.load(f)
+for tool, count in sorted(stats.items(), key=lambda x: -x[1]):
+    print(f'  → {tool}: {count} uses')
+" 2>/dev/null || echo "  (stats file unreadable)"
+    else
+      cat "$STATS_FILE"
+    fi
+  fi
+
   echo "[stop] Writing final summary to session-handover.md..."
   if [ -f "$REPO_ROOT/.agent/memory/session-handover.md" ]; then
     echo "" >> "$REPO_ROOT/.agent/memory/session-handover.md"

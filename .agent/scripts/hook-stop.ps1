@@ -26,6 +26,21 @@ Write-Host "  - .agent/memory/session-handover.md"
 if (Test-Path "$RepoRoot/.agent/memory/active-session.md") {
   Write-Host ""
   Write-Host "[stop] 📊 Session summary available in .agent/memory/active-session.md"
+
+  # Display tool usage stats if available
+  $StatsFile = "$RepoRoot/.agent/memory/.tool-stats.json"
+  if (Test-Path $StatsFile) {
+    Write-Host "[stop] 📈 Tool usage this session:"
+    try {
+      $stats = Get-Content $StatsFile -Raw | ConvertFrom-Json
+      $stats.PSObject.Properties | Sort-Object { $_.Value } -Descending | ForEach-Object {
+        Write-Host "  → $($_.Name): $($_.Value) uses"
+      }
+    } catch {
+      Write-Host "  (stats file unreadable)" -ForegroundColor Yellow
+    }
+  }
+
   Write-Host "[stop] Writing final summary to session-handover.md..."
   if (Test-Path "$RepoRoot/.agent/memory/session-handover.md") {
     "`n## Session Summary — $(Get-Date -Format 'yyyy-MM-dd HH:mm UTC')" | Out-File -FilePath "$RepoRoot/.agent/memory/session-handover.md" -Append -Encoding utf8

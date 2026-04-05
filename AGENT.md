@@ -33,16 +33,24 @@ Each entry point contains **Critical Session Rules** to ensure session resilienc
 
 This is the **Definitive Boot Sequence**. All agents must follow this procedure at the start of a fresh session:
 
-1. **Environmental Check:** Check for the presence of `.agent/` folder and recommended binaries (`rtk`, `bd`).
+1. **Environmental Check:** Check for the presence of `.agent/` folder and recommended binaries (`rtk`, `bd`). Report status:
+   ```
+   ✅ AI Toolbox Active
+     → rtk: [installed / not installed]
+     → Beads: [installed / not installed]
+     → MCP: [configured / not configured]
+   ```
 2. **Context Recovery:** Read `.agent/memory/architecture-decisions.md` and `.agent/memory/integration-contracts.md`.
 3. **Work-in-Progress Check:** Read `.agent/memory/session-handover.md` if it exists.
 4. **Task Synchronization:** Run `.agent/scripts/sync-task.sh` (or `.ps1` on Windows) to update `.agent/memory/current-task.md` with the latest state from the task tracker.
-5. **Summarization:** Briefly summarize the recovered context, current state, and the next planned task before continuing.
+5. **Session Status Init:** If `.agent/memory/active-session.md` is empty or missing, initialize it from the template in `.agent/memory/active-session.md`.
+6. **Summarization:** Briefly summarize the recovered context, current state, available tools, and the next planned task before continuing.
 
 Purpose:
 - Restore architecture and integration context.
 - Restore work exactly where it was left off.
 - Avoid context drift after a restart.
+- Make all available tools visible to the user.
 
 ---
 
@@ -203,6 +211,29 @@ When existing skills (TDD, Planning, Debugging) are insufficient, use the 413+ s
 
 - **Rules:** **[.agent/rules/template-usage.md](.agent/rules/template-usage.md)** — when to use, how to access, 26 categories
 - **Workflow:** **[.agent/workflows/use-template.md](.agent/workflows/use-template.md)** — Gap Analysis → Search → Select → Adapt → Document → Execute
+
+---
+
+## 11.2. Automatic Skill Activation
+
+Skills and workflows activate automatically based on context — no manual selection needed.
+
+| Trigger | Auto-Activated Skill | What Happens |
+|---------|----------------------|-------------|
+| Test command detected (`rtk test`, `pytest`, etc.) | **[TDD Rules](.agent/rules/tdd-rules.md)** | Enforce RED-GREEN-REFACTOR cycle |
+| Task title contains "fix", "bug", "issue" | **[Bug-Fix Workflow](.agent/workflows/bug-fix.md)** | 5 phases: Repro → Identify → Fix → Verify → Record |
+| Task title contains "refactor", "rewrite", "migrate" | **[Code Review](.agent/workflows/code-review.md)** | Run checklist before finishing |
+| Task title contains "feature", "build", "create" | **[Unified Workflow](.agent/workflows/unified-workflow.md)** | Full 9-step process |
+| 3+ independent sub-tasks identified | **[Multi-Agent](.agent/workflows/multi-agent.md)** | Spawn parallel agents |
+| Unfamiliar technology / specialized domain | **[Template Usage](.agent/rules/template-usage.md)** | Suggest specialist templates |
+| MCP query needed (docs, web, GitHub) | **[MCP Rules](.agent/rules/mcp-rules.md)** | Use configured MCP servers |
+
+The agent announces skill activation:
+```
+📋 Skill activated: TDD Rules — RED phase
+📋 Workflow: Bug-Fix — Phase 1/5: REPRODUCE
+💡 Template available: devops-infrastructure/kubernetes (use /browse-templates)
+```
 
 ---
 
