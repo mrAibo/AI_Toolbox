@@ -48,6 +48,7 @@ This installs pre-execution hooks for Claude Code, Qwen Code, Cursor, Windsurf, 
 
 | Command | Purpose |
 |---------|---------|
+| `rtk <command>` | Run any command through rtk (auto-compresses output) |
 | `rtk test` | Run tests — shows only failures |
 | `rtk build` | Build — shows only errors |
 | `rtk lint` | Lint — grouped by rule, deduplicated |
@@ -191,7 +192,7 @@ Connect the AI to external resources: documentation, web content, GitHub, file s
 
 ### Setup
 
-See **[docs/mcp-guide.md](docs/mcp-guide.md)** for full setup.
+See **[docs/mcp-guide.md](../../docs/mcp-guide.md)** for full setup.
 
 | Profile | Servers | When to Use |
 |---------|---------|-------------|

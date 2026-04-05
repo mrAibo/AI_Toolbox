@@ -44,7 +44,9 @@ The AI Toolbox relies on specific terminal tools. You must verify their presence
 
 **1. rtk (Rust Token Killer)**
 - Check if `rtk` is installed (e.g. `rtk --version`).
-- If missing, ask the user if they have Rust installed. If yes, run `cargo install rtk`. If no, warn the user they need `rtk` installed to use the agent safely.
+- If missing, ask the user if they have Rust installed. If yes, run `cargo install rtk`.
+- **After installation, run `rtk init -g`** to install pre-execution hooks for the current AI client. This automatically routes heavy commands through rtk without manual prefixing.
+- If rtk is not available and Rust is not installed, warn the user they need `rtk` to use the agent safely.
 
 **2. Beads (Task Tracker)**
 - Check if `bd` is installed (e.g. `bd version`).
@@ -55,19 +57,23 @@ If you are **Claude Code** (or can execute configuring scripts), attempt to inst
 
 **1. Core Protocol Servers**
 ```bash
-claude mcp add context7 npx -y @context7/server
+claude mcp add context7 npx -y @upstash/context7-mcp
 claude mcp add sequential-thinking npx -y @modelcontextprotocol/server-sequential-thinking
 ```
 
-**2. Claude-Mem (Vector DB Memory)**
-- Repository: `https://github.com/thedotmack/claude-mem`
-- *Instruction for AI:* Clone this repository if missing, follow its build instructions, and add it to the MCP configuration.
+**2. Memory MCP Server**
+- Official MCP Server: `npx -y @modelcontextprotocol/server-memory`
+- *Instruction for AI:* This provides cross-session memory for storing and retrieving context, bug fixes, and project experience.
 
-**3. Template Bridge & Superpowers**
-- Repositories: `https://github.com/maslennikov-ig/template-bridge` & `https://github.com/obra/superpowers`
-- *Instruction for AI:* Check if these plugins/MCPs are active in your environment. If not, inform the user or attempt to configure them if valid installation commands are known.
+**3. bat & rg (ripgrep)**
+- Optional but recommended: modern replacements for `cat` and `grep`.
+- Install via your package manager (e.g. `cargo install bat ripgrep`, `brew install bat ripgrep`, or your OS package manager).
 
-**4. ⚡ Auto-Configure Terminal Hooks (CRITICAL)**
+**4. Template Bridge & Superpowers**
+- **Superpowers:** No separate installation needed — the engineering discipline (TDD, Planning, Debugging) is encoded in `.agent/rules/` and applied automatically when the AI reads `AGENT.md`.
+- **Template Bridge:** A Claude Code plugin for accessing 413+ specialist templates. For other clients, templates can be browsed manually at [github.com/maslennikov-ig/template-bridge](https://github.com/maslennikov-ig/template-bridge).
+
+**5. ⚡ Auto-Configure Terminal Hooks (CRITICAL)**
 
 Each AI client has its own way of handling hooks. If your client supports them, configure them now:
 

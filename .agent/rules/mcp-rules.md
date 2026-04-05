@@ -17,7 +17,7 @@ This file defines the constraints for using Model Context Protocol (MCP) servers
 1. **Document it** in `.agent/memory/integration-contracts.md`
 2. **Justify it** — what workflow problem does it solve?
 3. **Scope it** — read-only vs read-write, which directories/resources?
-4. **Record it** — add to `runbook.md` if it changes operational procedures
+4. **Record it** — add to `.agent/memory/runbook.md` if it changes operational procedures
 
 ### Prohibited Without Explicit User Approval
 
@@ -55,13 +55,13 @@ This file defines the constraints for using Model Context Protocol (MCP) servers
 ### During Sessions
 
 - If an MCP server is unavailable, continue work without it (core workflow must work standalone)
-- Log MCP errors in `session-handover.md` if they block progress
+- Log MCP errors in `.agent/memory/session-handover.md` if they block progress
 - Do not retry failing MCP servers more than once per session
 
 ### After Sessions
 
-- If a new MCP server was added during the session, update `integration-contracts.md`
-- If an MCP server was removed, note the reason in `session-handover.md`
+- If a new MCP server was added during the session, update `.agent/memory/integration-contracts.md`
+- If an MCP server was removed, note the reason in `.agent/memory/session-handover.md`
 
 ---
 

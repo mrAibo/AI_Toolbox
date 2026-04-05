@@ -19,7 +19,7 @@ Use it for setup notes, recovery steps, repeated commands, and maintenance proce
 
 ## 3. Terminal procedure
 - Prefer concise command output
-- Use `rtk` for heavy test/build commands where available (e.g. `rtk run "npm test"`)
+- Use `rtk` for heavy test/build commands where available (e.g. `rtk test`, `rtk build`)
 - Avoid raw long log dumps into model context
 
 ## 4. Memory maintenance

@@ -89,7 +89,7 @@ This workflow assumes the use of a few key tools to keep the AI disciplined:
 
 1. **[rtk (Rust Token Killer)](https://github.com/rtk-ai/rtk)**
    A console proxy optimizer. Heavy commands (like `pytest`, `mvn test`, `npm run build`) and large logs must be read through `rtk`. It compresses errors and tracebacks by 60-90%, saving tokens and keeping the AI focused. **Setup:** `cargo install rtk` + `rtk init -g`.
-2. **[Beads](https://github.com/steveyegge/beads)** (Optional but recommended)
+2. **[Beads](https://github.com/steveyegge/beads)** (Recommended)
    A local CLI task tracker. It moves the execution plan out of the AI's chat context and into a Git-backed graph. **Setup:** `go install github.com/steveyegge/beads@latest` + `bd init`.
 3. **[Superpowers](https://github.com/obra/superpowers)**
    Engineering process skills: TDD, Planning, Debugging, Code Review, Git Worktrees. Referenced via `.agent/rules/` — no separate install needed.
