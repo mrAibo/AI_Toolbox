@@ -140,6 +140,32 @@ The AI will autonomously download the `.agent` folder, `AGENT.md`, run the boots
 
 ---
 
+### 🔌 MCP Integration (Optional)
+
+Extend your AI agent with external tools via the [Model Context Protocol (MCP)](https://modelcontextprotocol.io/).
+
+**Quick Setup:**
+
+```bash
+# Minimal — documentation + reasoning
+claude mcp add context7 npx -y @upstash/context7-mcp
+claude mcp add sequential-thinking npx -y @modelcontextprotocol/server-sequential-thinking
+
+# Developer (recommended) — + filesystem access + web fetch
+claude mcp add filesystem npx -y @modelcontextprotocol/server-filesystem .
+claude mcp add fetch npx -y @modelcontextprotocol/server-fetch
+```
+
+| Profile | Servers | When to Use |
+|---------|---------|-------------|
+| **minimal** | context7, sequential-thinking | Quick tasks |
+| **developer** | + filesystem, fetch | Daily work (recommended) |
+| **full** | + github, memory | Full project work |
+
+Full config templates, security rules, and troubleshooting: **[docs/mcp-guide.md](docs/mcp-guide.md)**
+
+---
+
 ### 1. Manual Initialization (Direct Clone)
 1. **Set up the repo:** Clone this repository as a starting point.
 2. **Run the bootstrap script** for your OS to ensure all folders and router files exist:
