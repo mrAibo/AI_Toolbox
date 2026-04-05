@@ -71,6 +71,36 @@ if (-not (Test-Path ".agent/memory/runbook.md") -or (Get-Item ".agent/memory/run
     Set-Content -Path ".agent/memory/runbook.md" -Value $RunbookContent -Encoding utf8
 }
 
+if (-not (Test-Path ".agent/memory/active-session.md") -or (Get-Item ".agent/memory/active-session.md").Length -eq 0) {
+    $ActiveSessionContent = @'
+# Active Session — [Date]
+
+## Current Step
+- **Workflow:** [Workflow name] (Step X/9 — [STEP NAME])
+- **Task:** [Task description] ([beads-id])
+- **Phase:** [Current phase, e.g. RED, GREEN, REVIEW]
+
+## Active Skills & Rules
+- [.agent/rules/file.md] — [What it's enforcing]
+
+## Active Tools
+- [tool] — [Usage stats]
+
+## Active MCPs
+- [mcp-server] — [Query count or last result]
+
+## Multi-Agent Status
+- Agents spawned: 0
+- Agents active: 0
+
+## Progress
+- Steps completed: 0/9
+- Subtasks done: 0/0
+- Tokens saved (rtk): ~0
+'@
+    Set-Content -Path ".agent/memory/active-session.md" -Value $ActiveSessionContent -Encoding utf8
+}
+
 if (-not (Test-Path ".agent/memory/integration-contracts.md") -or (Get-Item ".agent/memory/integration-contracts.md").Length -eq 0) {
     $ICContent = @'
 # Integration Contracts

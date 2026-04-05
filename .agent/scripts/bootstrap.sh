@@ -90,6 +90,35 @@ Use it for setup notes, recovery steps, repeated commands, and maintenance proce
 EOF
 fi
 
+if [ ! -s .agent/memory/active-session.md ]; then
+cat << 'EOF' > .agent/memory/active-session.md
+# Active Session — [Date]
+
+## Current Step
+- **Workflow:** [Workflow name] (Step X/9 — [STEP NAME])
+- **Task:** [Task description] ([beads-id])
+- **Phase:** [Current phase, e.g. RED, GREEN, REVIEW]
+
+## Active Skills & Rules
+- [.agent/rules/file.md] — [What it's enforcing]
+
+## Active Tools
+- [tool] — [Usage stats]
+
+## Active MCPs
+- [mcp-server] — [Query count or last result]
+
+## Multi-Agent Status
+- Agents spawned: 0
+- Agents active: 0
+
+## Progress
+- Steps completed: 0/9
+- Subtasks done: 0/0
+- Tokens saved (rtk): ~0
+EOF
+fi
+
 if [ ! -s .agent/rules/safety-rules.md ]; then
 cat << 'EOF' > .agent/rules/safety-rules.md
 # Safety Rules
