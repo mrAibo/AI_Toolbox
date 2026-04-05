@@ -6,10 +6,22 @@ The architecture is set, the tasks are defined in Beads, and you just came back 
 ---
 
 ### English Prompt 🇺🇸
-> "We are continuing our work. Please execute your Boot Sequence as defined in AGENT.md to read our memories and sync the tasks. Then immediately pick up the exact next step without getting sidetracked."
+> "We're continuing our work. Execute the Unified Workflow (.agent/workflows/unified-workflow.md):
+> 1. Run sync-task to get current state from Beads
+> 2. Read .agent/memory/session-handover.md for yesterday's context
+> 3. Execute the next step in the 9-step process (TASK → BRAINSTORM → PLAN → ISOLATE → IMPLEMENT → REVIEW → VERIFY → FINISH → CLOSE)
+> Pick up the exact next step without getting sidetracked."
 
 ### German Prompt 🇩🇪
-> "Wir setzen unsere Arbeit fort. Bitte führe deine Boot-Sequenz gemäß AGENT.md aus, um unsere Memories zu lesen und die Tasks zu synchronisieren. Nimm danach direkt den nächsten Schritt auf, ohne vom Plan abzuweichen."
+> "Wir setzen unsere Arbeit fort. Führe den Unified Workflow aus (.agent/workflows/unified-workflow.md):
+> 1. sync-task ausführen für den aktuellen Stand von Beads
+> 2. .agent/memory/session-handover.md für den gestrigen Kontext lesen
+> 3. Den nächsten Schritt im 9-Schritte-Prozess ausführen
+> Nimm den nächsten Schritt auf, ohne vom Plan abzuweichen."
 
 ### Russian Prompt 🇷🇺
-> "Мы продолжаем работу. Пожалуйста, выполни свою Boot-последовательность (как описано в AGENT.md), чтобы прочитать нашу память и синхронизировать задачи, затем переходи к следующему шагу без отклонений от плана."
+> "Мы продолжаем работу. Выполняй Unified Workflow (.agent/workflows/unified-workflow.md):
+> 1. Запусти sync-task для получения текущего состояния из Beads
+> 2. Прочитай .agent/memory/session-handover.md для вчерашнего контекста
+> 3. Выполняй следующий шаг 9-шагового процесса
+> Переходи к следующему шагу без отклонений от плана."

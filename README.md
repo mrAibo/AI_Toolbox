@@ -109,6 +109,22 @@ This workflow assumes the use of a few key tools to keep the AI disciplined:
 
 Full integration details, commands, and how everything works together: **[.agent/rules/tool-integrations.md](.agent/rules/tool-integrations.md)**.
 
+### 🎻 How the Ensemble Works
+
+All tools work together automatically:
+
+1. **You describe a feature** → Beads creates the task
+2. **AI brainstorms** → Superpowers skills guide the analysis
+3. **AI plans** → Tasks broken into 2-5 min steps
+4. **AI implements with TDD** → RED → GREEN → REFACTOR (enforced by rules)
+5. **rtk optimizes** → Every test/build uses 60-90% fewer tokens
+6. **MCP provides resources** → Docs, web content, GitHub on demand
+7. **Templates fill gaps** → 413+ specialist agents when needed
+8. **AI reviews itself** → Code Review Workflow before finish
+9. **Beads tracks progress** → Task closed, next one ready
+
+No manual orchestration needed. Just describe what you want.
+
 ### The Complete Flow
 
 ```
