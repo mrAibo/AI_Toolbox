@@ -679,4 +679,9 @@ foreach ($Tool in $RecommendedTools) {
     }
 }
 
+# Fix 1: Prompt for rtk hooks if rtk is installed
+if (Get-Command rtk -ErrorAction SilentlyContinue) {
+    Write-Host "[bootstrap] rtk detected! To enable automatic hook interception, run: rtk init -g" -ForegroundColor Yellow
+}
+
 Write-Host "[bootstrap] structure ready"

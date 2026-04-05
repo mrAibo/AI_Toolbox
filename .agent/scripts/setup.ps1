@@ -193,17 +193,35 @@ if (-not (Get-Command bd -ErrorAction SilentlyContinue)) {
 # ---------------------------------------------------------------
 # Step 6: Offer to configure MCP
 # ---------------------------------------------------------------
-if ($PrimaryClient -eq "claude") {
+if ($PrimaryClient) {
   Write-Host ""
   $installMcp = Read-Host "🌐 Configure MCP servers for $PrimaryClient? [Y/n] "
   if ([string]::IsNullOrWhiteSpace($installMcp)) { $installMcp = "y" }
 
   if ($installMcp -match '^[Yy]$') {
-    Write-Host "  ✅ context7"
-    try { claude mcp add context7 npx -y @upstash/context7-mcp 2>$null } catch { Write-Host "  ⚠️  Failed to add context7 (may already exist)" -ForegroundColor Yellow }
+    switch ($PrimaryClient) {
+      "claude" {
+        Write-Host "  ✅ context7"
+        try { claude mcp add context7 npx -y @upstash/context7-mcp 2>$null } catch { Write-Host "  ⚠️  Failed to add context7 (may already exist)" -ForegroundColor Yellow }
 
-    Write-Host "  ✅ sequential-thinking"
-    try { claude mcp add sequential-thinking npx -y @modelcontextprotocol/server-sequential-thinking 2>$null } catch { Write-Host "  ⚠️  Failed to add sequential-thinking (may already exist)" -ForegroundColor Yellow }
+        Write-Host "  ✅ sequential-thinking"
+        try { claude mcp add sequential-thinking npx -y @modelcontextprotocol/server-sequential-thinking 2>$null } catch { Write-Host "  ⚠️  Failed to add sequential-thinking (may already exist)" -ForegroundColor Yellow }
+      }
+      "qwen" { $McpFile = "mcp-qwen.json" }
+      "aider" { $McpFile = "mcp-aider.yml" }
+      default { $McpFile = "mcp-configs.json" }
+    }
+
+    if ($McpFile -and (Test-Path ".agent/templates/mcp/$McpFile")) {
+      $copyMcp = Read-Host "  Copy config file to root for easy access? [Y/n] "
+      if ([string]::IsNullOrWhiteSpace($copyMcp)) { $copyMcp = "y" }
+      if ($copyMcp -match '^[Yy]$') {
+        Copy-Item ".agent/templates/mcp/$McpFile" "./$McpFile"
+        Write-Host "  ✅ Copied to ./$McpFile — add this to your $PrimaryClient MCP settings" -ForegroundColor Green
+      }
+    } elseif ($McpFile) {
+      Write-Host "  ⚠️  Config file not found." -ForegroundColor Yellow
+    }
   }
 }
 

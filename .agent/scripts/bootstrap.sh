@@ -633,4 +633,9 @@ for tool in "${RECOMMENDED_TOOLS[@]}"; do
     fi
 done
 
+# Fix 1: Prompt for rtk hooks if rtk is installed
+if command -v rtk &> /dev/null; then
+    echo "[bootstrap] rtk detected! To enable automatic hook interception, run: rtk init -g"
+fi
+
 echo "[bootstrap] structure ready"

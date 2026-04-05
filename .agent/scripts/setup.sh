@@ -194,17 +194,41 @@ fi
 # ---------------------------------------------------------------
 # Step 6: Offer to configure MCP
 # ---------------------------------------------------------------
-if [ -n "$PRIMARY_CLIENT" ] && [ "$PRIMARY_CLIENT" = "claude" ]; then
+if [ -n "$PRIMARY_CLIENT" ]; then
   echo ""
   read -p "🌐 Configure MCP servers for $PRIMARY_CLIENT? [Y/n] " install_mcp
   install_mcp=${install_mcp:-y}
 
   if [[ "$install_mcp" =~ ^[Yy]$ ]]; then
-    echo "  ✅ context7"
-    claude mcp add context7 npx -y @upstash/context7-mcp 2>/dev/null || echo "  ⚠️  Failed to add context7 (may already exist)"
+    case "$PRIMARY_CLIENT" in
+      claude)
+        echo "  ✅ context7"
+        claude mcp add context7 npx -y @upstash/context7-mcp 2>/dev/null || echo "  ⚠️  Failed to add context7 (may already exist)"
 
-    echo "  ✅ sequential-thinking"
-    claude mcp add sequential-thinking npx -y @modelcontextprotocol/server-sequential-thinking 2>/dev/null || echo "  ⚠️  Failed to add sequential-thinking (may already exist)"
+        echo "  ✅ sequential-thinking"
+        claude mcp add sequential-thinking npx -y @modelcontextprotocol/server-sequential-thinking 2>/dev/null || echo "  ⚠️  Failed to add sequential-thinking (may already exist)"
+        ;;
+      qwen|aider|cursor|cline|windsurf|gemini)
+        # For other clients, we provide the config file
+        MCP_FILE=""
+        case "$PRIMARY_CLIENT" in
+          qwen) MCP_FILE="mcp-qwen.json" ;;
+          aider) MCP_FILE="mcp-aider.yml" ;;
+          *) MCP_FILE="mcp-configs.json" ;;
+        esac
+
+        if [ -f ".agent/templates/mcp/$MCP_FILE" ]; then
+          read -p "  Copy config file to root for easy access? [Y/n] " copy_mcp
+          copy_mcp=${copy_mcp:-y}
+          if [[ "$copy_mcp" =~ ^[Yy]$ ]]; then
+            cp ".agent/templates/mcp/$MCP_FILE" "./$MCP_FILE"
+            echo "  ✅ Copied to ./$MCP_FILE — add this to your $PRIMARY_CLIENT MCP settings"
+          fi
+        else
+          echo "  ⚠️  Config file not found."
+        fi
+        ;;
+    esac
   fi
 fi
 

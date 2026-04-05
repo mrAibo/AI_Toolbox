@@ -54,3 +54,24 @@ if [ -f "$ACTIVE_SESSION" ]; then
 - **Task:** $TASK_INFO
 EOF
 fi
+
+# Fix 4: Count ready tasks and suggest Multi-Agent if >= 3
+if command -v bd &> /dev/null; then
+    READY_COUNT=$(bd ready 2>/dev/null | wc -l | tr -d ' ')
+    if [ "$READY_COUNT" -ge 3 ]; then
+        echo "[sync-task] 💡 $READY_COUNT tasks ready — consider Multi-Agent Workflow"
+    fi
+fi
+
+# Fix 5: Suggest specialist templates based on detected stack
+if [ -f "package.json" ]; then
+    echo "[sync-task] 💡 Templates available: api-rest, database, ui-analysis"
+elif [ -f "Cargo.toml" ]; then
+    echo "[sync-task] 💡 Templates available: programming-languages/rust, devops-infrastructure"
+elif [ -f "pyproject.toml" ] || [ -f "requirements.txt" ]; then
+    echo "[sync-task] 💡 Templates available: programming-languages/python, ai-specialists"
+elif [ -f "go.mod" ]; then
+    echo "[sync-task] 💡 Templates available: programming-languages/go, devops-infrastructure"
+elif [ -f "pom.xml" ] || [ -f "build.gradle" ]; then
+    echo "[sync-task] 💡 Templates available: programming-languages/java, database"
+fi

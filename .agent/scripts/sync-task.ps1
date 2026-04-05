@@ -57,3 +57,29 @@ if (Test-Path $ActiveSession) {
         $Content | Out-File -FilePath $ActiveSession -Encoding utf8
     }
 }
+
+# Fix 4: Count ready tasks and suggest Multi-Agent if >= 3
+if (Get-Command bd -ErrorAction SilentlyContinue) {
+    try {
+        $ReadyOutput = bd ready 2>$null
+        if ($ReadyOutput) {
+            $ReadyCount = ($ReadyOutput | Measure-Object -Line).Lines
+            if ($ReadyCount -ge 3) {
+                Write-Host "[sync-task] 💡 $ReadyCount tasks ready — consider Multi-Agent Workflow"
+            }
+        }
+    } catch { /* Ignore errors */ }
+}
+
+# Fix 5: Suggest specialist templates based on detected stack
+if (Test-Path "package.json") {
+    Write-Host "[sync-task] 💡 Templates available: api-rest, database, ui-analysis"
+} elseif (Test-Path "Cargo.toml") {
+    Write-Host "[sync-task] 💡 Templates available: programming-languages/rust, devops-infrastructure"
+} elseif ((Test-Path "pyproject.toml") -or (Test-Path "requirements.txt")) {
+    Write-Host "[sync-task] 💡 Templates available: programming-languages/python, ai-specialists"
+} elseif (Test-Path "go.mod") {
+    Write-Host "[sync-task] 💡 Templates available: programming-languages/go, devops-infrastructure"
+} elseif ((Test-Path "pom.xml") -or (Test-Path "build.gradle")) {
+    Write-Host "[sync-task] 💡 Templates available: programming-languages/java, database"
+}

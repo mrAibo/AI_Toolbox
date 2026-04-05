@@ -216,17 +216,17 @@ When existing skills (TDD, Planning, Debugging) are insufficient, use the 413+ s
 
 ## 11.2. Automatic Skill Activation
 
-Skills and workflows activate automatically based on context — no manual selection needed.
+**MANDATORY:** Skills and workflows activate automatically based on context. Once triggered, the agent **MUST** follow the defined workflow without deviation. No manual selection is needed.
 
 | Trigger | Auto-Activated Skill | What Happens |
 |---------|----------------------|-------------|
-| Test command detected (`rtk test`, `pytest`, etc.) | **[TDD Rules](.agent/rules/tdd-rules.md)** | Enforce RED-GREEN-REFACTOR cycle |
-| Task title contains "fix", "bug", "issue" | **[Bug-Fix Workflow](.agent/workflows/bug-fix.md)** | 5 phases: Repro → Identify → Fix → Verify → Record |
-| Task title contains "refactor", "rewrite", "migrate" | **[Code Review](.agent/workflows/code-review.md)** | Run checklist before finishing |
-| Task title contains "feature", "build", "create" | **[Unified Workflow](.agent/workflows/unified-workflow.md)** | Full 9-step process |
-| 3+ independent sub-tasks identified | **[Multi-Agent](.agent/workflows/multi-agent.md)** | Spawn parallel agents |
-| Unfamiliar technology / specialized domain | **[Template Usage](.agent/rules/template-usage.md)** | Suggest specialist templates |
-| MCP query needed (docs, web, GitHub) | **[MCP Rules](.agent/rules/mcp-rules.md)** | Use configured MCP servers |
+| Test command detected (`rtk test`, `pytest`, etc.) | **[TDD Rules](.agent/rules/tdd-rules.md)** | **Enforce** RED-GREEN-REFACTOR cycle |
+| Task title contains "fix", "bug", "issue" | **[Bug-Fix Workflow](.agent/workflows/bug-fix.md)** | **Run** 5 phases: Repro → Identify → Fix → Verify → Record |
+| Task title contains "refactor", "rewrite", "migrate" | **[Code Review](.agent/workflows/code-review.md)** | **Run** checklist before finishing |
+| Task title contains "feature", "build", "create" | **[Unified Workflow](.agent/workflows/unified-workflow.md)** | **Run** full 9-step process |
+| 3+ independent sub-tasks identified | **[Multi-Agent](.agent/workflows/multi-agent.md)** | **Spawn** parallel agents automatically |
+| Unfamiliar technology / specialized domain | **[Template Usage](.agent/rules/template-usage.md)** | **Suggest** and apply specialist templates |
+| MCP query needed (docs, web, GitHub) | **[MCP Rules](.agent/rules/mcp-rules.md)** | **Use** configured MCP servers |
 
 The agent announces skill activation:
 ```
