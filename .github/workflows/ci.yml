@@ -6,6 +6,9 @@ on:
   pull_request:
     branches: [main]
 
+permissions:
+  contents: read
+
 jobs:
   validate:
     runs-on: ubuntu-latest
@@ -16,6 +19,83 @@ jobs:
         run: |
           ls .agent/scripts/bootstrap.sh
           ls .agent/scripts/bootstrap.ps1
+          ls .agent/scripts/setup.sh
+          ls .agent/scripts/setup.ps1
+          ls .agent/scripts/sync-task.sh
+          ls .agent/scripts/sync-task.ps1
+          ls .agent/scripts/hook-pre-command.sh
+          ls .agent/scripts/hook-pre-command.ps1
+          ls .agent/scripts/hook-stop.sh
+          ls .agent/scripts/hook-stop.ps1
+          ls .agent/scripts/verify-commit.sh
+          ls .agent/scripts/verify-commit.ps1
           ls AGENT.md
           ls README.md
-          echo "OK"
+          ls .agent/config/client-capabilities.json
+          echo "OK — all core files present"
+
+      - name: Check router files exist
+        run: |
+          missing=0
+          for f in CLAUDE.md QWEN.md GEMINI.md CONVENTIONS.md .cursorrules .clinerules .windsurfrules SKILL.md; do
+            if [ ! -f "$f" ]; then
+              echo "FAIL Missing router file $f"
+              missing=$((missing + 1))
+            fi
+          done
+          if [ "$missing" -gt 0 ]; then
+            exit 1
+          fi
+          echo "OK — all router files present"
+
+      - name: Verify tier badges
+        run: |
+          missing=0
+          for f in CLAUDE.md QWEN.md GEMINI.md CONVENTIONS.md .cursorrules .clinerules .windsurfrules SKILL.md; do
+            if [ -f "$f" ] && ! grep -q "\-\- Tier:" "$f"; then
+              echo "FAIL Missing tier badge on $f"
+              missing=$((missing + 1))
+            fi
+          done
+          if [ "$missing" -gt 0 ]; then
+            exit 1
+          fi
+          echo "OK — all tier badges present"
+
+      - name: Validate JSON files
+        run: |
+          invalid=0
+          for f in $(find . -name "*.json" -not -path "./.git/*" -not -path "./.qwen/*" -not -path "./node_modules/*"); do
+            if ! python3 -m json.tool "$f" > /dev/null 2>&1; then
+              echo "FAIL Invalid JSON: $f"
+              invalid=$((invalid + 1))
+            fi
+          done
+          if [ "$invalid" -gt 0 ]; then
+            exit 1
+          fi
+          echo "OK — all JSON valid"
+
+      - name: Validate markdown links
+        run: |
+          broken=0
+          for f in $(find . -name "*.md" -not -path "./.git/*" -not -path "./.qwen/*"); do
+            links=$(grep -oE '\[[^]]+\]\([^)]+\)' "$f" 2>/dev/null || true)
+            for link in $links; do
+              target=$(echo "$link" | sed 's/.*](\(.*\))/\1/' | sed 's/#.*//')
+              case "$target" in
+                http*|mailto:*|\#*|/*) continue ;;
+              esac
+              dir=$(dirname "$f")
+              resolved=$(cd "$(dirname "$dir/$target")" 2>/dev/null && pwd)/$(basename "$target") 2>/dev/null || true
+              if [ -z "$resolved" ] || [ ! -e "$resolved" ]; then
+                echo "BROKEN: $f -> $target"
+                broken=$((broken + 1))
+              fi
+            done
+          done
+          if [ "$broken" -gt 0 ]; then
+            echo "FAIL $broken broken links"
+            exit 1
+          fi
+          echo "OK — all markdown links valid"

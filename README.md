@@ -78,11 +78,17 @@ AI_Toolbox/
 │   │   ├── clients/                   # Client-specific configs (QWEN.md, CONVENTIONS.md, .aider.conf.yml, .claude.json)
 │   │   └── mcp/                       # MCP configs (6 clients + master config)
 │   │
-│   └── workflows/                # Antigravity Slash Commands
+│   └── workflows/                # Workflow definitions
 │       ├── start.md / sync.md         # Routine automation
 │       ├── handover.md                # Session wrap-up
 │       ├── plan.md                    # Planning mode
-│       └── adr.md                     # ADR creation
+│       ├── adr.md                     # ADR creation
+│       ├── unified-workflow.md        # 9-step task execution (TASK→CLOSE)
+│       ├── bug-fix.md                 # 5-phase bug fix (Repro→Record)
+│       ├── code-review.md             # Pre-merge review checklist
+│       ├── branch-finish.md           # Branch completion steps
+│       ├── multi-agent.md             # Parallel agent orchestration
+│       └── use-template.md            # Template selection & adaptation
 │
 ├── docs/                       # Detailed human guides (Setup, MCP, FAQ)
 ├── examples/                   # Sample workflows
