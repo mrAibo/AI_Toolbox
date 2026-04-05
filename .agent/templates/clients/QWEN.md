@@ -24,4 +24,4 @@ Read these files at session start (in order):
 4. `.agent/memory/current-task.md` -- Active todo list
 5. `.agent/memory/runbook.md` -- Operational procedures (if present)
 
-Refer to [AGENT.md](AGENT.md) for the full operational contract.
+Refer to [AGENT.md](../../../AGENT.md) for the full operational contract.

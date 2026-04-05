@@ -56,7 +56,9 @@ AI_Toolbox/
 │   │   ├── antigravity.md             # Antigravity-specific extensions
 │   │   ├── qwen-code.md               # Qwen Code Full-Tier extensions
 │   │   ├── mcp-rules.md               # MCP server usage constraints
-│   │   └── tool-integrations.md       # How rtk, Beads, Superpowers work together
+│   │   ├── tool-integrations.md       # How rtk, Beads, Superpowers work together
+│   │   ├── tdd-rules.md               # Mandatory RED-GREEN-REFACTOR cycle
+│   │   └── template-usage.md          # When to use 413+ specialist templates
 │   │
 │   ├── scripts/                  # Automation & Hooks
 │   │   ├── bootstrap.sh / .ps1        # Initial repo setup
@@ -70,7 +72,9 @@ AI_Toolbox/
 │   │   ├── antigravity-plan.md        # Antigravity native plan
 │   │   ├── issue-template.md          # Internal bug/issue report
 │   │   ├── task-template.md           # Task definition
-│   │   └── clients/                   # Client-specific configs (QWEN.md, CONVENTIONS.md, .aider.conf.yml, .claude.json)
+│   │   ├── multi-agent-coordination.md # Sub-agent task tracking
+│   │   ├── clients/                   # Client-specific configs (QWEN.md, CONVENTIONS.md, .aider.conf.yml, .claude.json)
+│   │   └── mcp/                       # MCP configs for all 8 AI clients
 │   │
 │   └── workflows/                # Antigravity Slash Commands
 │       ├── start.md / sync.md         # Routine automation

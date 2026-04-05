@@ -13,12 +13,13 @@ docs/build/
 
 # AI Toolbox client routers (generated locally by bootstrap; committed as reference)
 # Note: .gitignore has no effect on already-tracked files.
+# Anchored to root to avoid matching template files in .agent/templates/clients/
 
 # Locally-generated JSON config (not committed)
-.claude.json
-.aider.conf.yml
+/.claude.json
+/.aider.conf.yml
 
 # Standard-Tier router files (committed as reference, but local edits may differ)
-.cursorrules
-.clinerules
-.windsurfrules
+/.cursorrules
+/.clinerules
+/.windsurfrules

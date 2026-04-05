@@ -115,8 +115,8 @@ bd ready  # What's next?
 
 If the task requires specialized knowledge (Rust async, Kubernetes, GraphQL, etc.):
 
-1. Follow **[.agent/rules/template-usage.md](.agent/rules/template-usage.md)** — when and how to use specialist templates
-2. Follow **[.agent/workflows/use-template.md](.agent/workflows/use-template.md)** — Gap Analysis → Search → Select → Adapt → Document → Execute
+1. Follow **[.agent/rules/template-usage.md](../rules/template-usage.md)** — when and how to use specialist templates
+2. Follow **[.agent/workflows/use-template.md](use-template.md)** — Gap Analysis → Search → Select → Adapt → Document → Execute
 3. Access 413+ templates via `/browse-templates` (Claude Code) or `npx claude-code-templates@latest`
 
 ---

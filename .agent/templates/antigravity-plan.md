@@ -13,7 +13,7 @@ Provide a brief description of the problem, background context, and what the cha
 
 ## Proposed Changes
 
-Refer to [AGENT.md](../AGENT.md) for core workflow rules.
+Refer to [AGENT.md](../../AGENT.md) for core workflow rules.
 
 ### [Component Name]
 

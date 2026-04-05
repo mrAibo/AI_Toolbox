@@ -51,8 +51,8 @@ for file in $STAGED_MD; do
         while IFS= read -r link; do
             # Extract the path from the link [text](path)
             target=$(echo "$link" | sed -n 's/.*\](\(.*\))/\1/p' | sed 's/#.*//')
-            # Skip external links and anchors
-            if echo "$target" | grep -qE '^https?://|^mailto:|^#'; then
+            # Skip external links, anchors, and root-relative paths
+            if echo "$target" | grep -qE '^https?://|^mailto:|^#|^/'; then
                 continue
             fi
             # Resolve relative to the file's directory

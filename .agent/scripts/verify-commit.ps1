@@ -59,8 +59,8 @@ foreach ($File in $StagedMD) {
         $Matches = [regex]::Matches($Content, '\[([^\]]+)\]\(([^)]+)\)')
         foreach ($Match in $Matches) {
             $Target = $Match.Groups[2].Value -split '#' | Select-Object -First 1
-            # Skip external links and anchors
-            if ($Target -match '^https?://|^mailto:|^/') { continue }
+            # Skip external links, anchors, and root-relative paths
+            if ($Target -match '^https?://|^mailto:|^#|^/') { continue }
             # Resolve relative to the file's directory
             $Dir = Split-Path $FullPath -Parent
             $Resolved = Join-Path $Dir $Target
