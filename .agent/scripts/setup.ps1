@@ -219,6 +219,12 @@ if (-not (Get-Command bd -ErrorAction SilentlyContinue)) {
 } else {
   try { $ver = (bd version 2>$null) } catch { $ver = "installed" }
   Write-Host "  ✅ Beads already installed ($ver)" -ForegroundColor Green
+  $initBd = Read-Host "  Initialize Beads task tracker for this project? [Y/n] "
+  if ([string]::IsNullOrWhiteSpace($initBd)) { $initBd = "y" }
+  if ($initBd -match '^[Yy]$') {
+    Write-Host "  ✅ Initializing: bd init"
+    bd init
+  }
 }
 
 # ---------------------------------------------------------------

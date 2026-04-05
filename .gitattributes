@@ -1,6 +1,9 @@
 # Force LF line endings for all code and config files
 * text=auto eol=lf
 
+# Shell scripts must be LF for GitHub Actions
+*.sh text eol=lf
+
 # Windows scripts should keep CRLF
 *.ps1 text eol=crlf
 *.bat text eol=crlf

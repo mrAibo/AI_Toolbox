@@ -679,8 +679,8 @@ if (Test-Path ".git") {
 #!/bin/bash
 # AI Toolbox Pre-commit wrapper (BASH)
 REPO_ROOT="$(git rev-parse --show-toplevel)"
-if [ -f "$REPO_ROOT/.agent/scripts/verify-commit.sh" ]; then
-    bash "$REPO_ROOT/.agent/scripts/verify-commit.sh"
+if [ -f "$REPO_ROOT/.agent/scripts/verify-commit.ps1" ]; then
+    powershell.exe -ExecutionPolicy Bypass -File "$REPO_ROOT/.agent/scripts/verify-commit.ps1"
 fi
 '@
         Set-Content -Path ".git/hooks/pre-commit" -Value $BashHook -Encoding utf8

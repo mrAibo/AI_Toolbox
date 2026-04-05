@@ -176,7 +176,7 @@ if ! command -v rtk &> /dev/null; then
       init_rtk=${init_rtk:-y}
       if [[ "$init_rtk" =~ ^[Yy]$ ]]; then
         echo "  ✅ Configuring hooks: rtk init -g"
-        rtk init -g
+        rtk init -g 2>/dev/null || true
       fi
     else
       echo "  ⚠️  cargo not found. Install Rust first: https://rustup.rs/"
@@ -188,7 +188,7 @@ else
   init_rtk=${init_rtk:-y}
   if [[ "$init_rtk" =~ ^[Yy]$ ]]; then
     echo "  ✅ Configuring hooks: rtk init -g"
-    rtk init -g
+    rtk init -g 2>/dev/null || true
   fi
 fi
 

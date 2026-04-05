@@ -10,7 +10,7 @@ Qwen Code is a **Full-Tier** client with access to hooks, multi-agent orchestrat
 ## Hook Setup
 - **Pre-command hook:** `.agent/scripts/hook-pre-command.sh` (or `.ps1`) — enforces `rtk` prefix for heavy commands.
 - **Stop hook:** `.agent/scripts/hook-stop.sh` (or `.ps1`) — triggers memory consolidation on session end.
-- Configure hooks in your Qwen Code settings analogously to Claude Code's `.claude.json` hook configuration.
+- Configure hooks in your Qwen Code settings (`.qwen/settings.json`) for pre/post-command execution.
 
 ## Plan Mode
 - Use plan mode before major architectural changes.

@@ -670,7 +670,7 @@ REQUIRED_IGNORES=(
 
 for ignore in "${REQUIRED_IGNORES[@]}"; do
     if ! grep -qxF "$ignore" "$GITIGNORE"; then
-        echo -e "\n$ignore" >> "$GITIGNORE"
+        printf '\n%s\n' "$ignore" >> "$GITIGNORE"
         echo "[bootstrap] Added $ignore to .gitignore"
     fi
 done

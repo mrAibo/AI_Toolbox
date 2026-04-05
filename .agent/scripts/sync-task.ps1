@@ -13,7 +13,7 @@ if (Get-Command bd -ErrorAction SilentlyContinue) {
     Write-Host "[sync-task] Task state exported to $TaskPath"
 
     # Detect task type from Beads output and suggest workflow
-    $TaskOutput = Get-Content $TaskPath -First 1 -ErrorAction SilentlyContinue
+    $TaskOutput = Get-Content $TaskPath -First 5 -ErrorAction SilentlyContinue | Out-String
     if ($TaskOutput -match 'fix|bug|issue|error|crash') {
         Write-Host "[sync-task] 🐛 Bug fix detected — suggesting Bug-Fix Workflow"
     } elseif ($TaskOutput -match 'refactor|rewrite|migrate|rename') {

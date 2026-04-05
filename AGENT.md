@@ -68,10 +68,6 @@ If the user asks for a new project, a new subsystem, or a large feature:
 
 For the complete 9-step process (TASK → BRAINSTORM → PLAN → ISOLATE → IMPLEMENT → REVIEW → VERIFY → FINISH → CLOSE), follow **[.agent/workflows/unified-workflow.md](.agent/workflows/unified-workflow.md)**.
 
-The workflow order is:
-
-Brainstorm -> Architecture decision -> Task creation -> Implementation -> Verification -> Memory update
-
 ---
 
 ## 4. Execution rules
