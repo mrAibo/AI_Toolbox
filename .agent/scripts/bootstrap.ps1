@@ -109,12 +109,54 @@ if (-not (Test-Path ".agent/memory/current-task.md") -or (Get-Item ".agent/memor
 
 $SafetyContent = @'
 # Safety Rules
-Core principle: Do not perform destructive, irreversible, or high-risk actions without explicit user intent.
 
-1. **No Blind Deletion:** Do not delete files or directories without verifying their content and importance.
-2. **No Silent Rewrites:** Do not rewrite large parts of the repository silently or without a plan.
-3. **Git Integrity:** Do not force-push or rewrite git history unless explicitly requested.
-4. **Safety wrapper:** Always use `rtk` for heavy terminal operations to manage token usage and risk.
+This file defines the repository safety constraints for AI-assisted work.
+
+Its purpose is to reduce accidental damage, unsafe assumptions, and destructive actions.
+
+---
+
+## Core safety principle
+
+Do not perform destructive, irreversible, or high-risk actions unless the user clearly intended them.
+
+If the intent is unclear, stop and clarify.
+
+---
+
+## Forbidden without explicit intent
+
+Do not do the following unless the user explicitly wants it:
+- delete files or directories
+- rewrite large parts of the repository
+- replace major technologies
+- force-push or rewrite git history
+- overwrite working configurations blindly
+- remove tests, validation, or safety checks
+
+---
+
+## Required caution areas
+
+Be extra careful when working with:
+- database schema changes
+- migration scripts
+- authentication or authorization logic
+- secrets, credentials, and tokens
+- deployment configuration
+- production-like data
+- destructive shell commands
+
+---
+
+## Assumption rule
+
+Do not treat assumptions as facts.
+
+If something is inferred rather than verified:
+- say so
+- document the uncertainty
+- avoid irreversible actions based on the assumption
 '@
 if (-not (Test-Path ".agent/rules/safety-rules.md") -or (Get-Item ".agent/rules/safety-rules.md").Length -eq 0) {
     Set-Content -Path ".agent/rules/safety-rules.md" -Value $SafetyContent -Encoding utf8
@@ -122,12 +164,48 @@ if (-not (Test-Path ".agent/rules/safety-rules.md") -or (Get-Item ".agent/rules/
 
 $TestingContent = @'
 # Testing Rules
-Core principle: Do not claim completion without verification.
 
-1. **Verify Always:** Run tests whenever they exist.
-2. **Bug Fix Sequence:** Use Reproduce -> Identify -> Fix -> Verify -> Record.
-3. **Red-Green-Refactor:** Ensure tests fail before they pass for new features.
-4. **Tooling:** Prefer concise test output via `rtk` to avoid context flooding.
+This file defines how work must be verified before it is considered complete.
+
+The purpose is to prevent false completion, unverified assumptions, and silent regressions.
+
+---
+
+## Core rule
+
+Do not claim that something works unless it has been checked.
+
+Verification is mandatory.
+If something cannot be verified, state that clearly.
+
+---
+
+## Preferred workflow
+
+When possible, use one of these approaches:
+- test-first
+- verification-first
+- reproduce -> fix -> verify
+
+---
+
+## Bug fix workflow
+
+For bug fixes, prefer this sequence:
+1. Reproduce the problem
+2. Identify the likely cause
+3. Implement the fix
+4. Re-run verification
+5. Record durable knowledge if the bug was non-trivial
+
+---
+
+## Terminal output discipline
+
+- Prefer concise test output
+- Use `rtk` for heavy test runs where possible
+- Avoid pasting very large raw output into context
+- Summarize failures clearly and precisely
 '@
 if (-not (Test-Path ".agent/rules/testing-rules.md") -or (Get-Item ".agent/rules/testing-rules.md").Length -eq 0) {
     Set-Content -Path ".agent/rules/testing-rules.md" -Value $TestingContent -Encoding utf8
@@ -135,10 +213,40 @@ if (-not (Test-Path ".agent/rules/testing-rules.md") -or (Get-Item ".agent/rules
 
 $StackContent = @'
 # Stack Rules
-- Follow the project's established coding standards (check `.editorconfig`, `.eslintrc`, etc.).
-- Prefer idiomatic solutions for the detected language/framework.
-- Document third-party library additions in `.agent/memory/integration-contracts.md`.
-- Keep dependencies updated and minimize security vulnerabilities.
+
+This file defines stack-level constraints and preferences for the project.
+
+Its purpose is to prevent random tool choices, uncontrolled framework drift, and unnecessary complexity.
+
+---
+
+## General rule
+
+Do not introduce a new language, framework, library, database, or major build tool without a reason.
+
+If a new dependency is necessary:
+- explain why it is needed
+- explain what problem it solves
+- compare it with at least one simpler alternative
+- record the decision in `architecture-decisions.md`
+
+---
+
+## Stack selection principles
+
+- Prefer the smallest stack that solves the problem
+- Prefer existing project tools over new tools
+- Prefer standard libraries over extra dependencies when practical
+- Prefer stable, well-documented technologies over trendy ones
+
+---
+
+## AI workflow tools
+
+The following tools are preferred in this repository when available:
+- `rtk` for heavy terminal output and log compression
+- `Beads` for task tracking and execution order
+- `AGENT.md` and `.agent/memory/*.md` for durable workflow memory
 '@
 if (-not (Test-Path ".agent/rules/stack-rules.md") -or (Get-Item ".agent/rules/stack-rules.md").Length -eq 0) {
     Set-Content -Path ".agent/rules/stack-rules.md" -Value $StackContent -Encoding utf8
@@ -317,9 +425,16 @@ if (-not (Test-Path "CLAUDE.md") -or (Get-Item "CLAUDE.md").Length -eq 0) {
 if (-not (Test-Path "GEMINI.md") -or (Get-Item "GEMINI.md").Length -eq 0) {
     Set-Content -Path "GEMINI.md" -Value $GeminiContent -Encoding utf8
 }
-Set-Content -Path ".cursorrules"   -Value $CursorContent   -Encoding utf8
-Set-Content -Path ".clinerules"    -Value $ClineContent    -Encoding utf8
-Set-Content -Path ".windsurfrules" -Value $WindsurfContent -Encoding utf8
+# Standard-Tier routers: guard to preserve manual edits
+if (-not (Test-Path ".cursorrules") -or (Get-Item ".cursorrules").Length -eq 0) {
+    Set-Content -Path ".cursorrules"   -Value $CursorContent   -Encoding utf8
+}
+if (-not (Test-Path ".clinerules") -or (Get-Item ".clinerules").Length -eq 0) {
+    Set-Content -Path ".clinerules"    -Value $ClineContent    -Encoding utf8
+}
+if (-not (Test-Path ".windsurfrules") -or (Get-Item ".windsurfrules").Length -eq 0) {
+    Set-Content -Path ".windsurfrules" -Value $WindsurfContent -Encoding utf8
+}
 
 # Qwen Code router (Full Tier)
 $ClientDir = ".agent/templates/clients"
@@ -408,8 +523,6 @@ if (Test-Path "$ClientDir/.aider.conf.yml") {
 }
 
 # Client-specific templates
-
-if (-not (Test-Path $ClientDir)) { New-Item -ItemType Directory -Path $ClientDir | Out-Null }
 if (Test-Path "$ClientDir/.claude.json") {
     Copy-Item -Path "$ClientDir/.claude.json" -Destination ".claude.json" -Force
     Write-Host "[bootstrap] Installed .claude.json hooks"
@@ -417,24 +530,33 @@ if (Test-Path "$ClientDir/.claude.json") {
 
 if (Test-Path ".git") {
     Write-Host "[bootstrap] Updating Git pre-commit safeguards..."
-    
-    # 1. Bash wrapper (for Git Bash)
-    $BashHook = @'
+
+    # Only write hooks if they don't already exist (preserve manual customizations)
+    if (-not (Test-Path ".git/hooks/pre-commit") -or (Get-Item ".git/hooks/pre-commit").Length -eq 0) {
+        # 1. Bash wrapper (for Git Bash)
+        $BashHook = @'
 #!/bin/bash
 # AI Toolbox Pre-commit wrapper (BASH)
 REPO_ROOT="$(git rev-parse --show-toplevel)"
-powershell.exe -ExecutionPolicy Bypass -File "$REPO_ROOT/.agent/scripts/verify-commit.ps1"
+if [ -f "$REPO_ROOT/.agent/scripts/verify-commit.ps1" ]; then
+    powershell.exe -ExecutionPolicy Bypass -File "$REPO_ROOT/.agent/scripts/verify-commit.ps1"
+fi
 '@
-    Set-Content -Path ".git/hooks/pre-commit" -Value $BashHook -Encoding utf8
+        Set-Content -Path ".git/hooks/pre-commit" -Value $BashHook -Encoding utf8
+    }
 
-    # 2. Batch wrapper (for native Windows CMD/Git)
-    $BatchHook = @'
+    if (-not (Test-Path ".git/hooks/pre-commit.bat") -or (Get-Item ".git/hooks/pre-commit.bat").Length -eq 0) {
+        # 2. Batch wrapper (for native Windows CMD/Git)
+        $BatchHook = @'
 @echo off
 REM AI Toolbox Pre-commit wrapper (BATCH)
 for /f "tokens=*" %%i in ('git rev-parse --show-toplevel') do set REPO_ROOT=%%i
-powershell.exe -ExecutionPolicy Bypass -File "%REPO_ROOT%\.agent\scripts\verify-commit.ps1"
+if exist "%REPO_ROOT%\.agent\scripts\verify-commit.ps1" (
+    powershell.exe -ExecutionPolicy Bypass -File "%REPO_ROOT%\.agent\scripts\verify-commit.ps1"
+)
 '@
-    Set-Content -Path ".git/hooks/pre-commit.bat" -Value $BatchHook -Encoding utf8
+        Set-Content -Path ".git/hooks/pre-commit.bat" -Value $BatchHook -Encoding utf8
+    }
 }
 
 

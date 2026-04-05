@@ -93,34 +93,142 @@ fi
 if [ ! -s .agent/rules/safety-rules.md ]; then
 cat << 'EOF' > .agent/rules/safety-rules.md
 # Safety Rules
-Core principle: Do not perform destructive, irreversible, or high-risk actions without explicit user intent.
 
-1. **No Blind Deletion:** Do not delete files or directories without verifying their content and importance.
-2. **No Silent Rewrites:** Do not rewrite large parts of the repository silently or without a plan.
-3. **Git Integrity:** Do not force-push or rewrite git history unless explicitly requested.
-4. **Safety wrapper:** Always use `rtk` for heavy terminal operations to manage token usage and risk.
+This file defines the repository safety constraints for AI-assisted work.
+
+Its purpose is to reduce accidental damage, unsafe assumptions, and destructive actions.
+
+---
+
+## Core safety principle
+
+Do not perform destructive, irreversible, or high-risk actions unless the user clearly intended them.
+
+If the intent is unclear, stop and clarify.
+
+---
+
+## Forbidden without explicit intent
+
+Do not do the following unless the user explicitly wants it:
+- delete files or directories
+- rewrite large parts of the repository
+- replace major technologies
+- force-push or rewrite git history
+- overwrite working configurations blindly
+- remove tests, validation, or safety checks
+
+---
+
+## Required caution areas
+
+Be extra careful when working with:
+- database schema changes
+- migration scripts
+- authentication or authorization logic
+- secrets, credentials, and tokens
+- deployment configuration
+- production-like data
+- destructive shell commands
+
+---
+
+## Assumption rule
+
+Do not treat assumptions as facts.
+
+If something is inferred rather than verified:
+- say so
+- document the uncertainty
+- avoid irreversible actions based on the assumption
 EOF
 fi
 
 if [ ! -s .agent/rules/testing-rules.md ]; then
 cat << 'EOF' > .agent/rules/testing-rules.md
 # Testing Rules
-Core principle: Do not claim completion without verification.
 
-1. **Verify Always:** Run tests whenever they exist.
-2. **Bug Fix Sequence:** Use Reproduce -> Identify -> Fix -> Verify -> Record.
-3. **Red-Green-Refactor:** Ensure tests fail before they pass for new features.
-4. **Tooling:** Prefer concise test output via `rtk` to avoid context flooding.
+This file defines how work must be verified before it is considered complete.
+
+The purpose is to prevent false completion, unverified assumptions, and silent regressions.
+
+---
+
+## Core rule
+
+Do not claim that something works unless it has been checked.
+
+Verification is mandatory.
+If something cannot be verified, state that clearly.
+
+---
+
+## Preferred workflow
+
+When possible, use one of these approaches:
+- test-first
+- verification-first
+- reproduce -> fix -> verify
+
+---
+
+## Bug fix workflow
+
+For bug fixes, prefer this sequence:
+1. Reproduce the problem
+2. Identify the likely cause
+3. Implement the fix
+4. Re-run verification
+5. Record durable knowledge if the bug was non-trivial
+
+---
+
+## Terminal output discipline
+
+- Prefer concise test output
+- Use `rtk` for heavy test runs where possible
+- Avoid pasting very large raw output into context
+- Summarize failures clearly and precisely
 EOF
 fi
 
 if [ ! -s .agent/rules/stack-rules.md ]; then
 cat << 'EOF' > .agent/rules/stack-rules.md
 # Stack Rules
-- Follow the project's established coding standards (check `.editorconfig`, `.eslintrc`, etc.).
-- Prefer idiomatic solutions for the detected language/framework.
-- Document third-party library additions in `.agent/memory/integration-contracts.md`.
-- Keep dependencies updated and minimize security vulnerabilities.
+
+This file defines stack-level constraints and preferences for the project.
+
+Its purpose is to prevent random tool choices, uncontrolled framework drift, and unnecessary complexity.
+
+---
+
+## General rule
+
+Do not introduce a new language, framework, library, database, or major build tool without a reason.
+
+If a new dependency is necessary:
+- explain why it is needed
+- explain what problem it solves
+- compare it with at least one simpler alternative
+- record the decision in `architecture-decisions.md`
+
+---
+
+## Stack selection principles
+
+- Prefer the smallest stack that solves the problem
+- Prefer existing project tools over new tools
+- Prefer standard libraries over extra dependencies when practical
+- Prefer stable, well-documented technologies over trendy ones
+
+---
+
+## AI workflow tools
+
+The following tools are preferred in this repository when available:
+- `rtk` for heavy terminal output and log compression
+- `Beads` for task tracking and execution order
+- `AGENT.md` and `.agent/memory/*.md` for durable workflow memory
 EOF
 fi
 
@@ -263,7 +371,8 @@ Refer to [AGENT.md](AGENT.md) for the full operational contract.
 EOF
 fi
 
-# Create specialized router files
+# Create specialized router files (guard: preserve manual edits)
+if [ ! -s .cursorrules ]; then
 cat << 'EOF' > .cursorrules
 # AI Toolbox Protocol (Cursor) -- Tier: Standard
 
@@ -273,7 +382,9 @@ cat << 'EOF' > .cursorrules
 
 Details in [AGENT.md](AGENT.md).
 EOF
+fi
 
+if [ ! -s .clinerules ]; then
 cat << 'EOF' > .clinerules
 # AI Toolbox Protocol (RooCode / Cline) -- Tier: Standard
 
@@ -283,7 +394,9 @@ cat << 'EOF' > .clinerules
 
 Details in [AGENT.md](AGENT.md).
 EOF
+fi
 
+if [ ! -s .windsurfrules ]; then
 cat << 'EOF' > .windsurfrules
 # AI Toolbox Protocol (Windsurf) -- Tier: Standard
 
@@ -293,6 +406,7 @@ cat << 'EOF' > .windsurfrules
 
 Details in [AGENT.md](AGENT.md).
 EOF
+fi
 
 # Full-Tier: Qwen Code CLI router
 if [ -f ".agent/templates/clients/QWEN.md" ]; then
