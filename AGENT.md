@@ -193,6 +193,15 @@ Some AI assistant environments provide additional capabilities or specific rules
 
 ---
 
+## 11.1. Specialist Templates (Template Bridge)
+
+When existing skills (TDD, Planning, Debugging) are insufficient, use the 413+ specialist templates:
+
+- **Rules:** **[.agent/rules/template-usage.md](.agent/rules/template-usage.md)** — when to use, how to access, 26 categories
+- **Workflow:** **[.agent/workflows/use-template.md](.agent/workflows/use-template.md)** — Gap Analysis → Search → Select → Adapt → Document → Execute
+
+---
+
 ## 12. The Toolbox Toolkit
 
 For maximum efficiency and context safety, use these recommended binary tools:

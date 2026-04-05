@@ -70,8 +70,8 @@ claude mcp add sequential-thinking npx -y @modelcontextprotocol/server-sequentia
 - Install via your package manager (e.g. `cargo install bat ripgrep`, `brew install bat ripgrep`, or your OS package manager).
 
 **4. Template Bridge & Superpowers**
-- **Superpowers:** No separate installation needed — the engineering discipline (TDD, Planning, Debugging) is encoded in `.agent/rules/` and applied automatically when the AI reads `AGENT.md`.
-- **Template Bridge:** A Claude Code plugin for accessing 413+ specialist templates. For other clients, templates can be browsed manually at [github.com/maslennikov-ig/template-bridge](https://github.com/maslennikov-ig/template-bridge).
+- **Superpowers:** No separate installation needed — the engineering discipline (TDD, Planning, Debugging) is encoded in `.agent/rules/` and applied automatically when the AI reads `AGENT.md`. TDD is enforced via [`.agent/rules/tdd-rules.md`](.agent/rules/tdd-rules.md).
+- **Template Bridge:** Provides 413+ specialist templates for when existing skills aren't enough. Access via `/browse-templates` (Claude Code) or browse the [GitHub repo](https://github.com/maslennikov-ig/template-bridge). Rules: [`.agent/rules/template-usage.md`](.agent/rules/template-usage.md).
 
 **5. ⚡ Auto-Configure Terminal Hooks (CRITICAL)**
 

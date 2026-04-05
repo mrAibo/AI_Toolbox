@@ -170,18 +170,25 @@ Provides on-demand access to 413+ specialist agent templates across 26 categorie
 
 | Command | Purpose |
 |---------|---------|
-| `/browse-templates` | Interactive template search |
-| `template-catalog` skill | Lists available templates by category |
+| `/browse-templates` | Interactive template search (Claude Code) |
+| `npx claude-code-templates@latest --agent <category/name> --yes` | Direct install of a specific template |
 
 ### When to Use
 
 - You need a specialist (e.g., "write a Rust async server", "design a Kubernetes deployment")
 - You want established patterns instead of improvising
 - You need security, performance, or architecture review
+- Existing AI Toolbox skills (TDD, Planning, Debugging) don't cover the need
 
 ### How It Integrates
 
-Template Bridge is a Claude Code plugin. For other clients, the template catalog can be accessed manually via the [GitHub repo](https://github.com/maslennikov-ig/template-bridge).
+| File | Role |
+|------|------|
+| **[.agent/rules/template-usage.md](template-usage.md)** | Rules: when to use templates, how to access them, 26 categories, anti-patterns |
+| **[.agent/workflows/use-template.md](../workflows/use-template.md)** | Workflow: Gap Analysis → Search → Select → Adapt → Document → Execute |
+| **[.agent/workflows/unified-workflow.md](../workflows/unified-workflow.md)** | Template step is part of the 9-step master workflow |
+
+Template Bridge is a Claude Code plugin. For other clients, templates can be browsed manually via the [GitHub repo](https://github.com/maslennikov-ig/template-bridge).
 
 ---
 
