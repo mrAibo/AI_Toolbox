@@ -3,7 +3,10 @@ set -e
 
 echo "[stop] consolidating session memory..."
 
-REPO_ROOT="$(git rev-parse --show-toplevel)"
+REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || echo "")"
+if [ -z "$REPO_ROOT" ]; then
+  REPO_ROOT="$(pwd)"
+fi
 
 if [ -f "$REPO_ROOT/.agent/memory/session-handover.md" ]; then
   echo "[stop] session handover file exists"

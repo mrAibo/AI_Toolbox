@@ -75,7 +75,13 @@ jobs:
                 http*|mailto:*|\#*|/*) continue ;;
               esac
               dir=$(dirname "$f")
-              resolved=$(cd "$(dirname "$dir/$target")" 2>/dev/null && pwd)/$(basename "$target") 2>/dev/null || true
+              candidate="$dir/$target"
+              # Resolve path properly using realpath or cd+pwd
+              if command -v realpath &>/dev/null; then
+                resolved=$(realpath -m "$candidate" 2>/dev/null || true)
+              else
+                resolved=$(cd "$(dirname "$candidate")" 2>/dev/null && echo "$(pwd)/$(basename "$candidate")" || true)
+              fi
               if [ -z "$resolved" ] || [ ! -e "$resolved" ]; then
                 echo "BROKEN: $f -> $target"
                 broken=$((broken + 1))

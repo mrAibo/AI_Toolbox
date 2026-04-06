@@ -33,9 +33,10 @@ This document provides a visual overview of how all components work together.
 │  §2  Boot sequence       §9  Safety rules (+ MCP, Status)       │
 │  §3  New project flow   §10  End-of-session behavior            │
 │  §4  Execution rules    §11  Client-Specific Extensions         │
-│  §5  Terminal rules     §12  The Toolbox Toolkit                │
-│  §6  Memory rules       §13  External Project Integrations      │
-│  §7  Brainstorming rules                                        │
+│  §5  Terminal rules     §12  Specialist Templates               │
+│  §6  Memory rules       §13  Context-Driven Skill Selection     │
+│  §7  Brainstorming rules §14  The Toolbox Toolkit                │
+│                          §15  External Project Integrations      │
 └───────────────────────────┬─────────────────────────────────────┘
                             │
                 ┌───────────┼───────────┐
@@ -100,21 +101,23 @@ User: "Build feature X"
 └─────────┘     └───────────┘     └─────────┘     └──────────┘
                                                       │
                                                       ▼
+                                              ┌──────────┐
+                                              │5.IMPLEMENT│
+                                              │  TDD      │
+                                              │RED-GREEN- │
+                                              │REFACTOR   │
+                                              └─────┬────┘
+                                                    │
+                                                    ▼
 ┌─────────┐     ┌───────────┐     ┌─────────┐     ┌──────────┐
-│9. CLOSE │◀────│8. FINISH  │◀────│7. VERIFY│◀────│5.IMPLEMENT│
-│  Beads  │     │branch-    │     │ testing │     │  TDD      │
-│  close  │     │ finish    │     │  rules  │     │RED-GREEN- │
-└─────────┘     └───────────┘     └─────────┘     │REFACTOR   │
-      │               │                              └──────────┘
-      ▼               ▼                                   │
-  Next task    session-handover                    code-review.md
-  (bd ready)   + active-session                          │
-                                                        ▼
-                                                  ┌──────────┐
-                                                  │6. REVIEW │
-                                                  │  code-   │
-                                                  │ review   │
-                                                  └──────────┘
+│9. CLOSE │◀────│8. FINISH  │◀────│7. VERIFY│◀────│6. REVIEW │
+│  Beads  │     │branch-    │     │ testing │     │  code-   │
+│  close  │     │ finish    │     │  rules  │     │ review   │
+└─────────┘     └───────────┘     └─────────┘     └──────────┘
+      │               │
+      ▼               ▼
+  Next task    session-handover
+  (bd ready)   + active-session
 ```
 
 ---
