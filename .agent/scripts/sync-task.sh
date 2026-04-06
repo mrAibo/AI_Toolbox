@@ -58,10 +58,10 @@ EOF
     mv "$TMPFILE" "$ACTIVE_SESSION" 2>/dev/null || true
 fi
 
-# Fix 4: Count ready tasks and suggest Multi-Agent if >= 3
+# Count ready tasks and suggest Multi-Agent if >= 3
 if command -v bd &> /dev/null; then
-    READY_COUNT=$(bd ready 2>/dev/null | wc -l | tr -d ' ')
-    if [ "$READY_COUNT" -ge 3 ]; then
+    READY_COUNT=$(bd ready --json 2>/dev/null | grep -c '"id"' || echo "0")
+    if [ "$READY_COUNT" -ge 3 ] 2>/dev/null; then
         echo "[sync-task] 💡 $READY_COUNT tasks ready — consider Multi-Agent Workflow"
     fi
 fi
