@@ -6,6 +6,7 @@
 
 # Local IDE config
 /.qwen/
+/.claude/
 
 # Common build and dependency artifacts
 /node_modules/
