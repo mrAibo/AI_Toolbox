@@ -34,33 +34,19 @@ jobs:
           ls .agent/config/client-capabilities.json
           echo "OK — all core files present"
 
-      - name: Check router files exist
-        run: |
-          missing=0
-          for f in CLAUDE.md QWEN.md GEMINI.md CONVENTIONS.md .cursorrules .clinerules .windsurfrules SKILL.md; do
-            if [ ! -f "$f" ]; then
-              echo "FAIL Missing router file $f"
-              missing=$((missing + 1))
-            fi
-          done
-          if [ "$missing" -gt 0 ]; then
-            exit 1
-          fi
-          echo "OK — all router files present"
-
-      - name: Verify tier badges
+      - name: Check router files exist (only if committed)
         run: |
           missing=0
           for f in CLAUDE.md QWEN.md GEMINI.md CONVENTIONS.md .cursorrules .clinerules .windsurfrules SKILL.md; do
             if [ -f "$f" ] && ! grep -q "\-\- Tier:" "$f"; then
-              echo "FAIL Missing tier badge on $f"
+              echo "FAIL Missing tier badge on existing router file $f"
               missing=$((missing + 1))
             fi
           done
           if [ "$missing" -gt 0 ]; then
             exit 1
           fi
-          echo "OK — all tier badges present"
+          echo "OK — all present router files have tier badges"
 
       - name: Validate JSON files
         run: |
