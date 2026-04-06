@@ -84,8 +84,12 @@ if ($StagedCode) {
     $StagedTests = git diff --cached --name-only 2>$null | Where-Object { $_ -match '(?i)(test|spec|_test\.|\.test\.)' }
 
     if (-not $StagedTests) {
-        # Allow emergency bypass
-        $CommitMsg = git log --oneline -1 2>$null
+        # Allow override via commit message (stored in COMMIT_EDITMSG during commit)
+        $CommitMsgFile = Join-Path $RepoRoot ".git/COMMIT_EDITMSG"
+        $CommitMsg = ""
+        if (Test-Path $CommitMsgFile) {
+            $CommitMsg = Get-Content $CommitMsgFile -Raw 2>$null
+        }
         if ($CommitMsg -match '(?i)tdd-skip') {
             Write-Host "⏭️  AI Toolbox: TDD skip requested via commit message. Proceeding."
         } else {

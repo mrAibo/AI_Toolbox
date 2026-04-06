@@ -77,8 +77,11 @@ if [ -n "$STAGED_CODE" ]; then
     STAGED_TESTS=$(git diff --cached --name-only 2>/dev/null | grep -iE '(test|spec|_test\.|\.test\.)' || true)
 
     if [ -z "$STAGED_TESTS" ]; then
-        # Allow override via commit message prefix
-        COMMIT_MSG=$(git log --oneline -1 2>/dev/null || echo "")
+        # Allow override via commit message (stored in COMMIT_EDITMSG during commit)
+        COMMIT_MSG=""
+        if [ -f "$REPO_ROOT/.git/COMMIT_EDITMSG" ]; then
+            COMMIT_MSG=$(cat "$REPO_ROOT/.git/COMMIT_EDITMSG" 2>/dev/null || echo "")
+        fi
         if echo "$COMMIT_MSG" | grep -qi "tdd-skip"; then
             echo "⏭️  AI Toolbox: TDD skip requested via commit message. Proceeding."
         else

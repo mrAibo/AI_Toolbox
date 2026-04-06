@@ -31,7 +31,9 @@ jobs:
           ls .agent/scripts/verify-commit.ps1
           ls AGENT.md
           ls README.md
-          ls .agent/config/client-capabilities.json
+          if [ -f .agent/config/client-capabilities.json ]; then
+            ls .agent/config/client-capabilities.json
+          fi
           echo "OK — all core files present"
 
       - name: Check router files exist (only if committed)

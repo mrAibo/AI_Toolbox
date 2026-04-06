@@ -795,13 +795,13 @@ if (Test-Path ".git") {
 
     # Only write hooks if they don't already exist (preserve manual customizations)
     if (-not (Test-Path ".git/hooks/pre-commit") -or (Get-Item ".git/hooks/pre-commit").Length -eq 0) {
-        # 1. Bash wrapper (for Git Bash)
+        # 1. Bash wrapper (for Git Bash / Linux / macOS)
         $BashHook = @'
 #!/bin/bash
 # AI Toolbox Pre-commit wrapper (BASH)
 REPO_ROOT="$(git rev-parse --show-toplevel)"
-if [ -f "$REPO_ROOT/.agent/scripts/verify-commit.ps1" ]; then
-    powershell.exe -ExecutionPolicy Bypass -File "$REPO_ROOT/.agent/scripts/verify-commit.ps1"
+if [ -f "$REPO_ROOT/.agent/scripts/verify-commit.sh" ]; then
+    bash "$REPO_ROOT/.agent/scripts/verify-commit.sh"
 fi
 '@
         Set-Content -Path ".git/hooks/pre-commit" -Value $BashHook -Encoding utf8
