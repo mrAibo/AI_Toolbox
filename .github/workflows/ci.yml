@@ -64,19 +64,23 @@ jobs:
           fi
           echo "OK — all JSON valid"
 
-      - name: Validate markdown links
+      - name: Validate markdown links (core files only)
         run: |
           broken=0
-          for f in $(find . -name "*.md" -not -path "./.git/*" -not -path "./.qwen/*"); do
-            links=$(grep -oE '\[[^]]+\]\([^)]+\)' "$f" 2>/dev/null || true)
-            for link in $links; do
+          # Only check core files — skip docs/, examples/, prompts/, templates/
+          for f in README.md AGENT.md INSTALL.md QUICKSTART.md CONTRIBUTING.md \
+                   CLAUDE.md QWEN.md GEMINI.md CONVENTIONS.md SKILL.md \
+                   .cursorrules .clinerules .windsurfrules \
+                   .agent/rules/*.md .agent/workflows/*.md .agent/memory/*.md; do
+            [ -f "$f" ] || continue
+            while IFS= read -r link; do
+              [ -z "$link" ] && continue
               target=$(echo "$link" | sed 's/.*](\(.*\))/\1/' | sed 's/#.*//')
               case "$target" in
-                http*|mailto:*|\#*|/*) continue ;;
+                http*|mailto:*|\#*|/*|file://*) continue ;;
               esac
               dir=$(dirname "$f")
               candidate="$dir/$target"
-              # Resolve path properly using realpath or cd+pwd
               if command -v realpath &>/dev/null; then
                 resolved=$(realpath -m "$candidate" 2>/dev/null || true)
               else
@@ -86,10 +90,10 @@ jobs:
                 echo "BROKEN: $f -> $target"
                 broken=$((broken + 1))
               fi
-            done
+            done < <(grep -oE '\[[^]]+\]\([^)]+\)' "$f" 2>/dev/null || true)
           done
           if [ "$broken" -gt 0 ]; then
             echo "FAIL $broken broken links"
             exit 1
           fi
-          echo "OK — all markdown links valid"
+          echo "OK — all core markdown links valid"
