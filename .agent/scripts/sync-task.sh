@@ -12,13 +12,14 @@ if command -v bd &> /dev/null; then
     bd list > "$TASK_FILE"
     echo "[sync-task] Task state exported to $TASK_FILE"
 
-    # Detect task type from Beads output and suggest workflow
-    TASK_TITLE=$(head -1 "$TASK_FILE" 2>/dev/null || echo "")
-    if echo "$TASK_TITLE" | grep -qiE 'fix|bug|issue|error|crash'; then
+    # Detect task type from Beads output — scan first 5 non-empty lines
+    # (head -1 is always the table header, skip it)
+    TASK_CONTENT=$(tail -n +2 "$TASK_FILE" 2>/dev/null | head -5 2>/dev/null | tr -s '[:space:]' ' ')
+    if echo "$TASK_CONTENT" | grep -qiE 'fix|bug|issue|error|crash'; then
         echo "[sync-task] 🐛 Bug fix detected — suggesting Bug-Fix Workflow"
-    elif echo "$TASK_TITLE" | grep -qiE 'refactor|rewrite|migrate|rename'; then
+    elif echo "$TASK_CONTENT" | grep -qiE 'refactor|rewrite|migrate|rename'; then
         echo "[sync-task] 🔧 Refactor detected — suggesting Code Review Workflow"
-    elif echo "$TASK_TITLE" | grep -qiE 'feature|build|create|add|implement'; then
+    elif echo "$TASK_CONTENT" | grep -qiE 'feature|build|create|add|implement'; then
         echo "[sync-task] 🚀 Feature detected — suggesting Unified Workflow (9 steps)"
     fi
 else
