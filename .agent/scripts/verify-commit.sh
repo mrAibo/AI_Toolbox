@@ -1,10 +1,9 @@
 #!/bin/bash
 # AI Toolbox Commit Verification (BASH)
 # Runs lightweight checks on staged changes to preserve project quality.
+# No set -e — must be resilient; individual failures must not block the commit silently.
 
-set -e
-
-REPO_ROOT="$(git rev-parse --show-toplevel)"
+REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
 ERRORS=0
 
 # ---------------------------------------------------------------
