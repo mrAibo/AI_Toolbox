@@ -17,7 +17,7 @@ if ([string]::IsNullOrWhiteSpace($Command)) {
   exit 0
 }
 
-$HeavyCommandRegex = "^(python|python3|mvn|gradle|gradlew|pytest|npm run|pnpm|yarn|db2cli|hdbcli|sqlplus|ansible-playbook|java |cargo|go |docker|docker-compose)"
+$HeavyCommandRegex = "^(python|python3|mvn|gradle|gradlew|pytest|npm run|pnpm run|yarn run|db2cli|hdbcli|sqlplus|ansible-playbook|javac|java -jar|cargo build|cargo test|cargo run|cargo check|go build|go test|go run|docker build|docker-compose build)"
 
 if ($Command -match $HeavyCommandRegex -and $Command -notmatch '^rtk ') {
   Write-Host "⚠️  AI Toolbox: Heavy command detected — consider using 'rtk' wrapper for token optimization."
