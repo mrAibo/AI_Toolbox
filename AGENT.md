@@ -214,6 +214,8 @@ When existing skills (TDD, Planning, Debugging) are insufficient, use the 413+ s
 
 **SHOULD:** When the agent recognizes one of the trigger patterns below, it **SHOULD** follow the referenced workflow. The `sync-task` script provides additional keyword-based hints at session start and end. The agent reads these signals and self-activates the appropriate skill.
 
+**Note:** While "SHOULD" (not "MUST") is used because the agent self-regulates via reading these instructions, ignoring these triggers leads to degraded code quality, missed TDD cycles, and architectural drift. The workflows exist for a reason — use them.
+
 | Trigger | Suggested Skill | What Happens |
 |---------|----------------------|-------------|
 | Test command detected (`rtk test`, `pytest`, etc.) | **[TDD Rules](.agent/rules/tdd-rules.md)** | **Enforce** RED-GREEN-REFACTOR cycle |

@@ -33,11 +33,33 @@ track_tool() {
   if [ ! -f "$file" ]; then
     echo '{"rtk": 0, "beads": 0, "mcp": 0}' > "$file"
   fi
-  # Increment counter
+  # Increment counter using portable approach (no sed -i compatibility issues)
   if [ -f "$file" ]; then
     count=$(grep -o "\"$tool\": [0-9]*" "$file" 2>/dev/null | grep -o '[0-9]*' || echo "0")
     count=$((count + 1))
-    sed -i "s/\"$tool\": [0-9]*/\"$tool\": $count/" "$file" 2>/dev/null || true
+    # Use python3/python for portable JSON update, fallback to sed
+    if command -v python3 &>/dev/null; then
+      python3 -c "
+import json, sys
+with open('$file') as f: data = json.load(f)
+data['$tool'] = data.get('$tool', 0) + 1
+with open('$file', 'w') as f: json.dump(data, f)
+" 2>/dev/null || true
+    elif command -v python &>/dev/null; then
+      python -c "
+import json
+with open('$file') as f: data = json.load(f)
+data['$tool'] = data.get('$tool', 0) + 1
+with open('$file', 'w') as f: json.dump(data, f)
+" 2>/dev/null || true
+    else
+      # Fallback: use sed with platform detection
+      if sed --version 2>/dev/null | grep -q GNU; then
+        sed -i "s/\"$tool\": [0-9]*/\"$tool\": $count/" "$file" 2>/dev/null || true
+      else
+        sed -i '' "s/\"$tool\": [0-9]*/\"$tool\": $count/" "$file" 2>/dev/null || true
+      fi
+    fi
   fi
 }
 
