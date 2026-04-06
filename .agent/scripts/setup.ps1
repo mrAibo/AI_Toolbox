@@ -134,7 +134,7 @@ Write-Host ""
 Write-Host "🔧 Running bootstrap..." -ForegroundColor Yellow
 
 if (Test-Path ".agent/scripts/bootstrap.ps1") {
-  & powershell -ExecutionPolicy Bypass -File ".agent/scripts/bootstrap.ps1"
+  & ".agent/scripts/bootstrap.ps1"
   if ($LASTEXITCODE -ne 0) {
     Write-Host "  ⚠️  Bootstrap exited with code $LASTEXITCODE" -ForegroundColor Yellow
   }

@@ -747,8 +747,9 @@ if [ -f "$REPO_ROOT/.agent/scripts/verify-commit.sh" ]; then
     bash "$REPO_ROOT/.agent/scripts/verify-commit.sh"
 fi
 EOF
-    chmod +x .git/hooks/pre-commit
     fi
+    # Always ensure hook is executable
+    chmod +x .git/hooks/pre-commit 2>/dev/null || true
 fi
 
 

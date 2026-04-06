@@ -71,7 +71,7 @@ Beads stores tasks in a graph database. The AI Toolbox syncs Beads state to `.ag
 Template Bridge provides access to 413+ specialist agent templates across 26 categories (Security, DevOps, AI/ML, Web3, Rust, Go, etc.). They're used when existing AI Toolbox skills (TDD, Planning, Debugging) aren't sufficient for a specialized task.
 
 ### Do I need to configure MCP servers?
-Only if you want external resource access. The minimal setup (context7 + sequential-thinking) works with one command: `claude mcp add context7 npx -y @upstash/context7-mcp`. See [docs/mcp-guide.md](mcp-guide.md) for all clients.
+Only if you want external resource access. The minimal setup (context7 + sequential-thinking) works with one command: `claude mcp add context7 npx -y @upstash/context7-mcp`. See [MCP Guide](mcp-guide.md) for all clients.
 
 ---
 
@@ -108,4 +108,4 @@ Install Rust first (`curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs |
 Install Go first, then run `go install github.com/steveyegge/beads@latest`. Initialize with `bd init` in your project directory.
 
 ### MCP servers fail to connect
-Ensure Node.js and `npx` are installed. For Claude Code, use `claude mcp add`. For other clients, copy the JSON config from `.agent/templates/mcp/` to your client's MCP settings. See [docs/mcp-guide.md](mcp-guide.md) for client-specific instructions.
+Ensure Node.js and `npx` are installed. For Claude Code, use `claude mcp add`. For other clients, copy the JSON config from `.agent/templates/mcp/` to your client's MCP settings. See [MCP Guide](mcp-guide.md) for client-specific instructions.

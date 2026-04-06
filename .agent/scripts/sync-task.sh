@@ -46,17 +46,15 @@ fi
 # Update active-session.md with current task info if it exists
 if [ -f "$ACTIVE_SESSION" ]; then
     TASK_INFO=$(head -3 "$TASK_FILE" 2>/dev/null || echo "No task info")
-    # Remove old Current Step section (portable: works on Linux and macOS)
-    if sed --version 2>/dev/null | grep -q GNU; then
-      sed -i '/## Current Step/,$d' "$ACTIVE_SESSION" 2>/dev/null || true
-    else
-      sed -i '' '/## Current Step/,$d' "$ACTIVE_SESSION" 2>/dev/null || true
-    fi
-    cat << EOF >> "$ACTIVE_SESSION"
+    # Remove old Current Step section using portable approach (no sed -i needed)
+    TMPFILE=$(mktemp 2>/dev/null || echo "/tmp/sync-task-tmp.$$")
+    awk '/^## Current Step/{found=1; next} /^## [^C]/{found=0} !found' "$ACTIVE_SESSION" > "$TMPFILE"
+    cat << EOF >> "$TMPFILE"
 ## Current Step
 - **Workflow:** Awaiting task analysis
 - **Task:** $TASK_INFO
 EOF
+    mv "$TMPFILE" "$ACTIVE_SESSION" 2>/dev/null || true
 fi
 
 # Fix 4: Count ready tasks and suggest Multi-Agent if >= 3

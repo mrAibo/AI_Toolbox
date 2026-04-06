@@ -61,7 +61,7 @@ my-project/
 claude mcp add context7 npx -y @upstash/context7-mcp
 claude mcp add sequential-thinking npx -y @modelcontextprotocol/server-sequential-thinking
 ```
-See [docs/mcp-guide.md](mcp-guide.md) for all AI clients.
+See [MCP Guide](mcp-guide.md) for all AI clients.
 
 ## Verification
 
