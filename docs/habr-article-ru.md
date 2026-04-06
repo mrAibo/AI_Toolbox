@@ -500,7 +500,7 @@ Toolbox включает GitHub Actions workflow (`.github/workflows/ci.yml`), �
 
 ```text
 Follow the setup instructions here to initialize the AI Toolbox environment:
-https://raw.githubusercontent.com/mrAibo/AI_Toolbox/main/install.md
+https://raw.githubusercontent.com/mrAibo/AI_Toolbox/main/INSTALL.md
 ```
 
 Агент сам скачает `.agent/`, создаст `AGENT.md`, запустит `bootstrap.sh/ps1`, настроит хуки, определит стек проекта и инициализирует память.

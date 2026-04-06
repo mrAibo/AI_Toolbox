@@ -181,7 +181,7 @@ Want to convert an existing project into an AI Toolbox compliant project? Open y
 
 ```text
 Follow the setup instructions here to initialize the AI Toolbox environment:
-https://raw.githubusercontent.com/mrAibo/AI_Toolbox/main/install.md
+https://raw.githubusercontent.com/mrAibo/AI_Toolbox/main/INSTALL.md
 ```
 
 The AI will autonomously download the `.agent` folder, `AGENT.md`, run the bootstrap script to create the routers, and report back when finished.
@@ -301,10 +301,13 @@ When the AI agent works in this repository, it follows a strict sequence defined
 
 ## 🛡️ Hooks & Safety
 
-The repository includes shell and PowerShell hooks in `.agent/scripts/`. 
-If you configure your AI agent (like Claude Code) to use these hooks:
+The repository includes shell and PowerShell hooks in `.agent/scripts/`.
+**These hooks are installed automatically by `bootstrap.sh/ps1`** — they create a Git pre-commit hook in `.git/hooks/pre-commit` that calls `verify-commit.sh/.ps1`. No manual setup required.
+
+Additionally, `setup.sh/ps1` configures per-client hooks for Claude Code, Qwen Code, Cursor, Cline, and Windsurf:
 - **Pre-command hook:** Blocks the AI from running heavy test/build commands without the `rtk` prefix, and prevents raw `cat` of massive log files.
 - **Stop hook:** Reminds the AI to consolidate its memory into `session-handover.md` before exiting.
+- **Commit verification:** Enforces tier badges on router files, warns about missing TDD coverage, and checks for broken markdown links.
 
 ---
 

@@ -71,17 +71,18 @@ if [ -f "package.json" ]; then
     echo "[sync-task] 💡 Templates available: api-rest, database, ui-analysis"
 
     # Fix 5b: Scan import statements for framework-specific templates
+    # Scan only `.` (which includes src/) — no double-scanning
     FRAMEWORKS_FOUND=""
-    if grep -rq '"next"' src/ . --include="*.tsx" --include="*.ts" --include="*.js" --exclude-dir=node_modules --exclude-dir=.git 2>/dev/null; then
+    if grep -rq '"next"' . --include="*.tsx" --include="*.ts" --include="*.js" --exclude-dir=node_modules --exclude-dir=.git 2>/dev/null; then
         FRAMEWORKS_FOUND="$FRAMEWORKS_FOUND web-frameworks/nextjs"
     fi
-    if grep -rq '"react"' src/ . --include="*.tsx" --include="*.ts" --include="*.js" --exclude-dir=node_modules --exclude-dir=.git 2>/dev/null; then
+    if grep -rq '"react"' . --include="*.tsx" --include="*.ts" --include="*.js" --exclude-dir=node_modules --exclude-dir=.git 2>/dev/null; then
         FRAMEWORKS_FOUND="$FRAMEWORKS_FOUND frontend/react"
     fi
-    if grep -rq '"express"' src/ . --include="*.ts" --include="*.js" --exclude-dir=node_modules --exclude-dir=.git 2>/dev/null; then
+    if grep -rq '"express"' . --include="*.ts" --include="*.js" --exclude-dir=node_modules --exclude-dir=.git 2>/dev/null; then
         FRAMEWORKS_FOUND="$FRAMEWORKS_FOUND api-rest/express"
     fi
-    if grep -rq '"@prisma/client"' src/ . --include="*.ts" --include="*.js" --exclude-dir=node_modules --exclude-dir=.git 2>/dev/null; then
+    if grep -rq '"@prisma/client"' . --include="*.ts" --include="*.js" --exclude-dir=node_modules --exclude-dir=.git 2>/dev/null; then
         FRAMEWORKS_FOUND="$FRAMEWORKS_FOUND database/prisma"
     fi
     if grep -rq '"jest"' . --include="*.json" --exclude-dir=node_modules --exclude-dir=.git 2>/dev/null; then
@@ -111,4 +112,7 @@ elif [ -f "go.mod" ]; then
     echo "[sync-task] 💡 Templates available: programming-languages/go, devops-infrastructure"
 elif [ -f "pom.xml" ] || [ -f "build.gradle" ]; then
     echo "[sync-task] 💡 Templates available: programming-languages/java, database"
+    if grep -rq "spring" . --include="*.java" --include="*.xml" --include="*.gradle" --exclude-dir=node_modules --exclude-dir=.git 2>/dev/null; then
+        echo "[sync-task] 💡 Detected: Spring framework"
+    fi
 fi
