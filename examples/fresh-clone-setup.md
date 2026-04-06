@@ -29,7 +29,7 @@ Start your terminal AI (Claude Code, Qwen Code, Gemini CLI, etc.) and paste:
 
 ```
 Follow the setup instructions here to initialize the AI Toolbox environment:
-https://raw.githubusercontent.com/mrAibo/AI_Toolbox/main/install.md
+https://raw.githubusercontent.com/mrAibo/AI_Toolbox/main/INSTALL.md
 ```
 
 The AI will:

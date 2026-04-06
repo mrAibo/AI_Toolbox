@@ -14,7 +14,7 @@ git clone https://github.com/mrAibo/AI_Toolbox.git my-project
 cd my-project
 
 # Option B: Download into an existing project
-# Follow the instructions in install.md
+# Follow the instructions in INSTALL.md
 ```
 
 ### 2. Run the bootstrap script

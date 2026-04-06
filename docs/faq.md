@@ -22,7 +22,7 @@ Yes — MIT License. Fork it, modify it, use it for any project.
 The fastest way: open your terminal AI in the project directory and paste this prompt:
 ```
 Follow the setup instructions here to initialize the AI Toolbox environment:
-https://raw.githubusercontent.com/mrAibo/AI_Toolbox/main/install.md
+https://raw.githubusercontent.com/mrAibo/AI_Toolbox/main/INSTALL.md
 ```
 The AI will download everything, run bootstrap, and configure hooks.
 

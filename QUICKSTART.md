@@ -20,7 +20,7 @@ git clone https://github.com/mrAibo/AI_Toolbox.git my-project
 cd my-project
 
 # Or in an existing project
-curl -sSL https://raw.githubusercontent.com/mrAibo/AI_Toolbox/main/install.md
+curl -sSL https://raw.githubusercontent.com/mrAibo/AI_Toolbox/main/INSTALL.md
 # Follow the instructions
 ```
 
