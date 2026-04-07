@@ -77,6 +77,8 @@ if [ -n "$STAGED_CODE" ]; then
 
     if [ -z "$STAGED_TESTS" ]; then
         # Allow override via commit message (stored in COMMIT_EDITMSG during commit)
+        # Note: This works reliably with `git commit -m "tdd-skip: reason"`.
+        # For interactive commits, the message may not be written yet at pre-commit time.
         COMMIT_MSG=""
         if [ -f "$REPO_ROOT/.git/COMMIT_EDITMSG" ]; then
             COMMIT_MSG=$(cat "$REPO_ROOT/.git/COMMIT_EDITMSG" 2>/dev/null || echo "")

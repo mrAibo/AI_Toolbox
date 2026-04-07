@@ -47,9 +47,10 @@ fi
 # Update active-session.md with current task info if it exists
 if [ -f "$ACTIVE_SESSION" ]; then
     TASK_INFO=$(head -3 "$TASK_FILE" 2>/dev/null || echo "No task info")
-    # Remove old Current Step section using portable approach (no sed -i needed)
+    # Remove old Current Step section using portable approach
+    # Stop at next H2 heading (any letter after ## )
     TMPFILE=$(mktemp 2>/dev/null || echo "/tmp/sync-task-tmp.$$")
-    awk '/^## Current Step/{found=1; next} /^## [^C]/{found=0} !found' "$ACTIVE_SESSION" > "$TMPFILE"
+    awk '/^## Current Step/{found=1; next} /^## [A-Za-z]/{found=0} !found' "$ACTIVE_SESSION" > "$TMPFILE"
     cat << EOF >> "$TMPFILE"
 ## Current Step
 - **Workflow:** Awaiting task analysis
@@ -60,7 +61,9 @@ fi
 
 # Count ready tasks and suggest Multi-Agent if >= 3
 if command -v bd &> /dev/null; then
-    READY_COUNT=$(bd ready --json 2>/dev/null | grep -c '"id"' || echo "0")
+    READY_COUNT=$(bd ready --json 2>/dev/null | python3 -c "import sys,json; print(len(json.load(sys.stdin)))" 2>/dev/null || \
+                  bd ready --json 2>/dev/null | python -c "import sys,json; print(len(json.load(sys.stdin)))" 2>/dev/null || \
+                  bd ready --json 2>/dev/null | grep -c '"id"' || echo "0")
     if [ "$READY_COUNT" -ge 3 ] 2>/dev/null; then
         echo "[sync-task] 💡 $READY_COUNT tasks ready — consider Multi-Agent Workflow"
     fi
