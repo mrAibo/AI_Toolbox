@@ -819,6 +819,32 @@ if exist "%REPO_ROOT%\.agent\scripts\verify-commit.ps1" (
 '@
         Set-Content -Path ".git/hooks/pre-commit.bat" -Value $BatchHook -Encoding utf8
     }
+
+    # Commit-msg hook — bash wrapper
+    if (-not (Test-Path ".git/hooks/commit-msg") -or (Get-Item ".git/hooks/commit-msg").Length -eq 0) {
+        $CommitMsgBash = @'
+#!/bin/bash
+# AI Toolbox Commit-Message wrapper (BASH)
+REPO_ROOT="$(git rev-parse --show-toplevel)"
+if [ -f "$REPO_ROOT/.agent/scripts/commit-msg.sh" ]; then
+    bash "$REPO_ROOT/.agent/scripts/commit-msg.sh" "$1"
+fi
+'@
+        Set-Content -Path ".git/hooks/commit-msg" -Value $CommitMsgBash -Encoding utf8
+    }
+
+    # Commit-msg hook — batch wrapper
+    if (-not (Test-Path ".git/hooks/commit-msg.bat") -or (Get-Item ".git/hooks/commit-msg.bat").Length -eq 0) {
+        $CommitMsgBatch = @'
+@echo off
+REM AI Toolbox Commit-Message wrapper (BATCH)
+for /f "tokens=*" %%i in ('git rev-parse --show-toplevel') do set REPO_ROOT=%%i
+if exist "%REPO_ROOT%\.agent\scripts\commit-msg.ps1" (
+    powershell.exe -ExecutionPolicy Bypass -File "%REPO_ROOT%\.agent\scripts\commit-msg.ps1" "%%1"
+)
+'@
+        Set-Content -Path ".git/hooks/commit-msg.bat" -Value $CommitMsgBatch -Encoding utf8
+    }
 }
 
 

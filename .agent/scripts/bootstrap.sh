@@ -750,6 +750,20 @@ EOF
     fi
     # Always ensure hook is executable
     chmod +x .git/hooks/pre-commit 2>/dev/null || true
+
+    echo "[bootstrap] Updating Git commit-msg safeguards..."
+    # Only write hook if it doesn't already exist
+    if [ ! -s .git/hooks/commit-msg ]; then
+    cat << 'EOF' > .git/hooks/commit-msg
+#!/bin/bash
+# AI Toolbox Commit-Message wrapper
+REPO_ROOT="$(git rev-parse --show-toplevel)"
+if [ -f "$REPO_ROOT/.agent/scripts/commit-msg.sh" ]; then
+    bash "$REPO_ROOT/.agent/scripts/commit-msg.sh" "$1"
+fi
+EOF
+    fi
+    chmod +x .git/hooks/commit-msg 2>/dev/null || true
 fi
 
 

@@ -66,39 +66,6 @@ for file in $STAGED_MD; do
 done
 
 # ---------------------------------------------------------------
-# Check 4: Enforce TDD — code changes must have test updates
-# Blocks commit unless tests are included OR commit message contains "tdd-skip"
-# ---------------------------------------------------------------
-STAGED_CODE=$(git diff --cached --name-only 2>/dev/null | grep -E '\.(ts|tsx|js|jsx|py|rs|go|java|kt|rb)$' || true)
-
-if [ -n "$STAGED_CODE" ]; then
-    # Check if any test files are also staged
-    STAGED_TESTS=$(git diff --cached --name-only 2>/dev/null | grep -iE '(test|spec|_test\.|\.test\.)' || true)
-
-    if [ -z "$STAGED_TESTS" ]; then
-        # Allow override via commit message (stored in COMMIT_EDITMSG during commit)
-        # Note: This works reliably with `git commit -m "tdd-skip: reason"`.
-        # For interactive commits, the message may not be written yet at pre-commit time.
-        COMMIT_MSG=""
-        if [ -f "$REPO_ROOT/.git/COMMIT_EDITMSG" ]; then
-            COMMIT_MSG=$(cat "$REPO_ROOT/.git/COMMIT_EDITMSG" 2>/dev/null || echo "")
-        fi
-        if echo "$COMMIT_MSG" | grep -qi "tdd-skip"; then
-            echo "⏭️  AI Toolbox: TDD skip requested via commit message. Proceeding."
-        else
-            echo "🚨 AI Toolbox TDD Enforcement: Code changes without test updates."
-            echo "   Per .agent/rules/tdd-rules.md, all code changes must have tests."
-            echo "   Staged code files:"
-            echo "$STAGED_CODE" | sed 's/^/     /'
-            echo ""
-            echo "   To fix: Stage corresponding test files and commit again."
-            echo "   To skip (emergency only): Include 'tdd-skip' in commit message."
-            ERRORS=$((ERRORS + 1))
-        fi
-    fi
-fi
-
-# ---------------------------------------------------------------
 # Result
 # ---------------------------------------------------------------
 if [ $ERRORS -gt 0 ]; then
