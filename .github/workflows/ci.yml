@@ -71,7 +71,7 @@ jobs:
           for f in README.md AGENT.md INSTALL.md QUICKSTART.md CONTRIBUTING.md \
                    CLAUDE.md QWEN.md GEMINI.md CONVENTIONS.md SKILL.md \
                    .cursorrules .clinerules .windsurfrules \
-                   .agent/rules/*.md .agent/workflows/*.md .agent/memory/*.md; do
+                   .agent/rules/*.md .agent/workflows/*.md; do
             [ -f "$f" ] || continue
             while IFS= read -r link; do
               [ -z "$link" ] && continue
