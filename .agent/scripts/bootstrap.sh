@@ -737,8 +737,16 @@ fi
 
 if [ -d ".git" ]; then
     echo "[bootstrap] Updating Git pre-commit safeguards..."
-    # Only write hook if it doesn't already exist (preserve manual customizations)
-    if [ ! -s .git/hooks/pre-commit ]; then
+    NEEDS_UPDATE=0
+    if [ ! -f .git/hooks/pre-commit ]; then
+        NEEDS_UPDATE=1
+    elif grep -q "AI Toolbox" .git/hooks/pre-commit 2>/dev/null; then
+        # Our hook exists — check if it's the current version
+        if ! grep -q "verify-commit.sh" .git/hooks/pre-commit 2>/dev/null; then
+            NEEDS_UPDATE=1
+        fi
+    fi
+    if [ "$NEEDS_UPDATE" -eq 1 ]; then
     cat << 'EOF' > .git/hooks/pre-commit
 #!/bin/bash
 # AI Toolbox Pre-commit wrapper
@@ -747,13 +755,20 @@ if [ -f "$REPO_ROOT/.agent/scripts/verify-commit.sh" ]; then
     bash "$REPO_ROOT/.agent/scripts/verify-commit.sh"
 fi
 EOF
+        echo "[bootstrap] Updated .git/hooks/pre-commit"
     fi
-    # Always ensure hook is executable
     chmod +x .git/hooks/pre-commit 2>/dev/null || true
 
     echo "[bootstrap] Updating Git commit-msg safeguards..."
-    # Only write hook if it doesn't already exist
-    if [ ! -s .git/hooks/commit-msg ]; then
+    NEEDS_UPDATE=0
+    if [ ! -f .git/hooks/commit-msg ]; then
+        NEEDS_UPDATE=1
+    elif grep -q "AI Toolbox" .git/hooks/commit-msg 2>/dev/null; then
+        if ! grep -q "commit-msg.sh" .git/hooks/commit-msg 2>/dev/null; then
+            NEEDS_UPDATE=1
+        fi
+    fi
+    if [ "$NEEDS_UPDATE" -eq 1 ]; then
     cat << 'EOF' > .git/hooks/commit-msg
 #!/bin/bash
 # AI Toolbox Commit-Message wrapper
@@ -762,6 +777,7 @@ if [ -f "$REPO_ROOT/.agent/scripts/commit-msg.sh" ]; then
     bash "$REPO_ROOT/.agent/scripts/commit-msg.sh" "$1"
 fi
 EOF
+        echo "[bootstrap] Updated .git/hooks/commit-msg"
     fi
     chmod +x .git/hooks/commit-msg 2>/dev/null || true
 fi

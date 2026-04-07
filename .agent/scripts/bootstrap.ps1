@@ -793,9 +793,17 @@ if (-not (Test-Path ".claude.json") -or (Get-Item ".claude.json").Length -eq 0) 
 if (Test-Path ".git") {
     Write-Host "[bootstrap] Updating Git pre-commit safeguards..."
 
-    # Only write hooks if they don't already exist (preserve manual customizations)
-    if (-not (Test-Path ".git/hooks/pre-commit") -or (Get-Item ".git/hooks/pre-commit").Length -eq 0) {
-        # 1. Bash wrapper (for Git Bash / Linux / macOS)
+    # 1. Bash wrapper (for Git Bash / Linux / macOS)
+    $NeedsUpdate = $false
+    if (-not (Test-Path ".git/hooks/pre-commit")) {
+        $NeedsUpdate = $true
+    } elseif (Select-String -Path ".git/hooks/pre-commit" -Pattern "AI Toolbox" -Quiet -ErrorAction SilentlyContinue) {
+        # Our hook exists — check if it references current scripts
+        if (-not (Select-String -Path ".git/hooks/pre-commit" -Pattern "verify-commit\.sh" -Quiet -ErrorAction SilentlyContinue)) {
+            $NeedsUpdate = $true
+        }
+    }
+    if ($NeedsUpdate) {
         $BashHook = @'
 #!/bin/bash
 # AI Toolbox Pre-commit wrapper (BASH)
@@ -805,10 +813,19 @@ if [ -f "$REPO_ROOT/.agent/scripts/verify-commit.sh" ]; then
 fi
 '@
         Set-Content -Path ".git/hooks/pre-commit" -Value $BashHook -Encoding utf8
+        Write-Host "[bootstrap] Updated .git/hooks/pre-commit"
     }
 
-    if (-not (Test-Path ".git/hooks/pre-commit.bat") -or (Get-Item ".git/hooks/pre-commit.bat").Length -eq 0) {
-        # 2. Batch wrapper (for native Windows CMD/Git)
+    # 2. Batch wrapper (for native Windows CMD/Git)
+    $NeedsUpdate = $false
+    if (-not (Test-Path ".git/hooks/pre-commit.bat")) {
+        $NeedsUpdate = $true
+    } elseif (Select-String -Path ".git/hooks/pre-commit.bat" -Pattern "AI Toolbox" -Quiet -ErrorAction SilentlyContinue) {
+        if (-not (Select-String -Path ".git/hooks/pre-commit.bat" -Pattern "verify-commit\.ps1" -Quiet -ErrorAction SilentlyContinue)) {
+            $NeedsUpdate = $true
+        }
+    }
+    if ($NeedsUpdate) {
         $BatchHook = @'
 @echo off
 REM AI Toolbox Pre-commit wrapper (BATCH)
@@ -818,10 +835,19 @@ if exist "%REPO_ROOT%\.agent\scripts\verify-commit.ps1" (
 )
 '@
         Set-Content -Path ".git/hooks/pre-commit.bat" -Value $BatchHook -Encoding utf8
+        Write-Host "[bootstrap] Updated .git/hooks/pre-commit.bat"
     }
 
     # Commit-msg hook — bash wrapper
-    if (-not (Test-Path ".git/hooks/commit-msg") -or (Get-Item ".git/hooks/commit-msg").Length -eq 0) {
+    $NeedsUpdate = $false
+    if (-not (Test-Path ".git/hooks/commit-msg")) {
+        $NeedsUpdate = $true
+    } elseif (Select-String -Path ".git/hooks/commit-msg" -Pattern "AI Toolbox" -Quiet -ErrorAction SilentlyContinue) {
+        if (-not (Select-String -Path ".git/hooks/commit-msg" -Pattern "commit-msg\.sh" -Quiet -ErrorAction SilentlyContinue)) {
+            $NeedsUpdate = $true
+        }
+    }
+    if ($NeedsUpdate) {
         $CommitMsgBash = @'
 #!/bin/bash
 # AI Toolbox Commit-Message wrapper (BASH)
@@ -831,10 +857,19 @@ if [ -f "$REPO_ROOT/.agent/scripts/commit-msg.sh" ]; then
 fi
 '@
         Set-Content -Path ".git/hooks/commit-msg" -Value $CommitMsgBash -Encoding utf8
+        Write-Host "[bootstrap] Updated .git/hooks/commit-msg"
     }
 
     # Commit-msg hook — batch wrapper
-    if (-not (Test-Path ".git/hooks/commit-msg.bat") -or (Get-Item ".git/hooks/commit-msg.bat").Length -eq 0) {
+    $NeedsUpdate = $false
+    if (-not (Test-Path ".git/hooks/commit-msg.bat")) {
+        $NeedsUpdate = $true
+    } elseif (Select-String -Path ".git/hooks/commit-msg.bat" -Pattern "AI Toolbox" -Quiet -ErrorAction SilentlyContinue) {
+        if (-not (Select-String -Path ".git/hooks/commit-msg.bat" -Pattern "commit-msg\.ps1" -Quiet -ErrorAction SilentlyContinue)) {
+            $NeedsUpdate = $true
+        }
+    }
+    if ($NeedsUpdate) {
         $CommitMsgBatch = @'
 @echo off
 REM AI Toolbox Commit-Message wrapper (BATCH)
@@ -844,6 +879,7 @@ if exist "%REPO_ROOT%\.agent\scripts\commit-msg.ps1" (
 )
 '@
         Set-Content -Path ".git/hooks/commit-msg.bat" -Value $CommitMsgBatch -Encoding utf8
+        Write-Host "[bootstrap] Updated .git/hooks/commit-msg.bat"
     }
 }
 
