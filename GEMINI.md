@@ -31,7 +31,7 @@ This project uses the **AI Toolbox** workflow framework. Read this file carefull
 
 ## 5. Key Files & Entrypoints
 * **Main Contract:** [AGENT.md](AGENT.md)
-* **Handover Log:** [.agent/memory/session-handover.md](.agent/memory/session-handover.md)
+* **Handover Log:** `.agent/memory/session-handover.md` (local-only, gitignored)
 * **Rules:** [.agent/rules/](.agent/rules/)
 
 ## 6. Development & Testing Workflow
