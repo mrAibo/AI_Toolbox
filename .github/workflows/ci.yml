@@ -97,3 +97,19 @@ jobs:
             exit 1
           fi
           echo "OK — all core markdown links valid"
+
+      - name: Bootstrap parity check
+        run: |
+          bash .agent/scripts/bootstrap-parity-check.sh
+
+      - name: Check trailing newlines
+        run: |
+          bash .agent/scripts/check-trailing-newlines.sh
+
+      - name: Validate client-capabilities.json schema
+        run: |
+          bash .agent/scripts/validate-client-capabilities.sh
+
+      - name: Script syntax validation
+        run: |
+          bash .agent/scripts/test-scripts.sh
