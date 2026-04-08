@@ -28,24 +28,26 @@ for ext in "${EXTENSIONS[@]}"; do
 done
 
 for file in "${FILES[@]}"; do
-    # Skip binary files
-    if file "$file" | grep -q "binary\|executable\|archive\|zip\|image"; then
+    # Skip binary files (simple heuristic: check for null bytes)
+    if grep -Plc '\x00' "$file" > /dev/null 2>&1; then
         continue
     fi
 
     CHECKED=$((CHECKED + 1))
 
-    # Check if file ends with newline
+    # Check if file ends with newline using tail -c 1 + test
     if [ -s "$file" ]; then
-        LAST_CHAR=$(tail -c 1 "$file" | xxd -p)
-        if [ "$LAST_CHAR" != "0a" ]; then
+        # tail -c 1 returns the last byte; if it's a newline, the command substitution strips it,
+        # resulting in an empty string. If it's NOT a newline, the string is non-empty.
+        LAST_BYTE=$(tail -c 1 "$file")
+        if [ -n "$LAST_BYTE" ]; then
             echo "FAIL: $file does not end with a newline"
             ERRORS=$((ERRORS + 1))
         fi
 
-        # Check for multiple trailing newlines (more than 1 consecutive newline at end)
-        TRAILING=$(tail -c 2 "$file" | xxd -p)
-        if [ "$TRAILING" = "0a0a" ]; then
+        # Check for multiple trailing newlines
+        LAST_TWO=$(tail -c 2 "$file" | od -An -tx1 | tr -d ' \n')
+        if [ "$LAST_TWO" = "0a0a" ]; then
             echo "WARN: $file ends with multiple trailing newlines"
             # Not a hard failure — informational
         fi
