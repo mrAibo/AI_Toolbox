@@ -17,12 +17,11 @@ if ! python3 -m json.tool "$CONFIG_FILE" > /dev/null 2>&1; then
     exit 1
 fi
 
-# Schema validation using Python
-if ! python3 << 'PYTHON_SCRIPT'; then
-    echo "FAIL: client-capabilities.json does not match schema"
-    exit 1
-fi
+# Schema validation — write Python to temp file to avoid quoting issues
+VALIDATOR=$(mktemp /tmp/validate_schema.XXXXXX.py)
+trap 'rm -f "$VALIDATOR"' EXIT
 
+cat > "$VALIDATOR" << 'PYEOF'
 import json
 import sys
 
@@ -38,85 +37,65 @@ SCHEMA = {
                 "type": "object",
                 "required": ["tier", "features"],
                 "properties": {
-                    "tier": {
-                        "type": "string",
-                        "enum": ["basic", "standard", "full"]
-                    },
-                    "features": {
-                        "type": "array",
-                        "items": {"type": "string"}
-                    },
-                    "hooks": {
-                        "type": "boolean"
-                    },
-                    "multi_agent": {
-                        "type": "boolean"
-                    },
-                    "plan_mode": {
-                        "type": "boolean"
-                    }
+                    "tier": {"type": "string", "enum": ["basic", "standard", "full"]},
+                    "features": {"type": "array", "items": {"type": "string"}},
+                    "hooks": {"type": "boolean"},
+                    "multi_agent": {"type": "boolean"},
+                    "plan_mode": {"type": "boolean"}
                 }
             }
         }
     }
 }
 
-def validate_type(value, expected_type):
-    if expected_type == "object":
-        return isinstance(value, dict)
-    elif expected_type == "array":
-        return isinstance(value, list)
-    elif expected_type == "string":
-        return isinstance(value, str)
-    elif expected_type == "boolean":
-        return isinstance(value, bool)
-    return True
+TYPE_MAP = {
+    "object": dict,
+    "array": list,
+    "string": str,
+    "boolean": bool
+}
 
-def validate_json(data, schema, path=""):
+def validate(data, schema, path="root"):
     errors = []
-
-    if "type" in schema:
-        if not validate_type(data, schema["type"]):
-            errors.append(f"{path or 'root'}: expected type '{schema['type']}', got '{type(data).__name__}'")
-            return errors
+    expected = TYPE_MAP.get(schema.get("type"))
+    if expected and not isinstance(data, expected):
+        return ["%s: expected %s, got %s" % (path, schema["type"], type(data).__name__)]
 
     if schema.get("type") == "object":
         for req in schema.get("required", []):
             if req not in data:
-                errors.append(f"{path or 'root'}: missing required field '{req}'")
-
-        for key, value_schema in schema.get("properties", {}).items():
+                errors.append("%s: missing required field '%s'" % (path, req))
+        for key, vs in schema.get("properties", {}).items():
             if key in data:
-                errors.extend(validate_json(data[key], value_schema, f"{path}.{key}" if path else key))
-
+                errors.extend(validate(data[key], vs, path + "." + key))
         for key in schema.get("properties", {}):
             if key in data and "enum" in schema["properties"][key]:
                 if data[key] not in schema["properties"][key]["enum"]:
-                    errors.append(f"{path}.{key}: value '{data[key]}' not in {schema['properties'][key]['enum']}")
-
+                    errors.append("%s.%s: value not in allowed enum" % (path, key))
         if "additionalProperties" in schema:
-            known_keys = set(schema.get("properties", {}).keys())
+            known = set(schema.get("properties", {}).keys())
             for key in data:
-                if key not in known_keys:
-                    errors.extend(validate_json(data[key], schema["additionalProperties"], f"{path}.{key}" if path else key))
-
+                if key not in known:
+                    errors.extend(validate(data[key], schema["additionalProperties"], path + "." + key))
     elif schema.get("type") == "array" and "items" in schema:
         for i, item in enumerate(data):
-            errors.extend(validate_json(item, schema["items"], f"{path}[{i}]"))
-
+            errors.extend(validate(item, schema["items"], "%s[%d]" % (path, i)))
     return errors
 
 with open(CONFIG_FILE) as f:
     data = json.load(f)
 
-errors = validate_json(data, SCHEMA)
-
+errors = validate(data, SCHEMA)
 if errors:
-    for err in errors:
-        print(f"  SCHEMA ERROR: {err}")
+    for e in errors:
+        print("  SCHEMA ERROR: " + e)
     sys.exit(1)
-
 print("  Schema validation passed")
-PYTHON_SCRIPT
+PYEOF
+
+if ! python3 "$VALIDATOR"; then
+    echo "FAIL: client-capabilities.json does not match schema"
+    exit 1
+fi
 
 echo "[json-schema] OK — client-capabilities.json is valid"
