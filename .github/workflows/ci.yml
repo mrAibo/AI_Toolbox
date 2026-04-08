@@ -6,14 +6,38 @@ on:
   pull_request:
     branches: [main]
 
+# Cancel stale runs on the same branch — only latest commit matters
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
 permissions:
   contents: read
 
 jobs:
   validate:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Block oversized files
+        run: |
+          max_size=500000  # 500 KB
+          large=$(find . -not -path './.git/*' -type f -size +${max_size}c 2>/dev/null || true)
+          if [ -n "$large" ]; then
+            echo "FAIL: Files larger than 500 KB detected:"
+            echo "$large"
+            exit 1
+          fi
+          echo "OK — no oversized files"
+
+      - name: Install shellcheck
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq shellcheck >/dev/null 2>&1
 
       - name: Check files exist
         run: |
@@ -53,12 +77,17 @@ jobs:
       - name: Validate JSON files
         run: |
           invalid=0
-          for f in $(find . -name "*.json" -not -path "./.git/*" -not -path "./.qwen/*" -not -path "./node_modules/*"); do
+          json_files=$(find . -name "*.json" -not -path "./.git/*" -not -path "./.qwen/*" -not -path "./node_modules/*")
+          if [ -z "$json_files" ]; then
+            echo "OK — no JSON files to validate"
+            exit 0
+          fi
+          while IFS= read -r f; do
             if ! python3 -m json.tool "$f" > /dev/null 2>&1; then
               echo "FAIL Invalid JSON: $f"
               invalid=$((invalid + 1))
             fi
-          done
+          done <<< "$json_files"
           if [ "$invalid" -gt 0 ]; then
             exit 1
           fi
@@ -113,3 +142,20 @@ jobs:
       - name: Script syntax validation
         run: |
           bash .agent/scripts/test-scripts.sh
+
+      - name: Shellcheck (lint shell scripts)
+        run: |
+          issues=0
+          for script in .agent/scripts/*.sh; do
+            [ -f "$script" ] || continue
+            # SC1090: Can't follow non-constant source (our dot-sourced files)
+            # SC1091: Not following external script (expected in CI)
+            if ! shellcheck -e SC1090,SC1091 "$script"; then
+              issues=$((issues + 1))
+            fi
+          done
+          if [ "$issues" -gt 0 ]; then
+            echo "FAIL: $issues shellcheck issue(s)"
+            exit 1
+          fi
+          echo "OK — shellcheck passed for all .sh files"
