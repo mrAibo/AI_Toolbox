@@ -31,17 +31,31 @@ SCHEMA = {
     "type": "object",
     "required": ["clients"],
     "properties": {
+        "tiers": {
+            "type": "object",
+            "additionalProperties": {
+                "type": "object",
+                "required": ["description", "clients"],
+                "properties": {
+                    "description": {"type": "string"},
+                    "clients": {"type": "array", "items": {"type": "string"}}
+                }
+            }
+        },
         "clients": {
             "type": "object",
             "additionalProperties": {
                 "type": "object",
-                "required": ["tier", "features"],
+                "required": ["tier"],
                 "properties": {
                     "tier": {"type": "string", "enum": ["basic", "standard", "full"]},
-                    "features": {"type": "array", "items": {"type": "string"}},
+                    "router_file": {"type": "string"},
+                    "config_file": {"type": "string"},
                     "hooks": {"type": "boolean"},
                     "multi_agent": {"type": "boolean"},
-                    "plan_mode": {"type": "boolean"}
+                    "file_rules": {"type": "boolean"},
+                    "plan_mode": {"type": "boolean"},
+                    "slash_commands": {"type": "boolean"}
                 }
             }
         }
