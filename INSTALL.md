@@ -186,10 +186,7 @@ If Qwen Code is detected (either `qwen` command exists OR `.qwen/` directory exi
 
 **No manual configuration needed** — hooks are created automatically by bootstrap.
 
-To activate hooks, start Qwen Code with:
-```bash
-qwen --experimental-hooks
-```
+**No CLI flag needed** — hooks are enabled by default when `.qwen/settings.json` contains hook configuration.
 
 Qwen Code also supports **8 Sub-Agents** for parallel task delegation (reviewer, tester, frontend, backend, security, performance, documenter, handover). These are defined in `.qwen/agents/` and delegate automatically based on task context.
 

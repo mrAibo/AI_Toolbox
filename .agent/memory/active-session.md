@@ -28,6 +28,10 @@
 
 
 
+
+## Ziel
+
+
 ## Current Step
 - **Workflow:** Awaiting task analysis
 - **Task:** # Plan: AI Toolbox Sub-Agent & Hook Integration für Qwen Code

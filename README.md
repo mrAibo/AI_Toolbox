@@ -105,19 +105,20 @@ This workflow assumes the use of a few key tools to keep the AI disciplined:
    A console proxy optimizer. Heavy commands (like `pytest`, `mvn test`, `npm run build`) and large logs must be read through `rtk`. It compresses errors and tracebacks by 60-90%, saving tokens and keeping the AI focused. **Setup:** `cargo install --git https://github.com/rtk-ai/rtk` + `rtk init -g`.
 2. **[Beads](https://github.com/steveyegge/beads)** (Recommended)
    A local CLI task tracker. It moves the execution plan out of the AI's chat context and into a Git-backed graph. **Setup:** `go install github.com/steveyegge/beads@latest` + `bd init`.
-3. **[Superpowers](https://github.com/obra/superpowers)**
-   Engineering process skills: TDD, Planning, Debugging, Code Review, Git Worktrees. Referenced via `.agent/rules/` — no separate install needed.
-4. **[Template Bridge](https://github.com/maslennikov-ig/template-bridge)** & **[Superpowers](https://github.com/obra/superpowers)**
-   Plugins for managing rigid TDD workflows and accessing 413+ expert agent templates.
+3. **[Superpowers](https://github.com/obra/superpowers)** — **Methodology Source**
+   The original source for TDD, brainstorming, debugging, code review, and planning skills. AI Toolbox `.agent/rules/` and `.agent/workflows/` are the **platform-universal adaptations** of these skills — no separate install needed. Works with any AI client.
+4. **[Template Bridge](https://github.com/maslennikov-ig/template-bridge)** — **Template Source**
+   Provides access to 413+ specialist agent templates in 26 categories. Access via `npx claude-code-templates@latest --agent {category}/{name}`. AI Toolbox `/templates` command provides unified access.
 5. **Terminal AI Agents**
-   - **[RooCode](https://github.com/RooCode/RooCode)**: An open-source, powerful terminal agent for VS Code.
-   - **[Qwen Code](https://github.com/QwenLM/qwen-code)**: Alibaba's terminal AI agent using Qwen models.
-   - **[Gemini CLI](https://geminicli.com)**: Google's console AI agent using Gemini models.
-   - **[Aider](https://aider.chat/)**: (Optional) AI pair programming in your terminal.
+   - **[Qwen Code](https://github.com/QwenLM/qwen-code)**: Full-Tier client with hooks, sub-agents, skills, and commands.
+   - **[Claude Code](https://docs.anthropic.com/en/docs/claude-code)**: Full-Tier client with native plugin support.
+   - **[Cursor](https://cursor.sh/)**: Standard-Tier client via `.cursorrules`.
+   - **[Gemini CLI](https://geminicli.com)**: Basic-Tier client via `GEMINI.md`.
+   - **[Aider](https://aider.chat/)**: Basic-Tier client via `CONVENTIONS.md`.
 6. **[MCP Servers](https://modelcontextprotocol.io/)**
    Model Context Protocol (MCP) integrations for GitHub, Docs, Databases, etc., to connect agents safely to resources. **Setup:** See [docs/mcp-guide.md](docs/mcp-guide.md).
-7. **[context7](https://github.com/context7/context7)**
-   Lazy-loading tool for providing up-to-date documentation accurately to the agent.
+
+**AI Toolbox is the adapter layer** — it translates Superpowers methodology and Template Bridge templates for ANY AI client, not just Claude Code. No duplication, just platform-universal adaptation.
 
 Full integration details, commands, and how everything works together: **[.agent/rules/tool-integrations.md](.agent/rules/tool-integrations.md)**.
 
@@ -327,10 +328,7 @@ When bootstrap detects Qwen Code, it automatically creates `.qwen/settings.json`
 | `SessionEnd` | Session endet | `hook-session-end-qwen.sh` | Full Memory Consolidation + bd prime |
 | `PreCompact` | Vor Kontext-Komprimierung | `hook-pre-compact-qwen.sh` | Architect-Kontext injizieren (überlebt Kompaktierung) |
 
-**Aktivierung:** Qwen Code mit `--experimental-hooks` Flag starten:
-```bash
-qwen --experimental-hooks
-```
+**Kein Flag nötig:** Hooks sind standardmäßig aktiviert, sobald `.qwen/settings.json` die Hook-Konfiguration enthält.
 
 ### 8 Sub-Agenten (Automatische Delegation)
 Qwen Code's natives Sub-Agent-System ermöglicht automatische Parallelverarbeitung. Die folgenden Agenten liegen in `.qwen/agents/` und werden bei passenden Tasks automatisch delegiert:

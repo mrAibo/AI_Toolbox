@@ -282,15 +282,21 @@ For detailed integration guides, setup commands, and how these tools work togeth
 
 ## 15. External Project Integrations
 
-The AI Toolbox builds on established open-source projects. Each serves a specific purpose:
+The AI Toolbox builds on established open-source projects. **AI Toolbox is the platform-universal adapter** — it translates external project methodologies for any AI client (Qwen Code, Claude Code, Cursor, etc.).
 
-| Project | Role in AI Toolbox | Setup |
-|---------|-------------------|-------|
+| Project | Role in AI Toolbox | How It's Used |
+|---------|-------------------|---------------|
 | **[rtk](https://github.com/rtk-ai/rtk)** | Token optimization (60-90% savings) | `cargo install --git https://github.com/rtk-ai/rtk` + `rtk init -g` |
 | **[Beads](https://github.com/steveyegge/beads)** | Graph-based task tracking | `go install .../beads@latest` + `bd init` |
-| **[Superpowers](https://github.com/obra/superpowers)** | Engineering process discipline | Referenced via `.agent/rules/` — no install needed |
-| **[Template Bridge](https://github.com/maslennikov-ig/template-bridge)** | 413+ specialist agent templates | Claude Code plugin or manual access |
+| **[Superpowers](https://github.com/obra/superpowers)** | **Methodology source** — TDD, brainstorming, debugging, code review, planning, worktrees | AI Toolbox `.agent/rules/` and `.agent/workflows/` are the **adapted versions** of Superpowers skills, translated for all platforms (not just Claude Code/Cursor) |
+| **[Template Bridge](https://github.com/maslennikov-ig/template-bridge)** | **Template source** — 413+ specialist agents in 26 categories | Access via `npx claude-code-templates@latest --agent {category}/{name}`. AI Toolbox `/templates` command provides unified access |
 | **[MCP Servers](https://modelcontextprotocol.io/)** | External resources (docs, web, GitHub) | See [docs/mcp-guide.md](docs/mcp-guide.md) |
+
+### Key Principle: No Duplication
+
+- Superpowers provides the **methodology** → AI Toolbox rules are the **platform-universal adaptation**
+- Template Bridge provides the **templates** → AI Toolbox commands provide **unified access**
+- AI Toolbox provides the **adapter layer** → works with any AI client, not just Claude Code
 
 Full integration details: **[.agent/rules/tool-integrations.md](.agent/rules/tool-integrations.md)**.
 

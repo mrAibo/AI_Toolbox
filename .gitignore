@@ -4,8 +4,10 @@
 /.agent/memory/current-task.md
 /.agent/memory/.tool-stats.json
 
-# Local IDE config
+# Local IDE config (skills and commands ARE tracked)
 /.qwen/
+!/.qwen/skills/
+!/.qwen/commands/
 /.claude/
 
 # Common build and dependency artifacts

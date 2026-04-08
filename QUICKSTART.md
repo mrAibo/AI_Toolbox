@@ -64,11 +64,7 @@ Open your AI client in the project directory. It will:
 3. Restore context from memory files
 4. Be ready to work
 
-**For Qwen Code users:** Start with hooks for full automation:
-```bash
-qwen --experimental-hooks
-```
-This activates 6 automatic hooks (sync-task, heavy-command detection, secret scanner, memory update, session handover, architecture context) plus 8 Sub-Agents for parallel task delegation.
+**For Qwen Code users:** Hooks are activated automatically when `.qwen/settings.json` contains hook configuration. No CLI flag needed.
 
 **Prompt to use:**
 ```
