@@ -13,14 +13,14 @@ STATS_FILE="$REPO_ROOT/.agent/memory/.tool-stats.json"
 HEAVY_COMMAND_REGEX="^(python|python3|mvn|gradle|gradlew|pytest|npm run|npm test|pnpm run|pnpm test|yarn run|yarn test|db2cli|hdbcli|sqlplus|ansible-playbook|javac|java -jar|cargo build|cargo test|cargo run|cargo check|go build|go test|go run|docker build|docker compose build|docker-compose build)"
 
 if echo "$cmd" | grep -qE "$HEAVY_COMMAND_REGEX" && ! echo "$cmd" | grep -q "^rtk "; then
-  echo "🚨 AI Toolbox Heavy Command Detected!"
+  echo "[WARN] AI Toolbox Heavy Command Detected!"
   echo "Please use 'rtk' wrapper for heavy commands to optimize token usage."
   echo "Example: rtk $cmd"
   exit 1
 fi
 
 if echo "$cmd" | grep -qE "^(cat|less|tail|head) .+\.log" && ! echo "$cmd" | grep -q "^rtk "; then
-  echo "🚨 AI Toolbox: Large log file detected!"
+  echo "[WARN] AI Toolbox: Large log file detected!"
   echo "Please use 'rtk read <file-path>' to read large logs efficiently."
   exit 1
 fi
