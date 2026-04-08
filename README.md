@@ -311,6 +311,65 @@ Additionally, `setup.sh/ps1` configures per-client hooks for Claude Code, Qwen C
 
 ---
 
+## 🤖 Qwen Code Integration
+
+Qwen Code (`qwen`) is a **Full-Tier** client with the deepest AI Toolbox integration:
+
+### Native Hooks (Automatic)
+When bootstrap detects Qwen Code, it automatically creates `.qwen/settings.json` with 6 hooks:
+
+| Hook | Trigger | Script | Purpose |
+|---|---|---|---|
+| `SessionStart` | Session beginnt | `sync-task.sh` | Task-State laden |
+| `PreToolUse` | Vor Bash-Befehl | `hook-pre-command-qwen.sh` | Heavy-Command-Erkennung, empfiehlt `rtk` |
+| `PostToolUse` | Nach write/edit | `hook-post-tool-qwen.sh` | Secret-Scanner in geschriebenen Dateien |
+| `Stop` | Vor Antwort-Ende | `hook-stop-qwen.sh` | Memory-Dateien aktualisieren |
+| `SessionEnd` | Session endet | `hook-session-end-qwen.sh` | Full Memory Consolidation + bd prime |
+| `PreCompact` | Vor Kontext-Komprimierung | `hook-pre-compact-qwen.sh` | Architect-Kontext injizieren (überlebt Kompaktierung) |
+
+**Aktivierung:** Qwen Code mit `--experimental-hooks` Flag starten:
+```bash
+qwen --experimental-hooks
+```
+
+### 8 Sub-Agenten (Automatische Delegation)
+Qwen Code's natives Sub-Agent-System ermöglicht automatische Parallelverarbeitung. Die folgenden Agenten liegen in `.qwen/agents/` und werden bei passenden Tasks automatisch delegiert:
+
+| Agent | Zweck | Parallel zu |
+|---|---|---|
+| `ai-toolbox-reviewer` | Code Review (Sicherheit, TDD, Qualität) | Tester, Performance |
+| `ai-toolbox-tester` | TDD & Testing (RED-GREEN-REFACTOR) | Implementation, Documenter |
+| `ai-toolbox-frontend` | UI/Components/CSS/Templates | Backend, Security |
+| `ai-toolbox-backend` | API/Server/DB/Infrastruktur | Frontend, Tester |
+| `ai-toolbox-security` | Secrets/Vulnerabilities/Permissions | Reviewer, Performance |
+| `ai-toolbox-performance` | Bottlenecks/Memory/Optimierung | Tester, Security |
+| `ai-toolbox-documenter` | Docs/Runbook/ADRs/Handover | Implementation, Testing |
+| `ai-toolbox-handover` | Session-End Memory Konsolidierung | — |
+
+**Parallele Szenarien:**
+```
+Feature-Entwicklung:  Frontend + Backend + Tester (3 parallel)
+Bug-Fix:              Tester + Implementation + Security + Performance (4 parallel)
+CI-Check vor Push:    Tester + Security + Documenter + Performance (4 parallel)
+```
+
+Agenten werden automatisch delegiert basierend auf der `description` — Phrasen wie `"use PROACTIVELY"` erhöhen die Delegationswahrscheinlichkeit. Expliziter Aufruf: `@ai-toolbox-reviewer review the recent changes`.
+
+### Manuelles Setup (falls Bootstrap nicht lief)
+```bash
+# Linux/macOS
+# Hooks werden automatisch von bootstrap.sh erstellt wenn qwen erkannt wird
+# Oder manuell:
+cp .agent/templates/clients/qwen-hooks-unix.jsonc ~/.qwen/settings.json
+# Pfade in der JSONC-Datei anpassen
+
+# Windows
+# Hooks werden automatisch von bootstrap.ps1 erstellt
+# Konfiguration liegt bereits in C:\Users\crown\.qwen\settings.json
+```
+
+---
+
 ## 📚 Further Reading
 
 Check the `docs/` folder for detailed guides:

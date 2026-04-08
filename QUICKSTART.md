@@ -64,6 +64,12 @@ Open your AI client in the project directory. It will:
 3. Restore context from memory files
 4. Be ready to work
 
+**For Qwen Code users:** Start with hooks for full automation:
+```bash
+qwen --experimental-hooks
+```
+This activates 6 automatic hooks (sync-task, heavy-command detection, secret scanner, memory update, session handover, architecture context) plus 8 Sub-Agents for parallel task delegation.
+
 **Prompt to use:**
 ```
 I want to build [describe your project/feature].
@@ -82,6 +88,8 @@ You now have:
 - ✅ TDD enforcement (RED-GREEN-REFACTOR)
 - ✅ Task tracking (if you installed Beads)
 - ✅ Token optimization (if you installed rtk)
+- ✅ **Automatic hooks** (if using Qwen Code with `--experimental-hooks`)
+- ✅ **8 Sub-Agents** for parallel work (Qwen Code: reviewer, tester, frontend, backend, security, performance, documenter, handover)
 
 ---
 

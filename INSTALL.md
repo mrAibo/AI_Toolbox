@@ -171,9 +171,35 @@ The bootstrap script from Step 2 already handles updating the `.gitignore`. You 
 .agent/memory/current-task.md
 ```
 
-## Step 6: Finalization 
-Once completed, read the `AGENT.md` file you just copied to understand your new operational bounds in this repository. 
+## Step 6: Qwen Code Setup (Automatic)
+
+If Qwen Code is detected (either `qwen` command exists OR `.qwen/` directory exists), bootstrap automatically creates `.qwen/settings.json` with 6 AI Toolbox hooks:
+
+| Hook | Purpose |
+|---|---|
+| `SessionStart` | Syncs task state from Beads/task tracker |
+| `PreToolUse` | Validates heavy commands, recommends `rtk` wrapper |
+| `PostToolUse` | Scans written/edited files for secrets and credentials |
+| `Stop` | Updates session memory files before each response |
+| `SessionEnd` | Full memory consolidation and handover creation |
+| `PreCompact` | Injects architecture context before context compaction |
+
+**No manual configuration needed** — hooks are created automatically by bootstrap.
+
+To activate hooks, start Qwen Code with:
+```bash
+qwen --experimental-hooks
+```
+
+Qwen Code also supports **8 Sub-Agents** for parallel task delegation (reviewer, tester, frontend, backend, security, performance, documenter, handover). These are defined in `.qwen/agents/` and delegate automatically based on task context.
+
+For manual setup or customization, see `.agent/templates/clients/qwen-hooks-unix.jsonc` (Linux/macOS) or your existing `.qwen/settings.json` (Windows).
+
+## Step 7: Finalization
+Once completed, read the `AGENT.md` file you just copied to understand your new operational bounds in this repository.
 Then, output a message to the user:
 > "✅ **AI Toolbox Environment initialized successfully.** The framework `.agent/` and rules are in place. Optional tools like `rtk` and `Beads` have been checked/installed. I have read the `AGENT.md` contract and am ready to work!
 >
-> 💡 **Tip:** If you are using Antigravity, you can now use native workflows like `/start`, `/sync`, and `/handover`!"
+> 💡 **Tip:** If you are using Antigravity, you can now use native workflows like `/start`, `/sync`, and `/handover`!
+>
+> 💡 **Tip:** If you are using Qwen Code, start with `qwen --experimental-hooks` for automatic hook execution. 8 Sub-Agents are available for parallel task delegation."

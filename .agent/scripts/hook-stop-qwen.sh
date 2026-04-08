@@ -17,31 +17,36 @@ ACTIVE_SESSION="$REPO_ROOT/.agent/memory/active-session.md"
 HANDOVER="$REPO_ROOT/.agent/memory/session-handover.md"
 STATS_FILE="$REPO_ROOT/.agent/memory/.tool-stats.json"
 
-# Update tool stats
+# Update tool stats using env var to prevent shell injection
 if [ -f "$STATS_FILE" ]; then
+    export HOOK_STATS_FILE="$STATS_FILE"
     python3 -c "
 import json, os
-f = '$STATS_FILE'
-if os.path.exists(f):
-    d = json.load(open(f))
-    d['stop_hook'] = d.get('stop_hook', 0) + 1
-    json.dump(d, open(f, 'w'))
+f = os.environ.get('HOOK_STATS_FILE', '')
+if f:
+    try:
+        d = json.load(open(f))
+        d['stop_hook'] = d.get('stop_hook', 0) + 1
+        json.dump(d, open(f, 'w'))
+    except Exception:
+        pass
 " 2>/dev/null || true
 fi
 
-# Build additional context
+# Build additional context using env var
 ADDITIONAL="AI Toolbox: Session memory updated."
 [ -f "$ACTIVE_SESSION" ] && ADDITIONAL="$ADDITIONAL Active session state is current."
 [ -f "$HANDOVER" ] && ADDITIONAL="$ADDITIONAL Handover file exists and is up to date."
 
+export HOOK_ADDITIONAL="$ADDITIONAL"
 python3 -c "
-import json
+import json, os
 print(json.dumps({
     'decision': 'allow',
     'reason': 'Memory files updated',
     'hookSpecificOutput': {
         'hookEventName': 'Stop',
-        'additionalContext': '$ADDITIONAL'
+        'additionalContext': os.environ.get('HOOK_ADDITIONAL', '')
     }
 }))
 "
