@@ -253,7 +253,7 @@ The AI Toolbox builds on established open-source projects. Each serves a specifi
 
 | Project | Role in AI Toolbox | Setup |
 |---------|-------------------|-------|
-| **[rtk](https://github.com/rtk-ai/rtk)** | Token optimization (60-90% savings) | `cargo install rtk` + `rtk init -g` |
+| **[rtk](https://github.com/rtk-ai/rtk)** | Token optimization (60-90% savings) | `cargo install --git https://github.com/rtk-ai/rtk` + `rtk init -g` |
 | **[Beads](https://github.com/steveyegge/beads)** | Graph-based task tracking | `go install .../beads@latest` + `bd init` |
 | **[Superpowers](https://github.com/obra/superpowers)** | Engineering process discipline | Referenced via `.agent/rules/` — no install needed |
 | **[Template Bridge](https://github.com/maslennikov-ig/template-bridge)** | 413+ specialist agent templates | Claude Code plugin or manual access |

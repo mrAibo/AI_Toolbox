@@ -33,16 +33,30 @@ This creates:
 > ```
 
 ### 3. Install optional tools
-```powershell
-# rtk — token optimization (recommended)
-# Install Rust from https://rustup.rs/, then:
-cargo install rtk
-rtk init -g  # Installs hooks for your AI client
 
-# Beads — task tracking (recommended)
-# Install Go from https://go.dev/dl/, then:
-go install github.com/steveyegge/beads@latest
-bd init
+#### Prerequisites for Windows
+Rust benötigt einen C++ Linker. Wähle **eine** Option:
+- **VS Build Tools** (empfohlen, ~2-3 GB): https://visualstudio.microsoft.com/downloads/ → "Desktop development with C++"
+- **MinGW-w64** (leichter, ~200-400 MB): https://www.mingw-w64.org/downloads/
+- **GNU ABI** (minimal): Bei `rustup-init` Option `3)` wählen — funktioniert in den meisten Fällen
+
+> **Tipp:** Nach der Installation eines Linkers **neues Terminal öffnen**, damit PATH-Änderungen wirksam werden.
+
+```powershell
+# rtk — Token-Optimierung (empfohlen)
+# Installiere Rust von https://rustup.rs/, dann:
+# ⚠️ WICHTIG: Nicht "cargo install rtk" — das ist ein anderes Projekt!
+cargo install --git https://github.com/rtk-ai/rtk
+rtk init -g  # Installiert Hooks (Windows: Fallback zu --claude-md)
+
+# Beads — Task-Tracking (empfohlen)
+# Option A: npm (empfohlen für Windows)
+npm install -g @beads/bd
+
+# Option B: Manuell falls npm fehlschlägt
+curl -L -o $env:TEMP\beads.zip https://github.com/gastownhall/beads/releases/download/v0.63.3/beads_0.63.3_windows_amd64.zip
+Expand-Archive -Path $env:TEMP\beads.zip -DestinationPath $env:TEMP\beads_extracted -Force
+Copy-Item -Path "$env:TEMP\beads_extracted\bd.exe" -Destination "$env:APPDATA\npm\bd.exe" -Force
 ```
 
 ### 4. Start your AI agent
@@ -102,7 +116,11 @@ Both bootstrap scripts produce equivalent output:
 | Problem | Solution |
 |---------|----------|
 | `ExecutionPolicy` error | `Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser` |
-| `rtk: command not found` | Install Rust from rustup.rs, then `cargo install rtk` |
-| `bd: command not found` | Install Go from go.dev, then `go install github.com/steveyegge/beads@latest` |
+| `rustup-init` fragt nach C++ Linker | Option `1)` (VS Build Tools) oder `3)` (GNU ABI) wählen |
+| `cargo install rtk` installiert falsches Tool | Verwende `cargo install --git https://github.com/rtk-ai/rtk` |
+| `rtk: command not found` | Rust installieren, dann `cargo install --git https://github.com/rtk-ai/rtk` |
+| `npm install -g @beads/bd` schlägt fehl | Manuelle Installation: ZIP herunterladen, extrahieren, `bd.exe` in PATH kopieren (siehe Schritt 3) |
+| `bd: command not found` | npm oder manuelle Installation (siehe Schritt 3). **Nicht** `go install` auf Windows verwenden |
 | AI doesn't read AGENT.md | Ensure your client's router file references AGENT.md |
 | Git hooks not running | On Windows, use `bootstrap.ps1` for `.bat` wrapper creation |
+| `rtk init -g` Warning "No hook installed" | Normal auf Windows — rtk verwendet `--claude-md` Modus als Fallback |

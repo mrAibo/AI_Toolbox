@@ -31,8 +31,9 @@ This creates:
 ### 3. Install optional tools
 ```bash
 # rtk — token optimization (recommended)
-cargo install rtk
-rtk init -g  # Instails hooks for your AI client
+# ⚠️ IMPORTANT: Use --git flag! The crates.io "rtk" is a different project (Rust Type Kit).
+cargo install --git https://github.com/rtk-ai/rtk
+rtk init -g  # Installs hooks for your AI client
 
 # Beads — task tracking (recommended)
 go install github.com/steveyegge/beads@latest
@@ -82,6 +83,7 @@ bash .agent/scripts/bootstrap.sh  # Should skip all existing files
 | Problem | Solution |
 |---------|----------|
 | `bootstrap.sh: permission denied` | `chmod +x .agent/scripts/bootstrap.sh` |
-| `rtk: command not found` | Install Rust, then `cargo install rtk` |
+| `cargo install rtk` installiert falsches Tool | Verwende `cargo install --git https://github.com/rtk-ai/rtk` |
+| `rtk: command not found` | Install Rust, then `cargo install --git https://github.com/rtk-ai/rtk` |
 | `bd: command not found` | Install Go, then `go install github.com/steveyegge/beads@latest` |
 | AI doesn't read AGENT.md | Ensure your client's router file (CLAUDE.md, QWEN.md, etc.) references AGENT.md |

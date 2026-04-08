@@ -51,7 +51,7 @@ The AI Toolbox is designed with security in mind, but users should follow these 
 2. **Review MCP configs** — ensure no credentials are hardcoded
 3. **Scope filesystem access** — restrict MCP filesystem access to project directory only
 4. **Audit hook scripts** — review `hook-pre-command` and `hook-stop` before using in production
-5. **Keep rtk updated** — `cargo install rtk` to get the latest security fixes
+5. **Keep rtk updated** — `cargo install --git https://github.com/rtk-ai/rtk` to get the latest security fixes
 
 ## MCP Security
 

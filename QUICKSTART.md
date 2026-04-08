@@ -47,7 +47,8 @@ This creates:
 ## Step 3: Install rtk (1 min, optional but recommended)
 
 ```bash
-cargo install rtk
+# ⚠️ IMPORTANT: Use --git flag! The crates.io "rtk" is a different project.
+cargo install --git https://github.com/rtk-ai/rtk
 rtk init -g
 ```
 

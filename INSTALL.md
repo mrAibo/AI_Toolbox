@@ -42,15 +42,58 @@ Run the bootstrap script to create the core structure, Antigravity workflows (`.
 ## Step 3: Check Core Stack Dependencies
 The AI Toolbox relies on specific terminal tools. You must verify their presence and try to install them if missing.
 
-**1. rtk (Rust Token Killer)**
-- Check if `rtk` is installed (e.g. `rtk --version`).
-- If missing, ask the user if they have Rust installed. If yes, run `cargo install rtk`.
-- **After installation, run `rtk init -g`** to install pre-execution hooks for the current AI client. This automatically routes heavy commands through rtk without manual prefixing.
-- If rtk is not available and Rust is not installed, warn the user they need `rtk` to use the agent safely.
+### 3.1 Platform Prerequisites
 
-**2. Beads (Task Tracker)**
-- Check if `bd` is installed (e.g. `bd version`).
-- If missing, check if `go` is installed. If yes, run `go install github.com/steveyegge/beads@latest`. If no, warn the user.
+**Windows users:** Before installing Rust tools, ensure you have a C++ linker:
+- **Option A (Recommended):** Visual Studio Build Tools with "Desktop development with C++" workload (~2-3 GB)
+  - Download: https://visualstudio.microsoft.com/downloads/
+- **Option B (Lighter):** MinGW-w64 (~200-400 MB)
+  - Download: https://www.mingw-w64.org/downloads/
+- **Option C (Minimal):** During Rust installation, select option `3)` (GNU ABI) — works for most cases without extra tooling
+
+**Linux/macOS:** No additional prerequisites needed beyond Rust and Go.
+
+### 3.2 rtk (Rust Token Killer)
+- Check if `rtk` is installed: `rtk --version`
+- If missing, verify Rust is available: `cargo --version`
+- **If Rust is installed, install rtk from GitHub (NOT crates.io):**
+  ```bash
+  # ⚠️ IMPORTANT: Use --git flag! The crates.io "rtk" is a different project (Rust Type Kit).
+  cargo install --git https://github.com/rtk-ai/rtk
+  ```
+- **After installation, run:** `rtk init -g`
+  - **Unix/macOS:** Installs pre-execution hooks for your AI client.
+  - **Windows:** Falls back to `--claude-md` mode (hook-based mode requires Unix). This is fully functional.
+- **If Rust is NOT installed:** Warn the user and point to https://rustup.rs/
+
+### 3.3 Beads (Task Tracker)
+- Check if `bd` is installed: `bd version`
+- If missing, install based on your platform:
+
+  **Linux/macOS (via Go):**
+  ```bash
+  go install github.com/steveyegge/beads@latest
+  ```
+
+  **Windows (via npm — recommended):**
+  ```powershell
+  npm install -g @beads/bd
+  ```
+  If the npm postinstall extraction fails (known issue on some Windows systems), install manually:
+  ```powershell
+  # 1. Download the ZIP
+  curl -L -o $env:TEMP\beads.zip https://github.com/gastownhall/beads/releases/download/v0.63.3/beads_0.63.3_windows_amd64.zip
+
+  # 2. Extract
+  Expand-Archive -Path $env:TEMP\beads.zip -DestinationPath $env:TEMP\beads_extracted -Force
+
+  # 3. Copy bd.exe to your PATH (adjust path as needed)
+  Copy-Item -Path "$env:TEMP\beads_extracted\bd.exe" -Destination "C:\Users\YOUR_USERNAME\AppData\Roaming\npm\bd.exe" -Force
+  ```
+
+  **Alternative (all platforms):** Download the latest release directly from https://github.com/steveyegge/beads/releases
+
+- If Go is NOT installed (Linux/macOS): Warn the user and point to https://go.dev/dl/
 
 ## Step 4: Configure MCP Servers & Plugins
 If you are **Claude Code** (or can execute configuring scripts), attempt to install the following recommended MCP servers and plugins. If they require cloning a repository, clone them into a tools directory (e.g., `~/.mcp-servers/` or `%USERPROFILE%\.mcp-servers\`):
