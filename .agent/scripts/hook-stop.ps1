@@ -11,8 +11,9 @@ if (Test-Path "$RepoRoot/.agent/scripts/sync-task.ps1") {
 }
 
 # 2. Auto-refresh Beads task context
-if (Get-Command bd -ErrorAction SilentlyContinue) {
-    try { bd prime 2>$null } catch {}
+$BdPath = Get-Command bd.exe -ErrorAction SilentlyContinue
+if ($BdPath) {
+    try { & $BdPath.Source prime 2>$null } catch {}
 }
 
 # 3. Display tool usage stats if available

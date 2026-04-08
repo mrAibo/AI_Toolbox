@@ -2,15 +2,34 @@
 # Export current task state to a static file for the AI to read.
 # Also detects task type and suggests the appropriate workflow.
 
+# Helper: Check for bd.exe directly, bypassing broken npm wrapper
+function Test-BdInstalled {
+    $bdExe = Get-Command bd.exe -ErrorAction SilentlyContinue
+    if ($bdExe) { return $bdExe.Source }
+    # Fallback: check if bd.exe is in PATH without .exe extension
+    $bdPlain = Get-Command bd -ErrorAction SilentlyContinue
+    if ($bdPlain -and $bdPlain.Source -and $bdPlain.Source -match 'bd\.exe$') {
+        return $bdPlain.Source
+    }
+    return $null
+}
+
 $RepoRoot = git rev-parse --show-toplevel 2>$null
 if (-not $RepoRoot) { $RepoRoot = (Get-Location).Path }
 $TaskPath = "$RepoRoot\.agent\memory\current-task.md"
 $ActiveSession = "$RepoRoot\.agent\memory\active-session.md"
 
+$BdPath = Test-BdInstalled
 Write-Host "[sync-task] Exporting current task tracker state to memory..."
-if (Get-Command bd -ErrorAction SilentlyContinue) {
-    bd list | Out-File -FilePath $TaskPath -Encoding utf8
-    Write-Host "[sync-task] Task state exported to $TaskPath"
+if ($BdPath) {
+    # Try bd.exe - may fail on Windows without CGO (requires server mode)
+    $bdOutput = & $BdPath list 2>$null
+    if ($LASTEXITCODE -eq 0 -and $bdOutput) {
+        $bdOutput | Out-File -FilePath $TaskPath -Encoding utf8
+        Write-Host "[sync-task] Task state exported to $TaskPath"
+    } else {
+        Write-Host "[sync-task] bd available but not initialized (run 'bd init --mode server' on Windows)"
+    }
 
     # Detect task type from Beads output - scan first 5 lines after header
     $TaskOutput = Get-Content $TaskPath -TotalCount 6 -ErrorAction SilentlyContinue | Select-Object -Skip 1 | Out-String
@@ -59,9 +78,9 @@ if (Test-Path $ActiveSession) {
 }
 
 # Count ready tasks and suggest Multi-Agent if >= 3
-if (Get-Command bd -ErrorAction SilentlyContinue) {
+if ($BdPath) {
     try {
-        $ReadyOutput = bd ready 2>$null
+        $ReadyOutput = & $BdPath ready 2>$null
         if ($ReadyOutput) {
             $ReadyCount = ($ReadyOutput | Measure-Object -Line).Lines
             if ($ReadyCount -ge 3) {

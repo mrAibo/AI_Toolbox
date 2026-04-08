@@ -214,31 +214,31 @@ if (-not (Get-Command rtk -ErrorAction SilentlyContinue)) {
 # ---------------------------------------------------------------
 # Step 5: Offer to install Beads
 # ---------------------------------------------------------------
-if (-not (Get-Command bd -ErrorAction SilentlyContinue)) {
+if (-not (Get-Command bd.exe -ErrorAction SilentlyContinue)) {
   Write-Host ""
   $installBeads = Read-Host "  Install Beads (task tracking)? [Y/n] "
   if ([string]::IsNullOrWhiteSpace($installBeads)) { $installBeads = "y" }
 
   if ($installBeads -match '^[Yy]$') {
     if (Get-Command go -ErrorAction SilentlyContinue) {
-      Write-Host "  ✅ Installing: go install github.com/steveyegge/beads@latest"
+      Write-Host "  [INFO] Installing: go install github.com/steveyegge/beads@latest"
       go install github.com/steveyegge/beads@latest
-      Write-Host "  ✅ Beads installed" -ForegroundColor Green
+      Write-Host "  [INFO] Beads installed" -ForegroundColor Green
 
-      Write-Host "  ✅ Initializing: bd init"
-      bd init
+      Write-Host "  [INFO] Initializing: bd init"
+      bd.exe init
     } else {
       Write-Host "  [WARN]  go not found. Install Go first: https://go.dev/dl/" -ForegroundColor Yellow
     }
   }
 } else {
-  try { $ver = (bd version 2>$null) } catch { $ver = "installed" }
-  Write-Host "  ✅ Beads already installed ($ver)" -ForegroundColor Green
+  try { $ver = (bd.exe version 2>$null) } catch { $ver = "installed" }
+  Write-Host "  [INFO] Beads already installed ($ver)" -ForegroundColor Green
   $initBd = Read-Host "  Initialize Beads task tracker for this project? [Y/n] "
   if ([string]::IsNullOrWhiteSpace($initBd)) { $initBd = "y" }
   if ($initBd -match '^[Yy]$') {
-    Write-Host "  ✅ Initializing: bd init"
-    bd init
+    Write-Host "  [INFO] Initializing: bd init"
+    bd.exe init
   }
 }
 
@@ -366,7 +366,7 @@ if (Get-Command rtk -ErrorAction SilentlyContinue) {
   Write-Host "  rtk:            not installed (run 'cargo install rtk' later)" -ForegroundColor Yellow
 }
 
-if (Get-Command bd -ErrorAction SilentlyContinue) {
+if (Get-Command bd.exe -ErrorAction SilentlyContinue) {
   Write-Host "  Beads:          installed + initialized" -ForegroundColor Green
 } else {
   Write-Host "  Beads:          not installed (run 'go install .../beads@latest' later)" -ForegroundColor Yellow

@@ -23,3 +23,8 @@
 .agent/memory/current-task.md
 
 .agent/memory/.tool-stats.json
+
+# Beads / Dolt files (added by bd init)
+.dolt/
+*.db
+.beads-credential-key
