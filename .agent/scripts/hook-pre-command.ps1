@@ -40,8 +40,11 @@ function Track-Tool {
   # Increment counter
   try {
     $stats = Get-Content $StatsFile -Raw | ConvertFrom-Json
-    if ($stats.$Tool) { $stats.$Tool += 1 } else { $stats | Add-Member -NotePropertyName $Tool -NotePropertyValue 1 }
-    $stats | ConvertTo-Json -Depth 3 | Set-Content $StatsFile -Encoding utf8
+    # Use hash table syntax which works for both existing and new properties
+    $statsHash = @{}
+    $stats.PSObject.Properties | ForEach-Object { $statsHash[$_.Name] = $_.Value }
+    if ($statsHash.ContainsKey($Tool)) { $statsHash[$Tool] += 1 } else { $statsHash[$Tool] = 1 }
+    $statsHash | ConvertTo-Json -Depth 3 | Set-Content $StatsFile -Encoding utf8
   } catch {
     # Stats file corrupted — ignore silently
   }

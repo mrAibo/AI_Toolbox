@@ -1,0 +1,26 @@
+{
+  "_comment": "Qwen Code Hook Configuration — Qwen Code does not natively support hooks in settings.json.",
+  "_usage": "This file documents the hooks that SHOULD be executed manually or via agent behavior.",
+  "_enforcement": "Qwen Code agents must follow these hooks as behavioral rules from QWEN.md.",
+
+  "hooks": {
+    "pre-command": {
+      "description": "Run BEFORE heavy commands (tests, builds, etc.)",
+      "unix": ".agent/scripts/hook-pre-command.sh \"$COMMAND\"",
+      "windows": "powershell -ExecutionPolicy Bypass -File .agent/scripts/hook-pre-command.ps1 \"$COMMAND\"",
+      "enforced_by": "AGENT.md safety rules + rtk wrapper"
+    },
+    "post-command": {
+      "description": "Run AFTER command execution for session consolidation",
+      "unix": ".agent/scripts/hook-stop.sh",
+      "windows": "powershell -ExecutionPolicy Bypass -File .agent/scripts/hook-stop.ps1",
+      "enforced_by": "QWEN.md HANDOVER rule"
+    },
+    "on-session-start": {
+      "description": "Run at the start of every session to sync task state",
+      "unix": "bash .agent/scripts/sync-task.sh && cat .agent/memory/current-task.md",
+      "windows": "powershell -ExecutionPolicy Bypass -File .agent/scripts/sync-task.ps1 ; Get-Content .agent/memory/current-task.md",
+      "enforced_by": "QWEN.md BOOT rule"
+    }
+  }
+}

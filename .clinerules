@@ -1,5 +1,26 @@
 # AI Toolbox Protocol (RooCode / Cline) -- Tier: Standard
 
+## Hook Execution
+RooCode/Cline does not support native hooks. You MUST run these scripts manually:
+
+**Session start:**
+```powershell
+# Windows
+powershell -ExecutionPolicy Bypass -File .agent/scripts/sync-task.ps1
+```
+```bash
+# Unix/macOS
+bash .agent/scripts/sync-task.sh
+```
+
+**Before heavy commands:** Run pre-command hook, then use `rtk` if validated.
+
+**Session end:**
+```powershell
+powershell -ExecutionPolicy Bypass -File .agent/scripts/hook-stop.ps1
+```
+
+## Core Rules
 1. **BOOT:** Run the sync-task script (`.sh` on Unix, `.ps1` on Windows) and read `.agent/memory/current-task.md` before starting.
 2. **SAFETY:** Use `rtk` for all heavy executions (tests, builds).
 3. **HANDOVER:** Update `.agent/memory/session-handover.md` before finishing.

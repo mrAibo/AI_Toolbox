@@ -43,6 +43,15 @@ This is the **Definitive Boot Sequence**. All agents must follow this procedure 
 2. **Context Recovery:** Read `.agent/memory/architecture-decisions.md` and `.agent/memory/integration-contracts.md`.
 3. **Work-in-Progress Check:** Read `.agent/memory/session-handover.md` if it exists.
 4. **Task Synchronization:** Run `.agent/scripts/sync-task.sh` (or `.ps1` on Windows) to update `.agent/memory/current-task.md` with the latest state from the task tracker.
+   ```bash
+   # Unix/macOS
+   bash .agent/scripts/sync-task.sh && cat .agent/memory/current-task.md
+   ```
+   ```powershell
+   # Windows
+   powershell -ExecutionPolicy Bypass -File .agent/scripts/sync-task.ps1
+   Get-Content .agent/memory/current-task.md
+   ```
 5. **Session Status Init:** If `.agent/memory/active-session.md` is empty or missing, initialize it with the template structure (created by bootstrap at `.agent/memory/active-session.md`).
 6. **Summarization:** Briefly summarize the recovered context, current state, available tools, and the next planned task before continuing.
 
@@ -85,6 +94,28 @@ For the complete 9-step process (TASK → BRAINSTORM → PLAN → ISOLATE → IM
 ## 5. Terminal rules
 
 When using the terminal, adhere to the **[.agent/rules/safety-rules.md](.agent/rules/safety-rules.md)**.
+
+### Hook execution
+Before executing heavy commands, run the pre-command hook to validate:
+```bash
+# Unix/macOS
+.agent/scripts/hook-pre-command.sh "your command"
+```
+```powershell
+# Windows
+powershell -ExecutionPolicy Bypass -File .agent/scripts/hook-pre-command.ps1 "your command"
+```
+If the hook passes (exit 0), execute with `rtk`. If it fails (exit 1), prefix with `rtk`.
+
+At session end, run the stop hook to consolidate state:
+```bash
+# Unix/macOS
+.agent/scripts/hook-stop.sh
+```
+```powershell
+# Windows
+powershell -ExecutionPolicy Bypass -File .agent/scripts/hook-stop.ps1
+```
 
 **Quick Reference:**
 - Use **rtk** for all heavy terminal commands (python, cargo, tests, etc.).
