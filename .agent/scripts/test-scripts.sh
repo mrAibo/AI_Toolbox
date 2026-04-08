@@ -12,14 +12,18 @@ SH_COUNT=0
 for script in "$SCRIPT_DIR"/*.sh; do
     [ -f "$script" ] || continue
     SH_COUNT=$((SH_COUNT + 1))
-    if bash -n "$script" 2>&1; then
-        echo "  OK: $(basename "$script")"
+    name="$(basename "$script")"
+    # Capture both stdout and stderr from bash -n
+    output=$(bash -n "$script" 2>&1) && rc=0 || rc=$?
+    if [ $rc -eq 0 ]; then
+        echo "  OK:   $name"
     else
-        echo "  FAIL: $(basename "$script")"
+        echo "  FAIL: $name"
+        echo "        $output"
         ERRORS=$((ERRORS + 1))
     fi
 done
-echo "[script-tests] Checked $SH_COUNT shell scripts"
+echo "[script-tests] Checked $SH_COUNT shell scripts, $ERRORS failed"
 
 # 2. PowerShell syntax validation (skip if pwsh not available)
 echo "[script-tests] Checking PowerShell script syntax..."
@@ -27,23 +31,26 @@ PS1_COUNT=0
 for script in "$SCRIPT_DIR"/*.ps1; do
     [ -f "$script" ] || continue
     PS1_COUNT=$((PS1_COUNT + 1))
+    name="$(basename "$script")"
     if command -v pwsh &>/dev/null; then
-        pwsh -NoProfile -Command "
-            \$null = [System.Management.Automation.Language.Parser]::ParseFile('$script', [ref]\$null, [ref]\$errors)
-            if (\$errors.Count -gt 0) { exit 1 }
-        " 2>/dev/null
-        if [ $? -eq 0 ]; then
-            echo "  OK: $(basename "$script")"
+        output=$(pwsh -NoProfile -Command '
+            $null = [System.Management.Automation.Language.Parser]::ParseFile("'"$script"'", [ref]$null, [ref]$errors)
+            if ($errors.Count -gt 0) { $errors | ForEach-Object { $_.ToString() }; exit 1 }
+        ' 2>&1) && rc=0 || rc=$?
+        if [ $rc -eq 0 ]; then
+            echo "  OK:   $name"
         else
-            echo "  FAIL: $(basename "$script")"
+            echo "  FAIL: $name"
+            echo "        $output"
             ERRORS=$((ERRORS + 1))
         fi
     else
-        echo "  SKIP: $(basename "$script") (pwsh not available)"
+        echo "  SKIP: $name (pwsh not available)"
     fi
 done
 echo "[script-tests] Checked $PS1_COUNT PowerShell scripts"
 
+echo ""
 if [ "$ERRORS" -gt 0 ]; then
     echo "FAIL: $ERRORS script(s) have syntax errors"
     exit 1
