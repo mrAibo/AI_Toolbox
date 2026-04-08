@@ -2,8 +2,6 @@
 # validate-client-capabilities.sh — validates .agent/config/client-capabilities.json against a schema
 # If the file doesn't exist, this check is skipped.
 
-set -e
-
 echo "[json-schema] Validating client-capabilities.json..."
 
 CONFIG_FILE=".agent/config/client-capabilities.json"
@@ -20,7 +18,11 @@ if ! python3 -m json.tool "$CONFIG_FILE" > /dev/null 2>&1; then
 fi
 
 # Schema validation using Python
-python3 << 'PYTHON_SCRIPT'
+if ! python3 << 'PYTHON_SCRIPT'; then
+    echo "FAIL: client-capabilities.json does not match schema"
+    exit 1
+fi
+
 import json
 import sys
 
@@ -79,23 +81,19 @@ def validate_json(data, schema, path=""):
             return errors
 
     if schema.get("type") == "object":
-        # Check required fields
         for req in schema.get("required", []):
             if req not in data:
                 errors.append(f"{path or 'root'}: missing required field '{req}'")
 
-        # Check properties
         for key, value_schema in schema.get("properties", {}).items():
             if key in data:
                 errors.extend(validate_json(data[key], value_schema, f"{path}.{key}" if path else key))
 
-        # Check enum values
         for key in schema.get("properties", {}):
             if key in data and "enum" in schema["properties"][key]:
                 if data[key] not in schema["properties"][key]["enum"]:
                     errors.append(f"{path}.{key}: value '{data[key]}' not in {schema['properties'][key]['enum']}")
 
-        # Check additionalProperties
         if "additionalProperties" in schema:
             known_keys = set(schema.get("properties", {}).keys())
             for key in data:
@@ -120,10 +118,5 @@ if errors:
 
 print("  Schema validation passed")
 PYTHON_SCRIPT
-
-if [ $? -ne 0 ]; then
-    echo "FAIL: client-capabilities.json does not match schema"
-    exit 1
-fi
 
 echo "[json-schema] OK — client-capabilities.json is valid"
