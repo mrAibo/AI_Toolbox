@@ -1,0 +1,75 @@
+# Qwen Code settings.json - Linux/macOS Example
+# Copy the hooks section to your ~/.qwen/settings.json or project .qwen/settings.json
+# Requires Qwen Code to be started with --experimental-hooks flag
+{
+  "hooks": {
+    "SessionStart": [{
+      "hooks": [{
+        "type": "command",
+        "command": "bash .agent/scripts/sync-task.sh",
+        "name": "ai-toolbox-sync",
+        "description": "Sync task state from Beads/task tracker to memory files",
+        "timeout": 15000
+      }]
+    }],
+    "PreToolUse": [{
+      "matcher": "^bash$",
+      "hooks": [{
+        "type": "command",
+        "command": "bash .agent/scripts/hook-pre-command-qwen.sh",
+        "name": "ai-toolbox-pre-command",
+        "description": "Validate heavy commands and recommend rtk wrapper",
+        "timeout": 10000
+      }]
+    }],
+    "PostToolUse": [
+      {
+        "matcher": "^write$",
+        "hooks": [{
+          "type": "command",
+          "command": "bash .agent/scripts/hook-post-tool-qwen.sh",
+          "name": "ai-toolbox-security-check",
+          "description": "Scan written files for secrets and credentials",
+          "timeout": 10000
+        }]
+      },
+      {
+        "matcher": "^edit$",
+        "hooks": [{
+          "type": "command",
+          "command": "bash .agent/scripts/hook-post-tool-qwen.sh",
+          "name": "ai-toolbox-security-check",
+          "description": "Scan edited files for secrets and credentials",
+          "timeout": 10000
+        }]
+      }
+    ],
+    "Stop": [{
+      "hooks": [{
+        "type": "command",
+        "command": "bash .agent/scripts/hook-stop-qwen.sh",
+        "name": "ai-toolbox-memory-update",
+        "description": "Update session memory files before response",
+        "timeout": 15000
+      }]
+    }],
+    "SessionEnd": [{
+      "hooks": [{
+        "type": "command",
+        "command": "bash .agent/scripts/hook-session-end-qwen.sh",
+        "name": "ai-toolbox-session-handover",
+        "description": "Consolidate memory and create handover at session end",
+        "timeout": 30000
+      }]
+    }],
+    "PreCompact": [{
+      "hooks": [{
+        "type": "command",
+        "command": "bash .agent/scripts/hook-pre-compact-qwen.sh",
+        "name": "ai-toolbox-architect-context",
+        "description": "Inject architecture context before compaction",
+        "timeout": 10000
+      }]
+    }]
+  }
+}
