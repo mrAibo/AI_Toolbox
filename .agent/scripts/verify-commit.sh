@@ -16,7 +16,7 @@ for file in $ROUTER_FILES; do
     # Only check if this file is in the staged changes
     if git diff --cached --name-only 2>/dev/null | grep -qxF "$file"; then
         if ! grep -q "\-\- Tier:" "$REPO_ROOT/$file" 2>/dev/null; then
-            echo "🚨 AI Toolbox Warning: $file is missing the '-- Tier: X' badge."
+            echo "[WARN] AI Toolbox: $file is missing the '-- Tier: X' badge."
             echo "   Every router file must declare its tier (Full, Standard, or Basic)."
             ERRORS=$((ERRORS + 1))
         fi
@@ -31,7 +31,7 @@ ADR_FILE="$REPO_ROOT/.agent/memory/architecture-decisions.md"
 
 if [ -f "$ADR_FILE" ] && [ -s "$ADR_FILE" ]; then
     if ! grep -q "^### ADR-" "$ADR_FILE"; then
-        echo "⚠️  AI Toolbox Note: $ADR_FILE exists but contains no ADR entries."
+        echo "[INFO] AI Toolbox Note: $ADR_FILE exists but contains no ADR entries."
         echo "   Use the '### ADR-XXXX' format to document architectural decisions."
         # Note: This is a warning, not a block — does not increment ERRORS
     fi
@@ -49,16 +49,18 @@ for file in $STAGED_MD; do
         # Find all markdown links [text](path) where path starts with . or ./
         while IFS= read -r link; do
             # Extract the path from the link [text](path)
-            target=$(echo "$link" | sed -n 's/.*\](\(.*\))/\1/p' | sed 's/#.*//')
+            target="${link#*(}"
+            target="${target%)*}"
+            target="${target%%#*}"
             # Skip external links, anchors, and root-relative paths
-            if echo "$target" | grep -qE '^https?://|^mailto:|^#|^/'; then
+            if [[ $target =~ ^https?://|^mailto:|^#|^/ ]]; then
                 continue
             fi
             # Resolve relative to the file's directory
             dir=$(dirname "$full_path")
             resolved="$dir/$target"
             if [ ! -e "$resolved" ]; then
-                echo "⚠️  AI Toolbox Note: $file → broken link to '$target'"
+                echo "[INFO] AI Toolbox Note: $file -> broken link to '$target'"
                 # Note: Warning only, does not block commit
             fi
         done < <(grep -oE '\[[^]]+\]\([^)]+\)' "$full_path" 2>/dev/null || true)
@@ -70,7 +72,7 @@ done
 # ---------------------------------------------------------------
 if [ $ERRORS -gt 0 ]; then
     echo ""
-    echo "❌ AI Toolbox: $ERRORS error(s) found. Commit blocked."
+    echo "[FAIL] AI Toolbox: $ERRORS error(s) found. Commit blocked."
     exit 1
 fi
 

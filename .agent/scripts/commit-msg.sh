@@ -5,7 +5,7 @@
 
 REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
 COMMIT_MSG_FILE="$1"
-COMMIT_MSG="$(cat "$COMMIT_MSG_FILE" 2>/dev/null || echo "")"
+COMMIT_MSG="$(< "$COMMIT_MSG_FILE" 2>/dev/null)" || COMMIT_MSG=""
 ERRORS=0
 
 # Check if staged code changes have corresponding test updates
@@ -13,10 +13,10 @@ STAGED_CODE=$(git diff --cached --name-only 2>/dev/null | grep -E '\.(ts|tsx|js|
 STAGED_TESTS=$(git diff --cached --name-only 2>/dev/null | grep -iE '(^|/)(test|tests|spec|specs)(/|$)|(_test\.|\.test\.|\.spec\.)' || true)
 
 if [ -n "$STAGED_CODE" ] && [ -z "$STAGED_TESTS" ]; then
-    if echo "$COMMIT_MSG" | grep -qi 'tdd-skip'; then
-        echo "⏭️  AI Toolbox: TDD skip requested via commit message."
+    if [[ $COMMIT_MSG =~ [Tt][Dd][Dd]-[Ss][Kk][Ii][Pp] ]]; then
+        echo "[SKIP] AI Toolbox: TDD skip requested via commit message."
     else
-        echo "🚨 AI Toolbox: Code changes without test updates."
+        echo "[WARN] AI Toolbox: Code changes without test updates."
         echo "   Per .agent/rules/tdd-rules.md, all code changes must have tests."
         echo "   Staged code files:"
         echo "$STAGED_CODE" | sed 's/^/     /'
@@ -29,7 +29,7 @@ fi
 
 if [ "$ERRORS" -gt 0 ]; then
     echo ""
-    echo "❌ AI Toolbox: Commit blocked. Fix the issue above and try again."
+    echo "[FAIL] AI Toolbox: Commit blocked. Fix the issue above and try again."
     exit 1
 fi
 

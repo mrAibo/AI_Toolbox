@@ -22,9 +22,8 @@ done
 # Find all matching files
 FILES=()
 for ext in "${EXTENSIONS[@]}"; do
-    while IFS= read -r -d '' file; do
-        FILES+=("$file")
-    done < <(find . -name "$ext" -type f "${EXCLUDE_ARGS[@]}" -print0 2>/dev/null)
+    mapfile -d '' -t found < <(find . -name "$ext" -type f "${EXCLUDE_ARGS[@]}" -print0 2>/dev/null)
+    FILES+=("${found[@]}")
 done
 
 for file in "${FILES[@]}"; do

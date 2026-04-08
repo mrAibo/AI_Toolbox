@@ -84,8 +84,8 @@ check_references() {
     local ps1_missing=0
 
     for target in "${files[@]}"; do
-        # Escape dots for grep
-        escaped=$(echo "$target" | sed 's/\./\\./g')
+        # Escape dots for grep using bash parameter expansion
+        escaped="${target//./\\.}"
 
         if ! grep -q "$escaped" "$SH_FILE" 2>/dev/null; then
             echo "  Missing in bootstrap.sh: $target"
@@ -106,7 +106,7 @@ check_references() {
 echo "[parity-check] Checking directory creation..."
 DIR_ERRORS=0
 for dir in "${EXPECTED_DIRS[@]}"; do
-    escaped=$(echo "$dir" | sed 's/\./\\./g')
+    escaped="${dir//./\\.}"
     sh_has=false
     ps1_has=false
     if grep -q "$escaped" "$SH_FILE" 2>/dev/null; then sh_has=true; fi
