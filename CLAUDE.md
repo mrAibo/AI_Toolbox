@@ -34,4 +34,22 @@ Adhere to these **Critical 3 Session Rules**:
    powershell -ExecutionPolicy Bypass -File .agent/scripts/hook-stop.ps1
    ```
 
+## 9-Step Workflow Quick Reference
+
+1. **EPIC** → `bd create -t epic "Goal"`
+2. **BRAINSTORM** → `superpowers:brainstorming` (design before code)
+3. **PLAN** → `superpowers:writing-plans` (2-5 min tasks)
+4. **SUB-TASKS** → `bd create` for each + `bd dep add`
+5. **ISOLATE** → `superpowers:using-git-worktrees`
+6. **IMPLEMENT** → `bd ready` → pick → TDD (RED → GREEN → REFACTOR)
+7. **REVIEW** → `superpowers:requesting-code-review`
+8. **VERIFY** → `superpowers:verification-before-completion`
+9. **FINISH** → `superpowers:finishing-a-development-branch` → `bd close`
+
+### 4 Hard Rules
+- No production code without a failing test first
+- No completion claims without running verification
+- No work without a beads task
+- Always query Context7 before implementing with external libraries
+
 **Parallelize independent operations** — see [.agent/rules/parallel-execution.md](.agent/rules/parallel-execution.md). Never sequentially fetch URLs or read files that don't depend on each other.

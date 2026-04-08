@@ -145,3 +145,40 @@ User: "Build a REST API endpoint"
 ├─ FINISH: session-handover.md updated
 └─ Beads: bd close "REST endpoint complete"
 ```
+
+---
+
+## Skill Invocation Priority
+
+When starting any task, invoke skills in this order:
+
+1. **Context7 FIRST** — Before implementing with ANY external library, framework, or SDK:
+   - `mcp__context7__resolve-library-id` → `mcp__context7__query-docs`
+   - **Never write implementation code based on memory alone.**
+2. **Process skills SECOND** — brainstorming, writing-plans, debugging
+3. **Implementation skills THIRD** — TDD, code-review, frontend-design
+4. **External templates FOURTH** — Only when no existing skill covers the need
+
+## Side-Quest Pattern
+
+When you discover a bug or issue while working on the current task:
+
+```bash
+bd create "Found: bug description" -t bug          # Create side-quest
+bd dep add <side-quest-id> <current-id> --type discovered-from  # Link it
+```
+
+Handle the side-quest before continuing the main task. This keeps the task graph accurate and prevents forgotten bugs.
+
+## Beads Dependency Types
+
+Beads supports 4 dependency types that affect task visibility and scheduling:
+
+| Type | Effect | Use When |
+|------|--------|----------|
+| `blocks` | Blocks parent from being `bd ready` until child is closed | Task B cannot start until Task A is done |
+| `parent-child` | Groups related tasks under an epic | Organizing subtasks of a feature |
+| `related` | No scheduling impact, just documents relationship | Tasks that touch the same code area |
+| `discovered-from` | Side-quest pattern: bug found while working on another task | Bugs, improvements discovered during implementation |
+
+**Ready Fronts:** When a parent task is closed, all `blocks` children automatically become ready. This is the "Ready Front" concept — unblocking dependent tasks without manual intervention.
