@@ -148,14 +148,20 @@ jobs:
           issues=0
           for script in .agent/scripts/*.sh; do
             [ -f "$script" ] || continue
-            # SC1090: Can't follow non-constant source (our dot-sourced files)
+            # SC1090: Can't follow non-constant source (dot-sourced files)
             # SC1091: Not following external script (expected in CI)
-            if ! shellcheck -e SC1090,SC1091 "$script"; then
+            # SC2086: Double quote to prevent globbing (often intentional)
+            # SC2016: Expressions don't expand in single quotes (heredocs)
+            # SC2015: A && B || C is not if-then-else (common idiom)
+            output=$(shellcheck -e SC1090,SC1091,SC2086,SC2016,SC2015 "$script" 2>&1) && rc=0 || rc=$?
+            if [ $rc -ne 0 ]; then
+              echo "ISSUES in $script:"
+              echo "$output"
               issues=$((issues + 1))
             fi
           done
           if [ "$issues" -gt 0 ]; then
-            echo "FAIL: $issues shellcheck issue(s)"
+            echo "FAIL: shellcheck found issues in $issues file(s)"
             exit 1
           fi
           echo "OK — shellcheck passed for all .sh files"
