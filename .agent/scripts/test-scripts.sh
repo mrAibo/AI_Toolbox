@@ -36,10 +36,9 @@ for script in "$SCRIPT_DIR"/*.ps1; do
     PS1_COUNT=$((PS1_COUNT + 1))
     name="$(basename "$script")"
     if command -v pwsh &>/dev/null; then
-        if output=$(pwsh -NoProfile -Command '
-            $null = [System.Management.Automation.Language.Parser]::ParseFile("'"$script"'", [ref]$null, [ref]$errors)
-            if ($errors.Count -gt 0) { $errors | ForEach-Object { $_.ToString() }; exit 1 }
-        ' 2>&1); then
+        # Declare $null vars before [ref] usage (pwsh 7+ requirement)
+        # Use double quotes with escaped pwsh $ signs so bash $script expands
+        if output=$(pwsh -NoProfile -Command "\$errors = \$null; \$tokens = \$null; \$null = [System.Management.Automation.Language.Parser]::ParseFile('$script', [ref]\$tokens, [ref]\$errors); if (\$errors.Count -gt 0) { \$errors | ForEach-Object { \$_.ToString() }; exit 1 }" 2>&1); then
             echo "  OK:   $name"
         else
             echo "  FAIL: $name"
