@@ -920,5 +920,31 @@ if (Get-Command rtk -ErrorAction SilentlyContinue) {
     Write-Host "[bootstrap] rtk detected! To enable automatic hook interception, run: rtk init -g" -ForegroundColor Yellow
 }
 
+# Configure Qwen Code hooks if qwen is available
+$QwenSettings = ".qwen/settings.json"
+if ((Get-Command qwen -ErrorAction SilentlyContinue) -or (Test-Path ".qwen")) {
+    New-Item -ItemType Directory -Force -Path ".qwen" | Out-Null
+    if (-not (Test-Path $QwenSettings)) {
+        @'
+{
+  "hooks": {
+    "SessionStart": [{"hooks": [{"type": "command", "command": "bash .agent/scripts/sync-task.sh", "name": "ai-toolbox-sync", "description": "Sync task state from tracker", "timeout": 15000}]}],
+    "PreToolUse": [{"matcher": "^bash$", "hooks": [{"type": "command", "command": "bash .agent/scripts/hook-pre-command-qwen.sh", "name": "ai-toolbox-pre-command", "description": "Validate heavy commands", "timeout": 10000}]}],
+    "PostToolUse": [
+      {"matcher": "^write$", "hooks": [{"type": "command", "command": "bash .agent/scripts/hook-post-tool-qwen.sh", "name": "ai-toolbox-security-check", "description": "Scan written files for secrets", "timeout": 10000}]},
+      {"matcher": "^edit$", "hooks": [{"type": "command", "command": "bash .agent/scripts/hook-post-tool-qwen.sh", "name": "ai-toolbox-security-check", "description": "Scan edited files for secrets", "timeout": 10000}]}
+    ],
+    "Stop": [{"hooks": [{"type": "command", "command": "bash .agent/scripts/hook-stop-qwen.sh", "name": "ai-toolbox-memory-update", "description": "Update memory before response", "timeout": 15000}]}],
+    "SessionEnd": [{"hooks": [{"type": "command", "command": "bash .agent/scripts/hook-session-end-qwen.sh", "name": "ai-toolbox-session-handover", "description": "Consolidate memory at session end", "timeout": 30000}]}],
+    "PreCompact": [{"hooks": [{"type": "command", "command": "bash .agent/scripts/hook-pre-compact-qwen.sh", "name": "ai-toolbox-architect-context", "description": "Inject architecture context", "timeout": 10000}]}]
+  }
+}
+'@ | Set-Content -Path $QwenSettings -Encoding utf8
+        Write-Host "[bootstrap] Created $QwenSettings with AI Toolbox hooks"
+    } else {
+        Write-Host "[bootstrap] $QwenSettings already exists — skipping hook creation"
+    }
+}
+
 Write-Host "[bootstrap] structure ready"
 
