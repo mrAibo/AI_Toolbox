@@ -1,4 +1,4 @@
-#!/bin/bash
+﻿#!/bin/bash
 # sync-task.sh
 # Export current task state to a static file for the AI to read.
 # Also detects task type and suggests the appropriate workflow.
@@ -12,15 +12,15 @@ if command -v bd &> /dev/null; then
     bd list > "$TASK_FILE"
     echo "[sync-task] Task state exported to $TASK_FILE"
 
-    # Detect task type from Beads output — scan first 5 non-empty lines
+    # Detect task type from Beads output - scan first 5 non-empty lines
     # (head -1 is always the table header, skip it)
     TASK_CONTENT=$(tail -n +2 "$TASK_FILE" 2>/dev/null | head -5 2>/dev/null | tr -s '[:space:]' ' ')
     if echo "$TASK_CONTENT" | grep -qiE 'fix|bug|issue|error|crash'; then
-        echo "[sync-task] 🐛 Bug fix detected — suggesting Bug-Fix Workflow"
+        echo "[sync-task] [BUG] Bug fix detected - suggesting Bug-Fix Workflow"
     elif echo "$TASK_CONTENT" | grep -qiE 'refactor|rewrite|migrate|rename'; then
-        echo "[sync-task] 🔧 Refactor detected — suggesting Code Review Workflow"
+        echo "[sync-task] [REFACTOR] Refactor detected - suggesting Code Review Workflow"
     elif echo "$TASK_CONTENT" | grep -qiE 'feature|build|create|add|implement'; then
-        echo "[sync-task] 🚀 Feature detected — suggesting Unified Workflow (9 steps)"
+        echo "[sync-task] [FEATURE] Feature detected - suggesting Unified Workflow (9 steps)"
     fi
 else
     # Fallback: Preserve existing manual entries or initialize if missing/empty
@@ -65,16 +65,16 @@ if command -v bd &> /dev/null; then
                   bd ready --json 2>/dev/null | python -c "import sys,json; print(len(json.load(sys.stdin)))" 2>/dev/null || \
                   bd ready --json 2>/dev/null | grep -c '"id"' || echo "0")
     if [ "$READY_COUNT" -ge 3 ] 2>/dev/null; then
-        echo "[sync-task] 💡 $READY_COUNT tasks ready — consider Multi-Agent Workflow"
+        echo "[sync-task] [INFO] $READY_COUNT tasks ready - consider Multi-Agent Workflow"
     fi
 fi
 
 # Fix 5: Suggest specialist templates based on detected stack
 if [ -f "package.json" ]; then
-    echo "[sync-task] 💡 Templates available: api-rest, database, ui-analysis"
+    echo "[sync-task] [INFO] Templates available: api-rest, database, ui-analysis"
 
     # Fix 5b: Scan import statements for framework-specific templates
-    # Scan only `.` (which includes src/) — no double-scanning
+    # Scan only `.` (which includes src/) - no double-scanning
     FRAMEWORKS_FOUND=""
     if grep -rq '"next"' . --include="*.tsx" --include="*.ts" --include="*.js" --exclude-dir=node_modules --exclude-dir=.git 2>/dev/null; then
         FRAMEWORKS_FOUND="$FRAMEWORKS_FOUND web-frameworks/nextjs"
@@ -93,29 +93,30 @@ if [ -f "package.json" ]; then
     fi
 
     if [ -n "$FRAMEWORKS_FOUND" ]; then
-        echo "[sync-task] 💡 Detected frameworks:$FRAMEWORKS_FOUND"
+        echo "[sync-task] [INFO] Detected frameworks:$FRAMEWORKS_FOUND"
     fi
 elif [ -f "Cargo.toml" ]; then
-    echo "[sync-task] 💡 Templates available: programming-languages/rust, devops-infrastructure"
+    echo "[sync-task] [INFO] Templates available: programming-languages/rust, devops-infrastructure"
     if grep -rq "tokio" Cargo.toml 2>/dev/null; then
-        echo "[sync-task] 💡 Detected: tokio async runtime"
+        echo "[sync-task] [INFO] Detected: tokio async runtime"
     fi
     if grep -rq "actix" Cargo.toml 2>/dev/null; then
-        echo "[sync-task] 💡 Detected: actix-web framework"
+        echo "[sync-task] [INFO] Detected: actix-web framework"
     fi
 elif [ -f "pyproject.toml" ] || [ -f "requirements.txt" ]; then
-    echo "[sync-task] 💡 Templates available: programming-languages/python, ai-specialists"
+    echo "[sync-task] [INFO] Templates available: programming-languages/python, ai-specialists"
     if grep -rq "django" pyproject.toml requirements.txt 2>/dev/null; then
-        echo "[sync-task] 💡 Detected: Django framework"
+        echo "[sync-task] [INFO] Detected: Django framework"
     fi
     if grep -rq "fastapi" pyproject.toml requirements.txt 2>/dev/null; then
-        echo "[sync-task] 💡 Detected: FastAPI framework"
+        echo "[sync-task] [INFO] Detected: FastAPI framework"
     fi
 elif [ -f "go.mod" ]; then
-    echo "[sync-task] 💡 Templates available: programming-languages/go, devops-infrastructure"
+    echo "[sync-task] [INFO] Templates available: programming-languages/go, devops-infrastructure"
 elif [ -f "pom.xml" ] || [ -f "build.gradle" ]; then
-    echo "[sync-task] 💡 Templates available: programming-languages/java, database"
+    echo "[sync-task] [INFO] Templates available: programming-languages/java, database"
     if grep -rq "spring" . --include="*.java" --include="*.xml" --include="*.gradle" --exclude-dir=node_modules --exclude-dir=.git 2>/dev/null; then
-        echo "[sync-task] 💡 Detected: Spring framework"
+        echo "[sync-task] [INFO] Detected: Spring framework"
     fi
 fi
+
