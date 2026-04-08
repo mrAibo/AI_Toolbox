@@ -34,4 +34,4 @@ Adhere to these **Critical 3 Session Rules**:
    powershell -ExecutionPolicy Bypass -File .agent/scripts/hook-stop.ps1
    ```
 
-Refer to [AGENT.md](AGENT.md) for the full operational contract.
+**Parallelize independent operations** — see [.agent/rules/parallel-execution.md](.agent/rules/parallel-execution.md). Never sequentially fetch URLs or read files that don't depend on each other.

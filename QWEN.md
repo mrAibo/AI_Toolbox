@@ -32,7 +32,7 @@ This project uses the **AI Toolbox** workflow framework. As a **Full-Tier** clie
 ## Full-Tier Features Available
 
 - **Hooks:** Pre/post-command hooks auto-sync state and enforce safety rules.
-- **Multi-Agent:** Spawn sub-agents for parallel task execution. Coordinate via `.agent/memory/`.
+- **Multi-Agent:** Spawn sub-agents for parallel task execution. **Always parallelize independent operations** — see [.agent/rules/parallel-execution.md](.agent/rules/parallel-execution.md).
 - **Plan Mode:** Use plan mode before major changes. Document in `.agent/memory/current-task.md`.
 - **Sync:** Run `.agent/scripts/sync-task.sh` (or `.ps1`) to refresh your task view at any time.
 

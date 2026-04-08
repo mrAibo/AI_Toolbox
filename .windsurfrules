@@ -24,5 +24,6 @@ powershell -ExecutionPolicy Bypass -File .agent/scripts/hook-stop.ps1
 1. **BOOT:** Run the sync-task script (`.sh` on Unix, `.ps1` on Windows) and read `.agent/memory/current-task.md` before starting.
 2. **SAFETY:** Use `rtk` for all heavy executions (tests, builds).
 3. **HANDOVER:** Update `.agent/memory/session-handover.md` before finishing.
+4. **PARALLEL:** Always parallelize independent operations — see [.agent/rules/parallel-execution.md](.agent/rules/parallel-execution.md).
 
 Details in [AGENT.md](AGENT.md).

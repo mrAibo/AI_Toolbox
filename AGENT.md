@@ -53,7 +53,8 @@ This is the **Definitive Boot Sequence**. All agents must follow this procedure 
    Get-Content .agent/memory/current-task.md
    ```
 5. **Session Status Init:** If `.agent/memory/active-session.md` is empty or missing, initialize it with the template structure (created by bootstrap at `.agent/memory/active-session.md`).
-6. **Summarization:** Briefly summarize the recovered context, current state, available tools, and the next planned task before continuing.
+6. **Parallel Rules:** Read `.agent/rules/parallel-execution.md` to understand when parallel execution is required.
+7. **Summarization:** Briefly summarize the recovered context, current state, available tools, and the next planned task before continuing.
 
 Purpose:
 - Restore architecture and integration context.
@@ -88,6 +89,7 @@ For the complete 9-step process (TASK → BRAINSTORM → PLAN → ISOLATE → IM
 - Keep changes focused and reversible
 - Update memory when the project state changes
 - Do not silently introduce new frameworks, libraries, or major architecture changes without recording them
+- **Parallelize independent operations** — see [.agent/rules/parallel-execution.md](.agent/rules/parallel-execution.md). Never sequentially fetch URLs or read files that don't depend on each other.
 
 ---
 
