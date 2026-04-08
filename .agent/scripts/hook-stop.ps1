@@ -1,11 +1,11 @@
-# hook-stop.ps1 — Session end consolidation
+# hook-stop.ps1 - Session end consolidation
 # Runs after every command (post-command hook).
-# No $ErrorActionPreference = "Stop" — must be resilient to individual failures.
+# No $ErrorActionPreference = "Stop" - must be resilient to individual failures.
 
 $RepoRoot = git rev-parse --show-toplevel 2>$null
 if (-not $RepoRoot) { $RepoRoot = (Get-Location).Path }
 
-# 1. Sync task state (resilient — continue even if it fails)
+# 1. Sync task state (resilient - continue even if it fails)
 if (Test-Path "$RepoRoot/.agent/scripts/sync-task.ps1") {
     try { & "$RepoRoot/.agent/scripts/sync-task.ps1" } catch {}
 }
@@ -27,7 +27,7 @@ if (Test-Path $StatsFile) {
         if ($hasStats) {
             Write-Host "[stop] Tool usage this session:"
             $stats.PSObject.Properties | Sort-Object { $_.Value } -Descending | ForEach-Object {
-                if ($_.Value -gt 0) { Write-Host "  → $($_.Name): $($_.Value) uses" }
+                if ($_.Value -gt 0) { Write-Host "  -> $($_.Name): $($_.Value) uses" }
             }
         }
     } catch {}
@@ -54,7 +54,7 @@ if (Test-Path $ActiveFile) {
                 $HandoverContent | Out-File -FilePath $HandoverFile -Encoding utf8
             }
 
-            "`n## Session Summary — $(Get-Date -Format 'yyyy-MM-dd HH:mm UTC')" | Out-File -FilePath $HandoverFile -Append -Encoding utf8
+            "`n## Session Summary - $(Get-Date -Format 'yyyy-MM-dd HH:mm UTC')" | Out-File -FilePath $HandoverFile -Append -Encoding utf8
             $ActiveContent | Out-File -FilePath $HandoverFile -Append -Encoding utf8
         }
     }

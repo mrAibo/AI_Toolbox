@@ -1,4 +1,4 @@
-# AI Toolbox Commit Verification (POWERSHELL)
+﻿# AI Toolbox Commit Verification (POWERSHELL)
 # Runs lightweight checks on staged changes to preserve project quality.
 
 $RepoRoot = git rev-parse --show-toplevel
@@ -22,7 +22,7 @@ foreach ($File in $RouterFiles) {
         if (Test-Path $FullPath) {
             $Content = Get-Content $FullPath -Raw
             if ($Content -notmatch "-- Tier:") {
-                Write-Host "🚨 AI Toolbox Warning: $File is missing the '-- Tier: X' badge."
+                Write-Host "[WARN] AI Toolbox: $File is missing the '-- Tier: X' badge."
                 Write-Host "   Every router file must declare its tier (Full, Standard, or Basic)."
                 $Errors++
             }
@@ -39,7 +39,7 @@ $ADRFile = Join-Path $RepoRoot ".agent/memory/architecture-decisions.md"
 if ((Test-Path $ADRFile) -and ((Get-Item $ADRFile).Length -gt 0)) {
     $Content = Get-Content $ADRFile -Raw
     if ($Content -notmatch "(?m)^### ADR-") {
-        Write-Host "⚠️  AI Toolbox Note: architecture-decisions.md exists but contains no ADR entries."
+        Write-Host "[WARN] AI Toolbox Note: architecture-decisions.md exists but contains no ADR entries."
         Write-Host "   Use the '### ADR-XXXX' format to document architectural decisions."
         # Note: Warning only, not a block — does not increment $Errors
     }
@@ -67,7 +67,7 @@ foreach ($File in $StagedMD) {
             # Normalize path
             $Resolved = [System.IO.Path]::GetFullPath($Resolved)
             if (-not (Test-Path $Resolved)) {
-                Write-Host "⚠️  AI Toolbox Note: $File → broken link to '$Target'"
+                Write-Host "[WARN]  AI Toolbox Note: $File → broken link to '$Target'"
                 # Note: Warning only, does not block commit
             }
         }
@@ -79,8 +79,9 @@ foreach ($File in $StagedMD) {
 # ---------------------------------------------------------------
 if ($Errors -gt 0) {
     Write-Host ""
-    Write-Host "❌ AI Toolbox: $Errors error(s) found. Commit blocked."
+    Write-Host "[FAIL] AI Toolbox: $Errors error(s) found. Commit blocked."
     exit 1
 }
 
 exit 0
+

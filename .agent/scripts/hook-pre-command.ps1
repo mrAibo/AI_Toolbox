@@ -1,4 +1,4 @@
-# AI Toolbox Pre-command hook
+﻿# AI Toolbox Pre-command hook
 # Usage: powershell -File .agent/scripts/hook-pre-command.ps1 "command to run"
 #
 # This hook should be called by the AI Agent BEFORE executing a command.
@@ -20,13 +20,13 @@ if ([string]::IsNullOrWhiteSpace($Command)) {
 $HeavyCommandRegex = "^(python|python3|mvn|gradle|gradlew|pytest|npm run|pnpm run|yarn run|db2cli|hdbcli|sqlplus|ansible-playbook|javac|java -jar|cargo build|cargo test|cargo run|cargo check|go build|go test|go run|docker build|docker-compose build)"
 
 if ($Command -match $HeavyCommandRegex -and $Command -notmatch '^rtk ') {
-  Write-Host "⚠️  AI Toolbox: Heavy command detected — consider using 'rtk' wrapper for token optimization."
+  Write-Host "[WARN]  AI Toolbox: Heavy command detected — consider using 'rtk' wrapper for token optimization."
   Write-Host "   Example: rtk $Command"
   exit 1
 }
 
 if ($Command -match '^(cat|less|tail|head) .+\.log' -and $Command -notmatch '^rtk ') {
-  Write-Host "⚠️  AI Toolbox: Large log file detected — consider 'rtk read <file>' for efficient reading."
+  Write-Host "[WARN]  AI Toolbox: Large log file detected — consider 'rtk read <file>' for efficient reading."
   exit 1
 }
 
@@ -53,3 +53,4 @@ if ($Command -match '^bd\s+') { Track-Tool "beads" }
 if ($Command -match 'claude\s+mcp|context7|sequential-thinking') { Track-Tool "mcp" }
 
 exit 0
+

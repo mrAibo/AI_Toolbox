@@ -19,9 +19,9 @@ $StagedTests = git diff --cached --name-only 2>$null | Where-Object { $_ -match 
 
 if ($StagedCode -and -not $StagedTests) {
     if ($CommitMsg -match '(?i)tdd-skip') {
-        Write-Host "⏭️  AI Toolbox: TDD skip requested via commit message."
+        Write-Host "AI Toolbox: TDD skip requested via commit message."
     } else {
-        Write-Host "🚨 AI Toolbox: Code changes without test updates."
+        Write-Host "[WARN] AI Toolbox: Code changes without test updates."
         Write-Host "   Per .agent/rules/tdd-rules.md, all code changes must have tests."
         Write-Host "   Staged code files:"
         $StagedCode | ForEach-Object { Write-Host "     $_" }
@@ -34,7 +34,7 @@ if ($StagedCode -and -not $StagedTests) {
 
 if ($Errors -gt 0) {
     Write-Host ""
-    Write-Host "❌ AI Toolbox: Commit blocked. Fix the issue above and try again."
+    Write-Host "[FAIL] AI Toolbox: Commit blocked. Fix the issue above and try again."
     exit 1
 }
 

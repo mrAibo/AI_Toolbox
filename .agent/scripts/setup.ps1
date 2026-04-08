@@ -90,7 +90,7 @@ if ($WindsurfFound) {
 }
 
 if ($Clients.Count -eq 0) {
-  Write-Host "  ⚠️  No supported AI clients detected." -ForegroundColor Yellow
+  Write-Host "  [WARN]  No supported AI clients detected." -ForegroundColor Yellow
   Write-Host "  Supported: Claude Code, Qwen Code, Gemini CLI, Aider, Cursor, Cline, Windsurf"
   Write-Host "  Install one first, then re-run this setup."
   Write-Host ""
@@ -131,12 +131,12 @@ Write-Host "   → Hooks + MCP will be configured for $PrimaryClient"
 # Step 2: Run bootstrap
 # ---------------------------------------------------------------
 Write-Host ""
-Write-Host "🔧 Running bootstrap..." -ForegroundColor Yellow
+Write-Host "[TOOLS] Running bootstrap..." -ForegroundColor Yellow
 
 if (Test-Path ".agent/scripts/bootstrap.ps1") {
   & ".agent/scripts/bootstrap.ps1"
   if ($LASTEXITCODE -ne 0) {
-    Write-Host "  ⚠️  Bootstrap exited with code $LASTEXITCODE" -ForegroundColor Yellow
+    Write-Host "  [WARN]  Bootstrap exited with code $LASTEXITCODE" -ForegroundColor Yellow
   }
 }
 
@@ -169,7 +169,7 @@ if (Test-Path "package.json") {
   $Stack = "Java/Gradle"
   Write-Host "  ✅ Detected: $Stack (Gradle files found)" -ForegroundColor Green
 } else {
-  Write-Host "  ⚠️  No recognized project stack detected." -ForegroundColor Yellow
+  Write-Host "  [WARN]  No recognized project stack detected." -ForegroundColor Yellow
   Write-Host "  Stack rules will use generic settings."
 }
 
@@ -197,7 +197,7 @@ if (-not (Get-Command rtk -ErrorAction SilentlyContinue)) {
         rtk init -g
       }
     } else {
-      Write-Host "  ⚠️  cargo not found. Install Rust first: https://rustup.rs/" -ForegroundColor Yellow
+      Write-Host "  [WARN]  cargo not found. Install Rust first: https://rustup.rs/" -ForegroundColor Yellow
     }
   }
 } else {
@@ -228,7 +228,7 @@ if (-not (Get-Command bd -ErrorAction SilentlyContinue)) {
       Write-Host "  ✅ Initializing: bd init"
       bd init
     } else {
-      Write-Host "  ⚠️  go not found. Install Go first: https://go.dev/dl/" -ForegroundColor Yellow
+      Write-Host "  [WARN]  go not found. Install Go first: https://go.dev/dl/" -ForegroundColor Yellow
     }
   }
 } else {
@@ -254,10 +254,10 @@ if ($PrimaryClient) {
     switch ($PrimaryClient) {
       "claude" {
         Write-Host "  ✅ context7"
-        try { claude mcp add context7 npx -y @upstash/context7-mcp 2>$null } catch { Write-Host "  ⚠️  Failed to add context7 (may already exist)" -ForegroundColor Yellow }
+        try { claude mcp add context7 npx -y @upstash/context7-mcp 2>$null } catch { Write-Host "  [WARN]  Failed to add context7 (may already exist)" -ForegroundColor Yellow }
 
         Write-Host "  ✅ sequential-thinking"
-        try { claude mcp add sequential-thinking npx -y @modelcontextprotocol/server-sequential-thinking 2>$null } catch { Write-Host "  ⚠️  Failed to add sequential-thinking (may already exist)" -ForegroundColor Yellow }
+        try { claude mcp add sequential-thinking npx -y @modelcontextprotocol/server-sequential-thinking 2>$null } catch { Write-Host "  [WARN]  Failed to add sequential-thinking (may already exist)" -ForegroundColor Yellow }
       }
       "qwen" { $McpFile = "mcp-qwen.json" }
       "aider" { $McpFile = "mcp-aider.yml" }
@@ -272,7 +272,7 @@ if ($PrimaryClient) {
         Write-Host "  ✅ Copied to ./$McpFile — add this to your $PrimaryClient MCP settings" -ForegroundColor Green
       }
     } elseif ($McpFile) {
-      Write-Host "  ⚠️  Config file not found." -ForegroundColor Yellow
+      Write-Host "  [WARN]  Config file not found." -ForegroundColor Yellow
     }
   }
 }
@@ -294,7 +294,7 @@ for ($i = 0; $i -lt $Clients.Count; $i++) {
         Copy-Item ".agent/templates/clients/.claude.json" ".claude.json" -Force
         Write-Host "    ✅ .claude.json hooks installed" -ForegroundColor Green
       } else {
-        Write-Host "    ⚠️  .claude.json template not found" -ForegroundColor Yellow
+        Write-Host "    [WARN]  .claude.json template not found" -ForegroundColor Yellow
       }
     }
     "qwen" {
@@ -373,5 +373,6 @@ if (Get-Command bd -ErrorAction SilentlyContinue) {
 }
 
 Write-Host ""
-Write-Host "  🚀 Next: Open your AI client in this directory and start working!" -ForegroundColor Cyan
+Write-Host "  [NEXT] Next: Open your AI client in this directory and start working!" -ForegroundColor Cyan
 Write-Host ""
+
