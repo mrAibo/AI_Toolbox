@@ -1,8 +1,8 @@
 ---
 name: testing
 description: >
-  Testing rules and verification discipline. Use when running tests, verifying
-  changes, or before claiming any work complete. Adapted from AI Toolbox testing rules.
+  Testing rules and verification discipline. Use PROACTIVELY when running tests,
+  verifying changes, or before claiming any work complete. Adapted from AI Toolbox testing rules.
 ---
 # Testing Skill
 

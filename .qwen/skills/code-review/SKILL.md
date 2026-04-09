@@ -1,7 +1,7 @@
 ---
 name: code-review
 description: >
-  Code review before merges and after major changes. Use when completing tasks,
+  Code review before merges and after major changes. Use PROACTIVELY when completing tasks,
   implementing features, or before merging. Adapted from Superpowers code-review skill.
 ---
 # Code Review Skill

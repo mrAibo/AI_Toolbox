@@ -1,7 +1,7 @@
 ---
 name: debugging
 description: >
-  Systematic debugging methodology from Superpowers. Use when encountering ANY
+  Systematic debugging methodology from Superpowers. Use PROACTIVELY when encountering ANY
   bug, test failure, or unexpected behavior — BEFORE proposing fixes.
 ---
 # Debugging Skill

@@ -2,7 +2,7 @@
 name: branch-finish
 description: >
   Branch completion workflow — testing, merging, and cleanup after work is done.
-  Use when implementation is complete and all tests pass. Adapted from Superpowers.
+  Use PROACTIVELY when implementation is complete and all tests pass. Adapted from Superpowers.
 ---
 # Branch Finish Skill
 
