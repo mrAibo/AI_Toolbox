@@ -97,33 +97,44 @@ if (Test-Path "package.json") {
     Write-Host "[sync-task] Templates available: api-rest, database, ui-analysis"
 
     # Scan import statements for framework-specific templates
-    if (Select-String -Pattern '"next"' -Include '*.tsx','*.ts','*.js' -Path . -Exclude @('node_modules/*', '.git/*') -ErrorAction SilentlyContinue) {
+    $AllSourceFiles = Get-ChildItem -Path $RepoRoot -Include '*.tsx','*.ts','*.js' -Recurse -ErrorAction SilentlyContinue | Where-Object {
+        $full = $_.FullName -replace '\\','/'
+        $full -notmatch '/node_modules/' -and $full -notmatch '/\.git/'
+    }
+    if ($AllSourceFiles | Select-String -Pattern '"next"' -Quiet -ErrorAction SilentlyContinue) {
         Write-Host "[sync-task] Detected: web-frameworks/nextjs"
     }
-    if (Select-String -Pattern '"react"' -Include '*.tsx','*.ts','*.js' -Path . -Exclude @('node_modules/*', '.git/*') -ErrorAction SilentlyContinue) {
+    if ($AllSourceFiles | Select-String -Pattern '"react"' -Quiet -ErrorAction SilentlyContinue) {
         Write-Host "[sync-task] Detected: frontend/react"
     }
-    if (Select-String -Pattern '"express"' -Include '*.ts','*.js' -Path . -Exclude @('node_modules/*', '.git/*') -ErrorAction SilentlyContinue) {
+    if ($AllSourceFiles | Select-String -Pattern '"express"' -Quiet -ErrorAction SilentlyContinue) {
         Write-Host "[sync-task] Detected: api-rest/express"
     }
-    if (Select-String -Pattern '"@prisma/client"' -Include '*.ts','*.js' -Path . -Exclude @('node_modules/*', '.git/*') -ErrorAction SilentlyContinue) {
+    if ($AllSourceFiles | Select-String -Pattern '"@prisma/client"' -Quiet -ErrorAction SilentlyContinue) {
         Write-Host "[sync-task] Detected: database/prisma"
     }
-    if (Select-String -Pattern '"jest"' -Include '*.json' -Path . -Exclude @('node_modules/*', '.git/*') -ErrorAction SilentlyContinue) {
+    $JsonFiles = Get-ChildItem -Path $RepoRoot -Include '*.json' -Recurse -ErrorAction SilentlyContinue | Where-Object {
+        $full = $_.FullName -replace '\\','/'
+        $full -notmatch '/node_modules/' -and $full -notmatch '/\.git/'
+    }
+    if ($JsonFiles | Select-String -Pattern '"jest"' -Quiet -ErrorAction SilentlyContinue) {
         Write-Host "[sync-task] Detected: testing/jest"
     }
 } elseif (Test-Path "Cargo.toml") {
     Write-Host "[sync-task] Templates available: programming-languages/rust, devops-infrastructure"
-    if (Select-String -Pattern 'tokio' -Path Cargo.toml -ErrorAction SilentlyContinue) {
+    if (Select-String -Pattern 'tokio' -Path (Join-Path $RepoRoot 'Cargo.toml') -Quiet -ErrorAction SilentlyContinue) {
         Write-Host "[sync-task] Detected: tokio async runtime"
     }
-    if (Select-String -Pattern 'actix' -Path Cargo.toml -ErrorAction SilentlyContinue) {
+    if (Select-String -Pattern 'actix' -Path (Join-Path $RepoRoot 'Cargo.toml') -Quiet -ErrorAction SilentlyContinue) {
         Write-Host "[sync-task] Detected: actix-web framework"
     }
 } elseif ((Test-Path "pyproject.toml") -or (Test-Path "requirements.txt")) {
     Write-Host "[sync-task] Templates available: programming-languages/python, ai-specialists"
-    if ((Select-String -Pattern 'django' -Path pyproject.toml,requirements.txt -ErrorAction SilentlyContinue) -or
-        (Select-String -Pattern 'fastapi' -Path pyproject.toml,requirements.txt -ErrorAction SilentlyContinue)) {
+    $PyFiles = @()
+    if (Test-Path (Join-Path $RepoRoot 'pyproject.toml')) { $PyFiles += Join-Path $RepoRoot 'pyproject.toml' }
+    if (Test-Path (Join-Path $RepoRoot 'requirements.txt')) { $PyFiles += Join-Path $RepoRoot 'requirements.txt' }
+    if (($PyFiles | Select-String -Pattern 'django' -Quiet -ErrorAction SilentlyContinue) -or
+        ($PyFiles | Select-String -Pattern 'fastapi' -Quiet -ErrorAction SilentlyContinue)) {
         Write-Host "[sync-task] Detected: web framework (django/fastapi)"
     }
 } elseif (Test-Path "go.mod") {

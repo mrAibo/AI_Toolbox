@@ -188,13 +188,22 @@ if (-not (Get-Command rtk -ErrorAction SilentlyContinue)) {
     if (Get-Command cargo -ErrorAction SilentlyContinue) {
       Write-Host "  ✅ Installing: cargo install rtk"
       cargo install rtk
-      Write-Host "  ✅ rtk installed" -ForegroundColor Green
+      if ($LASTEXITCODE -eq 0) {
+        Write-Host "  [OK] rtk installed" -ForegroundColor Green
+      } else {
+        Write-Host "  [ERROR] rtk installation failed" -ForegroundColor Red
+      }
 
       $initRtk = Read-Host "  Configure rtk hooks for $PrimaryClient? [Y/n] "
       if ([string]::IsNullOrWhiteSpace($initRtk)) { $initRtk = "y" }
       if ($initRtk -match '^[Yy]$') {
         Write-Host "  ✅ Configuring hooks: rtk init -g"
         rtk init -g
+        if ($LASTEXITCODE -eq 0) {
+          Write-Host "  [OK] rtk hooks configured" -ForegroundColor Green
+        } else {
+          Write-Host "  [ERROR] rtk hook configuration failed" -ForegroundColor Red
+        }
       }
     } else {
       Write-Host "  [WARN]  cargo not found. Install Rust first: https://rustup.rs/" -ForegroundColor Yellow
@@ -223,7 +232,11 @@ if (-not (Get-Command bd.exe -ErrorAction SilentlyContinue)) {
     if (Get-Command go -ErrorAction SilentlyContinue) {
       Write-Host "  [INFO] Installing: go install github.com/steveyegge/beads@v0.63.3"
       go install github.com/steveyegge/beads@v0.63.3
-      Write-Host "  [INFO] Beads installed" -ForegroundColor Green
+      if ($LASTEXITCODE -eq 0) {
+        Write-Host "  [OK] Beads installed" -ForegroundColor Green
+      } else {
+        Write-Host "  [ERROR] Beads installation failed" -ForegroundColor Red
+      }
 
       Write-Host "  [INFO] Initializing: bd init"
       bd.exe init

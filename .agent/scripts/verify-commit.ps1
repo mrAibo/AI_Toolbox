@@ -1,7 +1,8 @@
 ﻿# AI Toolbox Commit Verification (POWERSHELL)
 # Runs lightweight checks on staged changes to preserve project quality.
 
-$RepoRoot = git rev-parse --show-toplevel
+$RepoRoot = git rev-parse --show-toplevel 2>$null
+if (-not $RepoRoot) { $RepoRoot = (Get-Location).Path }
 $Errors = 0
 
 # ---------------------------------------------------------------

@@ -12,9 +12,10 @@ if [ ! -f "$CONFIG_FILE" ]; then
 fi
 
 # Validate JSON and check required structure
+export CONFIG_FILE_PATH="$CONFIG_FILE"
 python3 -c "
-import json, sys
-with open('$CONFIG_FILE') as f:
+import json, sys, os
+with open(os.environ['CONFIG_FILE_PATH']) as f:
     data = json.load(f)
 if 'clients' not in data:
     print('  ERROR: missing required key: clients')

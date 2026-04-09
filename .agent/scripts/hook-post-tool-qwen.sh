@@ -4,7 +4,11 @@
 # Scans written files for secrets, credentials, or sensitive patterns.
 # Reads from stdin (Qwen JSON protocol), outputs decision JSON.
 
-INPUT=$(cat 2>/dev/null)
+if [ -t 0 ]; then
+    INPUT=""
+else
+    INPUT=$(cat 2>/dev/null)
+fi
 if [ -z "$INPUT" ]; then
     echo '{"decision":"allow","reason":"No input received"}'
     exit 0
@@ -59,15 +63,19 @@ if [ -f "$FILE_PATH" ]; then
 fi
 
 if [ -n "$SECRET_FOUND" ]; then
+    export SECRET_FILE_PATH="$FILE_PATH"
+    export SECRET_FOUND_RAW="$SECRET_FOUND"
     if command -v python3 &>/dev/null; then
         python3 -c "
-import json
+import json, os
+file_path = os.environ.get('SECRET_FILE_PATH', '')
+secret_found = os.environ.get('SECRET_FOUND_RAW', '')
 print(json.dumps({
     'decision': 'allow',
     'reason': 'Potential secrets detected',
     'hookSpecificOutput': {
         'hookEventName': 'PostToolUse',
-        'additionalContext': 'AI Toolbox Security: Potential secrets detected in ${FILE_PATH} (patterns: ${SECRET_FOUND}). Please verify these are not accidental credentials. If they are placeholders or test fixtures, add a comment explaining this.'
+        'additionalContext': 'AI Toolbox Security: Potential secrets detected in ' + file_path + ' (patterns: ' + secret_found + '). Please verify these are not accidental credentials. If they are placeholders or test fixtures, add a comment explaining this.'
     }
 }))
 "

@@ -46,7 +46,7 @@ try {
         $content = Get-Content $ADRFile -Raw -ErrorAction SilentlyContinue
         if ($content) {
             $lastADR = $content -split '(?=### ADR-)' | Select-Object -Last 2
-            if ($lastADR.Count -gt 1) {
+            if ($lastADR.Count -ge 1) {
                 $ContextParts += "### Latest Architecture Decision:`n$($lastADR[-1].Trim())"
             }
         }

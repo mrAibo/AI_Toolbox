@@ -4,7 +4,11 @@
 # Updates session memory files with current state.
 # Reads from stdin (Qwen JSON protocol), outputs decision JSON.
 
-INPUT=$(cat 2>/dev/null)
+if [ -t 0 ]; then
+    INPUT=""
+else
+    INPUT=$(cat 2>/dev/null)
+fi
 if [ -z "$INPUT" ]; then
     echo '{"decision":"allow","reason":"No input received"}'
     exit 0
