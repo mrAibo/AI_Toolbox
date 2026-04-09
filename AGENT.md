@@ -40,9 +40,10 @@ This is the **Definitive Boot Sequence**. All agents must follow this procedure 
      → Beads: [installed / not installed]
      → MCP: [configured / not configured]
    ```
-2. **Context Recovery:** Read `.agent/memory/architecture-decisions.md` and `.agent/memory/integration-contracts.md`.
-3. **Work-in-Progress Check:** Read `.agent/memory/session-handover.md` if it exists.
-4. **Task Synchronization:** Run `.agent/scripts/sync-task.sh` (or `.ps1` on Windows) to update `.agent/memory/current-task.md` with the latest state from the task tracker.
+2. **Memory Index:** Read `.agent/memory/memory-index.md` first — it provides an overview of all memory files. Load detail files only on demand.
+3. **Context Recovery:** Read `.agent/memory/architecture-decisions.md` (ADRs indexed in `adrs/`) and `.agent/memory/integration-contracts.md`.
+4. **Work-in-Progress Check:** Read `.agent/memory/session-handover.md` if it exists.
+5. **Task Synchronization:** Run `.agent/scripts/sync-task.sh` (or `.ps1` on Windows) to update `.agent/memory/current-task.md` with the latest state from the task tracker.
    ```bash
    # Unix/macOS
    bash .agent/scripts/sync-task.sh && cat .agent/memory/current-task.md
@@ -52,9 +53,9 @@ This is the **Definitive Boot Sequence**. All agents must follow this procedure 
    powershell -ExecutionPolicy Bypass -File .agent/scripts/sync-task.ps1
    Get-Content .agent/memory/current-task.md
    ```
-5. **Session Status Init:** If `.agent/memory/active-session.md` is empty or missing, initialize it with the template structure (created by bootstrap at `.agent/memory/active-session.md`).
-6. **Parallel Rules:** Read `.agent/rules/parallel-execution.md` to understand when parallel execution is required.
-7. **Summarization:** Briefly summarize the recovered context, current state, available tools, and the next planned task before continuing.
+6. **Session Status Init:** If `.agent/memory/active-session.md` is empty or missing, initialize it with the template structure (created by bootstrap at `.agent/memory/active-session.md`).
+7. **Parallel Rules:** Read `.agent/rules/parallel-execution.md` to understand when parallel execution is required.
+8. **Summarization:** Briefly summarize the recovered context, current state, available tools, and the next planned task before continuing.
 
 Purpose:
 - Restore architecture and integration context.

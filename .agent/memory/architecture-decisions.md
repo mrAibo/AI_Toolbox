@@ -1,11 +1,15 @@
 # Architecture Decision Records (ADRs)
 
-This file tracks major architectural decisions. Use the format from `../templates/adr-template.md`.
+This file indexes major architectural decisions. Each ADR is a separate file in `adrs/`.
 
-### ADR-0000: Use AI Toolbox for Repository Governance
-- Status: accepted
-- Date: 2026-04-03
-- Context: Need a standardized, agent-agnostic way to maintain project memory and rules.
-- Decision: Adopt AI Toolbox framework.
-- Consequences: All agents must follow AGENT.md; memory is stored in .agent/.
-- Rejected alternatives: Manual documentation, client-specific rules only.
+## Index
+
+| # | Title | Date | Status | File |
+|---|-------|------|--------|------|
+| 0000 | Use AI Toolbox for Repository Governance | 2026-04-03 | accepted | [adrs/0000-use-ai-toolbox.md](adrs/0000-use-ai-toolbox.md) |
+
+## Adding ADRs
+
+1. Create `adrs/NNNN-short-title.md` using the format from `../templates/adr-template.md`
+2. Add entry to this index
+3. Commit with message `docs: ADR-NNNN - short title`
