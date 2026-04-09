@@ -44,18 +44,10 @@ This is the **Definitive Boot Sequence**. All agents must follow this procedure 
 3. **Context Recovery:** Read `.agent/memory/architecture-decisions.md` (ADRs indexed in `adrs/`) and `.agent/memory/integration-contracts.md`.
 4. **Work-in-Progress Check:** Read `.agent/memory/session-handover.md` if it exists.
 5. **Task Synchronization:** Run `.agent/scripts/sync-task.sh` (or `.ps1` on Windows) to update `.agent/memory/current-task.md` with the latest state from the task tracker.
-   ```bash
-   # Unix/macOS
-   bash .agent/scripts/sync-task.sh && cat .agent/memory/current-task.md
-   ```
-   ```powershell
-   # Windows
-   powershell -ExecutionPolicy Bypass -File .agent/scripts/sync-task.ps1
-   Get-Content .agent/memory/current-task.md
-   ```
-6. **Session Status Init:** If `.agent/memory/active-session.md` is empty or missing, initialize it with the template structure (created by bootstrap at `.agent/memory/active-session.md`).
-7. **Parallel Rules:** Read `.agent/rules/parallel-execution.md` to understand when parallel execution is required.
-8. **Summarization:** Briefly summarize the recovered context, current state, available tools, and the next planned task before continuing.
+6. **Runbook:** Read `.agent/memory/runbook.md` if present (operational procedures).
+7. **Session Status Init:** If `.agent/memory/active-session.md` is empty or missing, initialize it with the template structure (created by bootstrap at `.agent/memory/active-session.md`).
+8. **Parallel Rules:** Read `.agent/rules/parallel-execution.md` to understand when parallel execution is required.
+9. **Summarization:** Briefly summarize the recovered context, current state, available tools, and the next planned task before continuing.
 
 Purpose:
 - Restore architecture and integration context.
@@ -288,7 +280,7 @@ The AI Toolbox builds on established open-source projects. **AI Toolbox is the p
 | Project | Role in AI Toolbox | How It's Used |
 |---------|-------------------|---------------|
 | **[rtk](https://github.com/rtk-ai/rtk)** | Token optimization (60-90% savings) | `cargo install --git https://github.com/rtk-ai/rtk --rev v0.35.0` + `rtk init -g` |
-| **[Beads](https://github.com/steveyegge/beads)** | Graph-based task tracking | `go install .../beads@latest` + `bd init` |
+| **[Beads](https://github.com/steveyegge/beads)** | Graph-based task tracking | `go install github.com/steveyegge/beads/cmd/bd@latest` + `bd init` |
 | **[Superpowers](https://github.com/obra/superpowers)** | **Methodology source** — TDD, brainstorming, debugging, code review, planning, worktrees | AI Toolbox `.agent/rules/` and `.agent/workflows/` are the **adapted versions** of Superpowers skills, translated for all platforms (not just Claude Code/Cursor) |
 | **[Template Bridge](https://github.com/maslennikov-ig/template-bridge)** | **Template source** — 413+ specialist agents in 26 categories | Access via `npx claude-code-templates@0.1.0 --agent {category}/{name}` (pin version; check npm for latest). AI Toolbox `/templates` command provides unified access |
 | **[MCP Servers](https://modelcontextprotocol.io/)** | External resources (docs, web, GitHub) | See [docs/mcp-guide.md](docs/mcp-guide.md) |

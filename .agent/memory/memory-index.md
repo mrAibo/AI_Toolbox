@@ -64,6 +64,8 @@ Quick reference to workflow files:
 2. Read `architecture-decisions.md` index (load individual ADRs on demand)
 3. Read `integration-contracts.md` (load on demand if doing API/integration work)
 4. Read `session-handover.md` for unfinished work
-5. Read `current-task.md` for active task
+5. Run sync-task to update `current-task.md`, then read it for active task
 6. Read `runbook.md` only when doing operational work
 7. Load rules/workflows referenced above only when needed
+
+> For the complete boot sequence including session initialization and parallel rules, see [AGENT.md](../../AGENT.md) section 2.

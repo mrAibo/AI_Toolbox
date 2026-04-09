@@ -36,7 +36,7 @@ cargo install --git https://github.com/rtk-ai/rtk
 rtk init -g  # Installs hooks for your AI client
 
 # Beads — task tracking (recommended)
-go install github.com/steveyegge/beads@latest
+go install github.com/steveyegge/beads/cmd/bd@latest
 bd init
 ```
 
@@ -83,7 +83,7 @@ bash .agent/scripts/bootstrap.sh  # Should skip all existing files
 | Problem | Solution |
 |---------|----------|
 | `bootstrap.sh: permission denied` | `chmod +x .agent/scripts/bootstrap.sh` |
-| `cargo install rtk` installs wrong tool | Use `cargo install --git https://github.com/rtk-ai/rtk` |
+| `cargo install rtk` installs wrong tool | Use `cargo install --git https://github.com/rtk-ai/rtk` (not `cargo install rtk`) |
 | `rtk: command not found` | Install Rust, then `cargo install --git https://github.com/rtk-ai/rtk` |
-| `bd: command not found` | Install Go, then `go install github.com/steveyegge/beads@latest` |
+| `bd: command not found` | Install Go, then `go install github.com/steveyegge/beads/cmd/bd@latest` |
 | AI doesn't read AGENT.md | Ensure your client's router file (CLAUDE.md, QWEN.md, etc.) references AGENT.md |

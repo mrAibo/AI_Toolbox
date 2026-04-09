@@ -70,6 +70,8 @@ chore(ci): add GitHub Actions workflow for validation
 
 ## Project Structure
 
+See [README.md](README.md) for the detailed project structure. The CONTRIBUTING tree below is a simplified overview:
+
 ```
 AI_Toolbox/
 ├── AGENT.md                    # Master protocol

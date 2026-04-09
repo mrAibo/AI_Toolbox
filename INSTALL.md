@@ -68,32 +68,13 @@ The AI Toolbox relies on specific terminal tools. You must verify their presence
 
 ### 3.3 Beads (Task Tracker)
 - Check if `bd` is installed: `bd version`
-- If missing, install based on your platform:
-
-  **Linux/macOS (via Go):**
+- If missing, install (all platforms, via Go):
   ```bash
-  go install github.com/steveyegge/beads@latest
+  go install github.com/steveyegge/beads/cmd/bd@latest
   ```
-
-  **Windows (via npm — recommended):**
-  ```powershell
-  npm install -g @beads/bd
-  ```
-  If the npm postinstall extraction fails (known issue on some Windows systems), install manually:
-  ```powershell
-  # 1. Download the ZIP
-  curl -L -o $env:TEMP\beads.zip https://github.com/gastownhall/beads/releases/download/v0.63.3/beads_0.63.3_windows_amd64.zip
-
-  # 2. Extract
-  Expand-Archive -Path $env:TEMP\beads.zip -DestinationPath $env:TEMP\beads_extracted -Force
-
-  # 3. Copy bd.exe to your PATH (adjust path as needed)
-  Copy-Item -Path "$env:TEMP\beads_extracted\bd.exe" -Destination "C:\Users\YOUR_USERNAME\AppData\Roaming\npm\bd.exe" -Force
-  ```
-
-  **Alternative (all platforms):** Download the latest release directly from https://github.com/steveyegge/beads/releases
-
-- If Go is NOT installed (Linux/macOS): Warn the user and point to https://go.dev/dl/
+  > **Note:** `steveyegge/beads` is the official repository. The `gastownhall` GitHub user is a fork that published the now-superseded npm package `@beads/bd` (see gastownhall/beads#1031). Use `steveyegge/beads` for all platforms.
+- **Alternative (all platforms):** Download the latest release directly from https://github.com/steveyegge/beads/releases
+- If Go is NOT installed: Warn the user and point to https://go.dev/dl/
 
 ## Step 4: Configure MCP Servers & Plugins
 If you are **Claude Code** (or can execute configuring scripts), attempt to install the following recommended MCP servers and plugins. If they require cloning a repository, clone them into a tools directory (e.g., `~/.mcp-servers/` or `%USERPROFILE%\.mcp-servers\`):

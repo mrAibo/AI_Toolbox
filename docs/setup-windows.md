@@ -35,29 +35,26 @@ This creates:
 ### 3. Install optional tools
 
 #### Prerequisites for Windows
-Rust benötigt einen C++ Linker. Wähle **eine** Option:
-- **VS Build Tools** (empfohlen, ~2-3 GB): https://visualstudio.microsoft.com/downloads/ → "Desktop development with C++"
-- **MinGW-w64** (leichter, ~200-400 MB): https://www.mingw-w64.org/downloads/
-- **GNU ABI** (minimal): Bei `rustup-init` Option `3)` wählen — funktioniert in den meisten Fällen
+Rust requires a C++ linker. Choose **one** option:
+- **VS Build Tools** (recommended, ~2-3 GB): https://visualstudio.microsoft.com/downloads/ → "Desktop development with C++"
+- **MinGW-w64** (lighter, ~200-400 MB): https://www.mingw-w64.org/downloads/
+- **GNU ABI** (minimal): During `rustup-init`, select option `3)` — works for most cases
 
-> **Tipp:** Nach der Installation eines Linkers **neues Terminal öffnen**, damit PATH-Änderungen wirksam werden.
+> **Tip:** After installing a linker, **open a new terminal** for PATH changes to take effect.
 
 ```powershell
-# rtk — Token-Optimierung (empfohlen)
-# Installiere Rust von https://rustup.rs/, dann:
-# ⚠️ WICHTIG: Nicht "cargo install rtk" — das ist ein anderes Projekt!
+# rtk — token optimization (recommended)
+# Install Rust from https://rustup.rs/, then:
+# ⚠️ IMPORTANT: Do NOT run "cargo install rtk" — that is a different project!
 cargo install --git https://github.com/rtk-ai/rtk
-rtk init -g  # Installiert Hooks (Windows: Fallback zu --claude-md)
+rtk init -g  # Installs hooks (Windows: fallback to --claude-md)
 
-# Beads — Task-Tracking (empfohlen)
-# Option A: npm (empfohlen für Windows)
-npm install -g @beads/bd
+# Beads — task tracking (recommended)
+# Install Go from https://go.dev/dl/, then:
+go install github.com/steveyegge/beads/cmd/bd@latest
 
-# Option B: Manuell falls npm fehlschlägt
-curl -L -o $env:TEMP\beads.zip https://github.com/steveyegge/beads/releases/download/v0.63.3/beads_0.63.3_windows_amd64.zip
-
-Expand-Archive -Path $env:TEMP\beads.zip -DestinationPath $env:TEMP\beads_extracted -Force
-Copy-Item -Path "$env:TEMP\beads_extracted\bd.exe" -Destination "$env:APPDATA\npm\bd.exe" -Force
+# Alternative: Manual download if go install is not available
+# Download from https://github.com/steveyegge/beads/releases, extract, and add bd.exe to PATH
 ```
 
 ### 4. Start your AI agent
@@ -117,11 +114,11 @@ Both bootstrap scripts produce equivalent output:
 | Problem | Solution |
 |---------|----------|
 | `ExecutionPolicy` error | `Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser` |
-| `rustup-init` fragt nach C++ Linker | Option `1)` (VS Build Tools) oder `3)` (GNU ABI) wählen |
-| `cargo install rtk` installiert falsches Tool | Verwende `cargo install --git https://github.com/rtk-ai/rtk` |
-| `rtk: command not found` | Rust installieren, dann `cargo install --git https://github.com/rtk-ai/rtk` |
-| `npm install -g @beads/bd` schlägt fehl | Manuelle Installation: ZIP herunterladen, extrahieren, `bd.exe` in PATH kopieren (siehe Schritt 3) |
-| `bd: command not found` | npm oder manuelle Installation (siehe Schritt 3). **Nicht** `go install` auf Windows verwenden |
+| `rustup-init` asks for C++ linker | Choose option `1)` (VS Build Tools) or `3)` (GNU ABI) |
+| `cargo install rtk` installs wrong tool | Use `cargo install --git https://github.com/rtk-ai/rtk` |
+| `rtk: command not found` | Install Rust first, then `cargo install --git https://github.com/rtk-ai/rtk` |
+| `npm install -g @beads/bd` fails | Beads no longer uses npm. Use `go install github.com/steveyegge/beads/cmd/bd@latest` instead |
+| `bd: command not found` | Install Go, then `go install github.com/steveyegge/beads/cmd/bd@latest`, or download from https://github.com/steveyegge/beads/releases |
 | AI doesn't read AGENT.md | Ensure your client's router file references AGENT.md |
 | Git hooks not running | On Windows, use `bootstrap.ps1` for `.bat` wrapper creation |
-| `rtk init -g` Warning "No hook installed" | Normal auf Windows — rtk verwendet `--claude-md` Modus als Fallback |
+| `rtk init -g` Warning "No hook installed" | Normal on Windows — rtk uses `--claude-md` mode as fallback |

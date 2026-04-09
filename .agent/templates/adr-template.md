@@ -1,3 +1,4 @@
+<!-- Replace XXXX with next sequential number (e.g., ADR-0001) -->
 ### ADR-XXXX: Short title
 
 - Status: proposed / accepted / replaced / deprecated
