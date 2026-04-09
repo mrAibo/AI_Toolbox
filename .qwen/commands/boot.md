@@ -8,22 +8,23 @@ Run the AI Toolbox boot sequence to initialize the session.
 
 ## What This Does
 
-1. Check environment (rtk, bd, MCP status)
-2. Read architecture decisions and integration contracts
-3. Read session handover from last session
-4. Run sync-task to update current task state
-5. Load available skills list
-6. Summarize recovered context
+1. Run bootstrap to ensure all router files and hooks exist
+2. Run sync-task to update task state from Beads
+3. Check environment (rtk, bd, MCP status)
+4. Load available skills list
+5. Summarize recovered context
 
 ## Execution
 
 ```powershell
 # Windows
+powershell -ExecutionPolicy Bypass -File .agent/scripts/bootstrap.ps1
 powershell -ExecutionPolicy Bypass -File .agent/scripts/sync-task.ps1
 ```
 
 ```bash
 # Unix/macOS
+bash .agent/scripts/bootstrap.sh
 bash .agent/scripts/sync-task.sh && cat .agent/memory/current-task.md
 ```
 

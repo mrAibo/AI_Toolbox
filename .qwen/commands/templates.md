@@ -6,6 +6,8 @@ description: Browse and install 413+ specialist agent templates from claude-code
 
 Browse and install specialist agents on demand from the Template Bridge project.
 
+**Note:** Requires internet access. Templates are served from npm — no local copy stored.
+
 ## Interactive Mode
 
 ```bash
@@ -17,6 +19,15 @@ npx claude-code-templates@latest
 ```bash
 npx claude-code-templates@latest --agent {category}/{name} --yes
 ```
+
+## Validate Access
+
+Before using, verify the package is reachable:
+```bash
+npx claude-code-templates@latest --help
+```
+
+If this fails, check your npm registry access or try with `--registry https://registry.npmjs.org`.
 
 ## Available Categories (26 total, 413+ agents)
 
