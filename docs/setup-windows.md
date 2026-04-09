@@ -55,6 +55,12 @@ npm install -g @beads/bd
 
 # Option B: Manuell falls npm fehlschlägt
 curl -L -o $env:TEMP\beads.zip https://github.com/gastownhall/beads/releases/download/v0.63.3/beads_0.63.3_windows_amd64.zip
+
+# Verify checksum (update hash when version changes)
+$ExpectedHash = "<SHA256>"  # Update from GitHub Releases page — verify with: certutil -hashfile $env:TEMP\beads.zip SHA256
+$ActualHash = (Get-FileHash $env:TEMP\beads.zip -Algorithm SHA256).Hash
+if ($ActualHash -ne $ExpectedHash) { throw "Checksum mismatch — download may be corrupted" }
+
 Expand-Archive -Path $env:TEMP\beads.zip -DestinationPath $env:TEMP\beads_extracted -Force
 Copy-Item -Path "$env:TEMP\beads_extracted\bd.exe" -Destination "$env:APPDATA\npm\bd.exe" -Force
 ```

@@ -51,7 +51,8 @@ The AI Toolbox is designed with security in mind, but users should follow these 
 2. **Review MCP configs** — ensure no credentials are hardcoded
 3. **Scope filesystem access** — restrict MCP filesystem access to project directory only
 4. **Audit hook scripts** — review `hook-pre-command` and `hook-stop` before using in production
-5. **Keep rtk updated** — `cargo install --git https://github.com/rtk-ai/rtk` to get the latest security fixes
+5. **Keep rtk updated** — `cargo install --git https://github.com/rtk-ai/rtk --rev v0.35.0` to get the latest security fixes (pin to a known-good commit; update after reviewing release notes)
+6. **Never use `git commit --no-verify`** — this flag bypasses all pre-commit hooks, including quality checks, security scans, and the `verify-commit` script. For mandatory enforcement, run all quality gates in a CI pipeline where `--no-verify` cannot be used to circumvent checks.
 
 ## MCP Security
 

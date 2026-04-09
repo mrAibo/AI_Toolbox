@@ -202,8 +202,8 @@ if ! command -v bd &> /dev/null; then
 
   if [[ "$install_beads" =~ ^[Yy]$ ]]; then
     if command -v go &> /dev/null; then
-      echo "  âœ… Installing: go install github.com/steveyegge/beads@latest"
-      go install github.com/steveyegge/beads@latest
+      echo "  âœ… Installing: go install github.com/steveyegge/beads@v0.63.3"
+      go install github.com/steveyegge/beads@v0.63.3
       echo "  âœ… Beads installed"
 
       echo "  âœ… Initializing: bd init"

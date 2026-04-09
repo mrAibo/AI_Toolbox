@@ -28,6 +28,13 @@ if [ -z "$FILE_PATH" ]; then
     exit 0
 fi
 
+# Path validation: only allow files within the repository
+REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
+case "$FILE_PATH" in
+  "$REPO_ROOT"/*) ;;
+  *) echo '{"decision":"allow","reason":"File outside repository"}' ; exit 0 ;;
+esac
+
 # Security patterns to scan for in written files
 SECRET_FOUND=""
 if [ -f "$FILE_PATH" ]; then

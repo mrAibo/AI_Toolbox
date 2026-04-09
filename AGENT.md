@@ -287,10 +287,10 @@ The AI Toolbox builds on established open-source projects. **AI Toolbox is the p
 
 | Project | Role in AI Toolbox | How It's Used |
 |---------|-------------------|---------------|
-| **[rtk](https://github.com/rtk-ai/rtk)** | Token optimization (60-90% savings) | `cargo install --git https://github.com/rtk-ai/rtk` + `rtk init -g` |
+| **[rtk](https://github.com/rtk-ai/rtk)** | Token optimization (60-90% savings) | `cargo install --git https://github.com/rtk-ai/rtk --rev v0.35.0` + `rtk init -g` |
 | **[Beads](https://github.com/steveyegge/beads)** | Graph-based task tracking | `go install .../beads@latest` + `bd init` |
 | **[Superpowers](https://github.com/obra/superpowers)** | **Methodology source** — TDD, brainstorming, debugging, code review, planning, worktrees | AI Toolbox `.agent/rules/` and `.agent/workflows/` are the **adapted versions** of Superpowers skills, translated for all platforms (not just Claude Code/Cursor) |
-| **[Template Bridge](https://github.com/maslennikov-ig/template-bridge)** | **Template source** — 413+ specialist agents in 26 categories | Access via `npx claude-code-templates@latest --agent {category}/{name}`. AI Toolbox `/templates` command provides unified access |
+| **[Template Bridge](https://github.com/maslennikov-ig/template-bridge)** | **Template source** — 413+ specialist agents in 26 categories | Access via `npx claude-code-templates@0.1.0 --agent {category}/{name}` (pin version; check npm for latest). AI Toolbox `/templates` command provides unified access |
 | **[MCP Servers](https://modelcontextprotocol.io/)** | External resources (docs, web, GitHub) | See [docs/mcp-guide.md](docs/mcp-guide.md) |
 
 ### Key Principle: No Duplication

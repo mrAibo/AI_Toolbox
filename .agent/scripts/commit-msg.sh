@@ -5,6 +5,13 @@
 
 REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
 COMMIT_MSG_FILE="$1"
+
+# Validate commit message file path is within .git directory
+case "$COMMIT_MSG_FILE" in
+  .git/*|.git-*) ;;
+  *) exit 0 ;;
+esac
+
 COMMIT_MSG="$(< "$COMMIT_MSG_FILE" 2>/dev/null)" || COMMIT_MSG=""
 ERRORS=0
 

@@ -221,8 +221,8 @@ if (-not (Get-Command bd.exe -ErrorAction SilentlyContinue)) {
 
   if ($installBeads -match '^[Yy]$') {
     if (Get-Command go -ErrorAction SilentlyContinue) {
-      Write-Host "  [INFO] Installing: go install github.com/steveyegge/beads@latest"
-      go install github.com/steveyegge/beads@latest
+      Write-Host "  [INFO] Installing: go install github.com/steveyegge/beads@v0.63.3"
+      go install github.com/steveyegge/beads@v0.63.3
       Write-Host "  [INFO] Beads installed" -ForegroundColor Green
 
       Write-Host "  [INFO] Initializing: bd init"

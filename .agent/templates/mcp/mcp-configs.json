@@ -2,12 +2,13 @@
   "_comment": "AI Toolbox MCP Configuration — Copy to your AI client's MCP config",
   "_usage": "Each server has a 'description' and 'args'. Install dependencies first (npm/npx).",
   "_compatibility": "Works with Claude Code (claude mcp add), Qwen Code, and other MCP-compatible clients.",
+  "_security": "All packages are pinned to specific versions for reproducible, auditable installs. Update pins after reviewing new releases.",
 
   "servers": {
     "context7": {
       "description": "Lazy-load up-to-date documentation and API references. Prevents the AI from using outdated knowledge.",
       "command": "npx",
-      "args": ["-y", "@upstash/context7-mcp"],
+      "args": ["-y", "@upstash/context7-mcp@1.2.0"],
       "env": {},
       "tier": "essential",
       "trust": "read-only"
@@ -16,7 +17,7 @@
     "sequential-thinking": {
       "description": "Structured step-by-step reasoning for complex debugging and logic problems. Prevents hallucination loops.",
       "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/server-sequential-thinking"],
+      "args": ["-y", "@modelcontextprotocol/server-sequential-thinking@0.1.0"],
       "env": {},
       "tier": "recommended",
       "trust": "read-only"
@@ -25,7 +26,7 @@
     "filesystem": {
       "description": "Controlled file system access. Restricts the AI to specific directories to prevent accidental damage.",
       "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/server-filesystem", "."],
+      "args": ["-y", "@modelcontextprotocol/server-filesystem@0.6.2", "."],
       "env": {},
       "tier": "optional",
       "trust": "read-write"
@@ -34,7 +35,7 @@
     "github": {
       "description": "Access GitHub repositories — read issues, PRs, and code. Requires GITHUB_TOKEN env variable.",
       "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/server-github"],
+      "args": ["-y", "@modelcontextprotocol/server-github@0.6.2"],
       "env": {
         "GITHUB_TOKEN": "${GITHUB_TOKEN}"
       },
@@ -45,7 +46,7 @@
     "memory": {
       "description": "Long-term memory for the AI. Stores and retrieves context across sessions (local SQLite-based).",
       "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/server-memory"],
+      "args": ["-y", "@modelcontextprotocol/server-memory@0.6.3"],
       "env": {},
       "tier": "optional",
       "trust": "read-write"
@@ -54,7 +55,7 @@
     "fetch": {
       "description": "Fetch web content into context. Useful for reading documentation URLs the user provides.",
       "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/server-fetch"],
+      "args": ["-y", "@modelcontextprotocol/server-fetch@0.4.0"],
       "env": {},
       "tier": "optional",
       "trust": "read-only"
