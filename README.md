@@ -101,10 +101,10 @@ AI_Toolbox/
 
 This workflow assumes the use of a few key tools to keep the AI disciplined:
 
-1. **[rtk (Rust Token Killer)](https://github.com/rtk-ai/rtk)**
-   A console proxy optimizer. Heavy commands (like `pytest`, `mvn test`, `npm run build`) and large logs must be read through `rtk`. It compresses errors and tracebacks by 60-90%, saving tokens and keeping the AI focused. **Setup:** `cargo install --git https://github.com/rtk-ai/rtk` + `rtk init -g`.
-2. **[Beads](https://github.com/steveyegge/beads)** (Recommended)
-   A local CLI task tracker. It moves the execution plan out of the AI's chat context and into a Git-backed graph. **Setup:** `go install github.com/steveyegge/beads@latest` + `bd init`.
+1. **[rtk (Rust Token Killer)](https://github.com/rtk-ai/rtk)** — **Optional but recommended**
+   A console proxy optimizer. Heavy commands (like `pytest`, `mvn test`, `npm run build`) and large logs must be read through `rtk`. It compresses errors and tracebacks by 60-90%, saving tokens and keeping the AI focused. **Without rtk:** AI Toolbox works normally but uses more tokens for heavy commands. **Setup:** `cargo install --git https://github.com/rtk-ai/rtk` + `rtk init -g`.
+2. **[Beads](https://github.com/steveyegge/beads)** — **Optional but recommended**
+   A local CLI task tracker. It moves the execution plan out of the AI's chat context and into a Git-backed graph. **Without Beads:** Task tracking falls back to manual `.agent/memory/current-task.md` edits. All workflows still function. **Setup:** `go install github.com/steveyegge/beads@latest` + `bd init`.
 3. **[Superpowers](https://github.com/obra/superpowers)** — **Methodology Source**
    The original source for TDD, brainstorming, debugging, code review, and planning skills. AI Toolbox `.agent/rules/` and `.agent/workflows/` are the **platform-universal adaptations** of these skills — no separate install needed. Works with any AI client.
 4. **[Template Bridge](https://github.com/maslennikov-ig/template-bridge)** — **Template Source**
