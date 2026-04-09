@@ -12,14 +12,14 @@ This project uses the **AI Toolbox** workflow framework. Read this file carefull
 3. **HANDOVER:** Update `.agent/memory/session-handover.md` before finishing your session.
 
 ## 1. Project Overview & Purpose
-* **Primary Goal:** [Describe your project's main purpose here]
+* **Primary Goal:** A universal terminal AI workflow framework
 * **Workflow Standard:** This project adheres to the AI Toolbox development lifecycle.
 
 ## 2. Core Technologies & Stack
 * **Workflow Engine:** AI Toolbox (AGENT.md)
 * **Task Tracker:** Beads (bd)
 * **Execution Wrapper:** RTK (Token-Safe Execution)
-* **Languages/Frameworks:** [List your project's languages here, e.g. TypeScript, Python]
+* **Languages/Frameworks:** Shell, PowerShell, Markdown, JSON
 
 ## 3. Architectural Patterns
 * **Memory Management:** Repository-based project memory in `.agent/memory/`.
@@ -27,7 +27,7 @@ This project uses the **AI Toolbox** workflow framework. Read this file carefull
 
 ## 4. Coding Conventions & Style Guide
 * **Workflow Rule:** Follow the [AGENT.md](AGENT.md) Boot Sequence.
-* **Naming:** [Inferred: Standard kebab-case for files, camelCase for variables]
+* **Naming:** Standard kebab-case for files, camelCase for variables
 
 ## 5. Key Files & Entrypoints
 * **Main Contract:** [AGENT.md](AGENT.md)

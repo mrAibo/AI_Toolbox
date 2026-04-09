@@ -33,7 +33,8 @@ Intercepts shell commands, compresses output by 60-90%, and feeds only the essen
 ### Install (1 command)
 
 ```bash
-cargo install rtk
+# ⚠️ IMPORTANT: Use --git flag! The crates.io "rtk" is a different project (Rust Type Kit).
+cargo install --git https://github.com/rtk-ai/rtk
 ```
 
 ### Setup (1 command)
@@ -258,7 +259,7 @@ For most users, this is enough:
 
 ```bash
 # 1. Install core tools
-cargo install rtk
+cargo install --git https://github.com/rtk-ai/rtk
 go install github.com/steveyegge/beads@latest
 
 # 2. Setup

@@ -59,9 +59,15 @@ The AI analyzes the request:
 
 ---
 
+## Step 4: ISOLATE (Skipped)
+
+*(This is a single-endpoint feature in an existing codebase — no isolation via git worktrees needed. Step evaluated and skipped as unnecessary.)*
+
+---
+
 ## Step 5: IMPLEMENT (TDD → .agent/rules/tdd-rules.md)
 
-*(Steps 1-4 covered earlier: TASK, BRAINSTORM, PLAN, ISOLATE skipped — not needed for this example)*
+*(Steps 1-4 covered earlier: TASK, BRAINSTORM, PLAN, ISOLATE skipped)*
 
 ### Subtask 1: Define User repository interface
 

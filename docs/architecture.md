@@ -48,7 +48,7 @@ This document provides a visual overview of how all components work together.
 │ testing-rules │ │  workflow.md   │ │                          │
 │ stack-rules   │ │ bug-fix.md     │ │ hook-pre-command.sh/.ps1 │
 │ tdd-rules     │ │ code-review.md │ │ hook-stop.sh/.ps1        │
-│ mcp-rules     │ │ branch-finish  │ │ verify-commit.sh/.ps1    │
+│ mcp-rules     │ │ branch-finish.md│ │ verify-commit.sh/.ps1    │
 │ status-report │ │ multi-agent.md │ │ sync-task.sh/.ps1        │
 │ template-     │ │ use-template.md│ │                          │
 │  usage.md     │ │ adr.md         │ │                          │

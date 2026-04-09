@@ -51,12 +51,19 @@ Quick reference to workflow files:
 | [code-review.md](../workflows/code-review.md) | Pre-merge review checklist |
 | [branch-finish.md](../workflows/branch-finish.md) | Branch completion steps |
 | [multi-agent.md](../workflows/multi-agent.md) | Parallel agent orchestration |
+| [use-template.md](../workflows/use-template.md) | Template selection and adaptation |
+| [adr.md](../workflows/adr.md) | Architecture Decision Record creation |
+| [plan.md](../workflows/plan.md) | Planning mode workflow |
+| [start.md](../workflows/start.md) | Session start routine |
+| [sync.md](../workflows/sync.md) | Task sync routine |
+| [handover.md](../workflows/handover.md) | Session wrap-up and handover |
 
 ## Boot Sequence
 
 1. Read **this file** (memory-index.md)
-2. Read `session-handover.md` for unfinished work
-3. Read `current-task.md` for active task
-4. Read `architecture-decisions.md` index (load individual ADRs on demand)
-5. Read `integration-contracts.md` only if doing API/integration work
-6. Load rules/workflows referenced above only when needed
+2. Read `architecture-decisions.md` index (load individual ADRs on demand)
+3. Read `integration-contracts.md` (load on demand if doing API/integration work)
+4. Read `session-handover.md` for unfinished work
+5. Read `current-task.md` for active task
+6. Read `runbook.md` only when doing operational work
+7. Load rules/workflows referenced above only when needed

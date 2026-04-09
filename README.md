@@ -60,7 +60,13 @@ AI_Toolbox/
 │   │   ├── tool-integrations.md       # How rtk, Beads, Superpowers work together
 │   │   ├── tdd-rules.md               # Mandatory RED-GREEN-REFACTOR cycle
 │   │   ├── template-usage.md          # When to use 413+ specialist templates
-│   │   └── status-reporting.md        # When/how the agent reports progress
+│   │   ├── status-reporting.md        # When/how the agent reports progress
+│   │   ├── parallel-execution.md      # When and how to parallelize operations
+│   │   ├── receiving-code-review.md   # Anti-sycophancy, verify before implementing
+│   │   ├── root-cause-tracing.md      # Backward tracing through call stack
+│   │   ├── defense-in-depth.md        # Multi-layer post-fix validation
+│   │   ├── condition-based-waiting.md # Condition polling instead of timeouts
+│   │   └── testing-anti-patterns.md   # Common testing mistakes
 │   │
 │   ├── scripts/                  # Automation & Hooks
 │   │   ├── bootstrap.sh / .ps1        # Initial repo setup

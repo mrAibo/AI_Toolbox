@@ -36,15 +36,17 @@ Adhere to these **Critical 3 Session Rules**:
 
 ## 9-Step Workflow Quick Reference
 
+> **Note:** Entries prefixed with `superpowers:` are **skill names** from the [Superpowers methodology](https://github.com/obra/superpowers), not CLI commands. They indicate which skill's guidance to follow. `bd` commands are actual Beads CLI commands.
+
 1. **EPIC** → `bd create -t epic "Goal"`
-2. **BRAINSTORM** → `superpowers:brainstorming` (design before code)
-3. **PLAN** → `superpowers:writing-plans` (2-5 min tasks)
+2. **BRAINSTORM** → follow *superpowers:brainstorming* skill (design before code)
+3. **PLAN** → follow *superpowers:writing-plans* skill (2-5 min tasks)
 4. **SUB-TASKS** → `bd create` for each + `bd dep add`
-5. **ISOLATE** → `superpowers:using-git-worktrees`
+5. **ISOLATE** → follow *superpowers:using-git-worktrees* skill
 6. **IMPLEMENT** → `bd ready` → pick → TDD (RED → GREEN → REFACTOR)
-7. **REVIEW** → `superpowers:requesting-code-review`
-8. **VERIFY** → `superpowers:verification-before-completion`
-9. **FINISH** → `superpowers:finishing-a-development-branch` → `bd close`
+7. **REVIEW** → follow *superpowers:requesting-code-review* skill
+8. **VERIFY** → follow *superpowers:verification-before-completion* skill
+9. **FINISH** → follow *superpowers:finishing-a-development-branch* skill → `bd close`
 
 ### 4 Hard Rules
 - No production code without a failing test first

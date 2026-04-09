@@ -199,4 +199,4 @@ Then, output a message to the user:
 >
 > 💡 **Tip:** If you are using Antigravity, you can now use native workflows like `/start`, `/sync`, and `/handover`!
 >
-> 💡 **Tip:** If you are using Qwen Code, start with `qwen --experimental-hooks` for automatic hook execution. 8 Sub-Agents are available for parallel task delegation."
+> 💡 **Tip:** If you are using Qwen Code, hooks are enabled automatically when `.qwen/settings.json` contains hook configuration. 8 Sub-Agents are available for parallel task delegation."

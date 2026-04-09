@@ -262,7 +262,7 @@ Toolbox — это не один инструмент, а координиров
 
 | Инструмент | Решает | Установка |
 |------------|--------|-----------|
-| [rtk](https://github.com/rtk-ai/rtk) | Сжатие вывода (60-90% экономии токенов) | `cargo install rtk` + `rtk init -g` |
+| [rtk](https://github.com/rtk-ai/rtk) | Сжатие вывода (60-90% экономии токенов) | `cargo install --git https://github.com/rtk-ai/rtk` + `rtk init -g` |
 | [Beads](https://github.com/steveyegge/beads) | Трекинг задач вне контекста чата | `go install github.com/steveyegge/beads@latest` + `bd init` |
 | [Superpowers](https://github.com/obra/superpowers) | Инженерная дисциплина (TDD, планирование, ревью) | Встроено в `.agent/rules/` — установка не нужна |
 | [Template Bridge](https://github.com/maslennikov-ig/template-bridge) | 413+ экспертных шаблонов для специализированных задач | Claude Code plugin или `npx` |
@@ -519,7 +519,7 @@ powershell -ExecutionPolicy Bypass -File .agent/scripts/setup.ps1
 1. **Найдёт всех установленных ИИ-клиентов** — Claude Code, Qwen Code, Gemini CLI, Aider, Cursor, Cline, Windsurf
 2. **Запустит bootstrap** — создаст `.agent/memory/`, `.agent/rules/`, router-файлы
 3. **Определит стек проекта** — Node.js, Rust, Python, Go, Java
-4. **Предложит установить rtk** — оптимизатор вывода (`cargo install rtk`)
+4. **Предложит установить rtk** — оптимизатор вывода (`cargo install --git https://github.com/rtk-ai/rtk`, ⚠️ не `cargo install rtk` — это другой проект)
 5. **Предложит установить Beads** — трекер задач (`go install`)
 6. **Настроит MCP-серверы** — по выбранному профилю
 7. **Зарегистрирует хуки** — для каждого обнаруженного клиента

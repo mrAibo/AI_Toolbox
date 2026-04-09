@@ -65,7 +65,7 @@ claude mcp add github npx -y @modelcontextprotocol/server-github
 claude mcp add memory npx -y @modelcontextprotocol/server-memory
 ```
 
-### Step 2b: Install via Qwen Code
+### Step 3: Install via Qwen Code
 
 Add to your Qwen Code MCP configuration:
 
@@ -84,7 +84,7 @@ Add to your Qwen Code MCP configuration:
 }
 ```
 
-### Step 2c: Install via Cursor
+### Step 4: Install via Cursor
 
 Copy the config from `.agent/templates/mcp/mcp-cursor.json` to your `.cursor/settings.json`:
 
@@ -99,20 +99,20 @@ Copy the config from `.agent/templates/mcp/mcp-cursor.json` to your `.cursor/set
 }
 ```
 
-### Step 2d: Install via RooCode / Cline
+### Step 5: Install via RooCode / Cline
 
 Copy the config from `.agent/templates/mcp/mcp-clinerules.json` to your Cline MCP settings.
 
-### Step 2e: Install via Windsurf
+### Step 6: Install via Windsurf
 
 Copy the config from `.agent/templates/mcp/mcp-windsurf.json` to your Windsurf MCP settings.
 
-### Step 2f: Install via Gemini CLI
+### Step 7: Install via Gemini CLI
 
 Copy the config from `.agent/templates/mcp/mcp-gemini.json` to your Gemini CLI MCP config.
 Gemini CLI is Basic Tier — only minimal profile (context7 + sequential-thinking) is recommended.
 
-### Step 2g: Install via Aider
+### Step 8: Install via Aider
 
 Add to your `.aider.conf.yml`:
 
@@ -126,7 +126,7 @@ mcp:
     args: ["-y", "@modelcontextprotocol/server-sequential-thinking"]
 ```
 
-### Step 3: Verify
+### Step 9: Verify
 
 Start your AI client and ask: *"List your available MCP servers and their capabilities."*
 

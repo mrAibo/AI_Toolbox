@@ -84,7 +84,7 @@ You now have:
 - ✅ TDD enforcement (RED-GREEN-REFACTOR)
 - ✅ Task tracking (if you installed Beads)
 - ✅ Token optimization (if you installed rtk)
-- ✅ **Automatic hooks** (if using Qwen Code with `--experimental-hooks`)
+- ✅ **Automatic hooks** (if using Qwen Code — hooks auto-enable when `.qwen/settings.json` contains hook configuration)
 - ✅ **8 Sub-Agents** for parallel work (Qwen Code: reviewer, tester, frontend, backend, security, performance, documenter, handover)
 
 ---
