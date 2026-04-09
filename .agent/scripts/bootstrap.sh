@@ -875,4 +875,26 @@ if command -v codex &>/dev/null || [ -d "$CODEX_SETTINGS" ]; then
     fi
 fi
 
+# Configure OpenCode CLI if opencode is available
+if command -v opencode &>/dev/null || [ -f "opencode.json" ] || [ -f "opencode.jsonc" ]; then
+    # Create opencode.json if not present
+    if [ ! -f "opencode.json" ] && [ ! -f "opencode.jsonc" ]; then
+        if [ -f ".agent/templates/clients/opencode-config.json" ]; then
+            cp .agent/templates/clients/opencode-config.json opencode.json
+            echo "[bootstrap] Created opencode.json with AI Toolbox configuration"
+        else
+            echo "[bootstrap] OpenCode detected but opencode-config.json template not found"
+        fi
+    else
+        echo "[bootstrap] opencode.json already exists — skipping config creation"
+    fi
+    # Create OPENCODERULES.md if not present
+    if [ ! -f "OPENCODERULES.md" ]; then
+        if [ -f ".agent/templates/clients/OPENCODERULES.md" ]; then
+            cp .agent/templates/clients/OPENCODERULES.md OPENCODERULES.md
+            echo "[bootstrap] Created OPENCODERULES.md (OpenCode router file)"
+        fi
+    fi
+fi
+
 echo "[bootstrap] structure ready"

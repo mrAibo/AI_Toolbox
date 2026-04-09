@@ -1,0 +1,63 @@
+{
+  "_comment": "AI Toolbox Configuration for OpenCode CLI — copy to <repo>/opencode.json",
+  "_docs": "https://opencode.ai/docs",
+
+  "mcp": {
+    "context7": {
+      "command": "npx",
+      "args": ["-y", "@upstash/context7-mcp@1.2.0"]
+    },
+    "sequential-thinking": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-sequential-thinking@0.1.0"]
+    },
+    "filesystem": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-filesystem@0.6.2", "./src", "./docs", "./examples", ".agent/rules", ".agent/workflows"]
+    },
+    "fetch": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-fetch@0.4.0"]
+    }
+  },
+
+  "commands": {
+    "boot": {
+      "template": "Run the AI Toolbox boot sequence: check environment (.agent/), read memory files (memory-index.md, architecture-decisions.md, session-handover.md), sync task state, and report toolbox status (rtk, Beads, MCP).",
+      "description": "Boot AI Toolbox and recover session context"
+    },
+    "sync": {
+      "template": "Run .agent/scripts/sync-task.sh (or .ps1 on Windows) to sync task state from Beads/task tracker to .agent/memory/current-task.md. Report the current task state.",
+      "description": "Sync task state from tracker"
+    },
+    "handover": {
+      "template": "Consolidate session memory: update .agent/memory/session-handover.md with completed work, changed files, test results, current task status, next recommended step, and any blockers. Run .agent/scripts/hook-stop.sh (or .ps1) if available.",
+      "description": "Create session handover for next session"
+    },
+    "templates": {
+      "template": "Browse and install specialist agents from the Template Bridge project (413+ templates in 26 categories). Use `npx claude-code-templates@latest` to browse interactively or `npx claude-code-templates@latest --agent {category}/{name} --yes` to install directly. Categories: ai-specialists, api-graphql, api-rest, blockchain-web3, database, devops-infrastructure, mobile, programming-languages, security, ui-analysis, and 16 more.",
+      "description": "Browse 413+ specialist agent templates"
+    }
+  },
+
+  "agents": {
+    "ai-toolbox-reviewer": {
+      "mode": "subagent",
+      "description": "Code review specialist. Use PROACTIVELY when completing tasks, implementing features, or before merging."
+    },
+    "ai-toolbox-tester": {
+      "mode": "subagent",
+      "description": "TDD & Testing specialist. Use PROACTIVELY when running tests, verifying changes, or before claiming any work complete."
+    },
+    "ai-toolbox-security": {
+      "mode": "subagent",
+      "description": "Security auditor. Use PROACTIVELY when code touches auth, secrets, permissions, or external APIs."
+    }
+  },
+
+  "permission": {
+    "edit": "ask",
+    "bash": "ask",
+    "web_fetch": "allow"
+  }
+}

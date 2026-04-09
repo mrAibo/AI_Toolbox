@@ -977,5 +977,26 @@ if ((Get-Command codex -ErrorAction SilentlyContinue) -or (Test-Path $CodexSetti
     }
 }
 
+# Configure OpenCode CLI if opencode is available
+if ((Get-Command opencode -ErrorAction SilentlyContinue) -or (Test-Path "opencode.json") -or (Test-Path "opencode.jsonc")) {
+    if (-not (Test-Path "opencode.json") -and -not (Test-Path "opencode.jsonc")) {
+        if (Test-Path ".agent/templates/clients/opencode-config.json") {
+            Copy-Item -Path ".agent/templates/clients/opencode-config.json" -Destination "opencode.json"
+            Write-Host "[bootstrap] Created opencode.json with AI Toolbox configuration"
+        } else {
+            Write-Host "[bootstrap] OpenCode detected but opencode-config.json template not found"
+        }
+    } else {
+        Write-Host "[bootstrap] opencode.json already exists — skipping config creation"
+    }
+    # Create OPENCODERULES.md if not present
+    if (-not (Test-Path "OPENCODERULES.md")) {
+        if (Test-Path ".agent/templates/clients/OPENCODERULES.md") {
+            Copy-Item -Path ".agent/templates/clients/OPENCODERULES.md" -Destination "OPENCODERULES.md"
+            Write-Host "[bootstrap] Created OPENCODERULES.md (OpenCode router file)"
+        }
+    }
+}
+
 Write-Host "[bootstrap] structure ready"
 
