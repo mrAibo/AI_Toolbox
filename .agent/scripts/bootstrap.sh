@@ -844,4 +844,35 @@ QWENEOF
     fi
 fi
 
+# Configure OpenAI Codex CLI hooks if codex is available
+CODEX_SETTINGS=".codex"
+if command -v codex &>/dev/null || [ -d "$CODEX_SETTINGS" ]; then
+    mkdir -p .codex
+    if [ ! -f ".codex/hooks.json" ]; then
+        if [ -f ".agent/templates/clients/.codex-hooks.json" ]; then
+            cp .agent/templates/clients/.codex-hooks.json .codex/hooks.json
+            echo "[bootstrap] Created .codex/hooks.json with AI Toolbox hooks"
+        else
+            echo "[bootstrap] Codex detected but .codex-hooks.json template not found"
+        fi
+    else
+        echo "[bootstrap] .codex/hooks.json already exists — skipping hook creation"
+    fi
+    if [ ! -f ".codex/config.toml" ]; then
+        if [ -f ".agent/templates/clients/.codex-config.toml" ]; then
+            cp .agent/templates/clients/.codex-config.toml .codex/config.toml
+            echo "[bootstrap] Created .codex/config.toml with AI Toolbox config"
+        fi
+    else
+        echo "[bootstrap] .codex/config.toml already exists — skipping config creation"
+    fi
+    # Create CODERULES.md if not present (Codex router file)
+    if [ ! -f "CODERULES.md" ]; then
+        if [ -f ".agent/templates/clients/CODERULES.md" ]; then
+            cp .agent/templates/clients/CODERULES.md CODERULES.md
+            echo "[bootstrap] Created CODERULES.md (Codex router file)"
+        fi
+    fi
+fi
+
 echo "[bootstrap] structure ready"

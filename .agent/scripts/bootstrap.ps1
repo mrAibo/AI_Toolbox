@@ -946,5 +946,36 @@ if ((Get-Command qwen -ErrorAction SilentlyContinue) -or (Test-Path ".qwen")) {
     }
 }
 
+# Configure OpenAI Codex CLI hooks if codex is available
+$CodexSettings = ".codex"
+if ((Get-Command codex -ErrorAction SilentlyContinue) -or (Test-Path $CodexSettings)) {
+    New-Item -ItemType Directory -Force -Path ".codex" | Out-Null
+    if (-not (Test-Path ".codex/hooks.json")) {
+        if (Test-Path ".agent/templates/clients/.codex-hooks.json") {
+            Copy-Item -Path ".agent/templates/clients/.codex-hooks.json" -Destination ".codex/hooks.json"
+            Write-Host "[bootstrap] Created .codex/hooks.json with AI Toolbox hooks"
+        } else {
+            Write-Host "[bootstrap] Codex detected but .codex-hooks.json template not found"
+        }
+    } else {
+        Write-Host "[bootstrap] .codex/hooks.json already exists — skipping hook creation"
+    }
+    if (-not (Test-Path ".codex/config.toml")) {
+        if (Test-Path ".agent/templates/clients/.codex-config.toml") {
+            Copy-Item -Path ".agent/templates/clients/.codex-config.toml" -Destination ".codex/config.toml"
+            Write-Host "[bootstrap] Created .codex/config.toml with AI Toolbox config"
+        }
+    } else {
+        Write-Host "[bootstrap] .codex/config.toml already exists — skipping config creation"
+    }
+    # Create CODERULES.md if not present (Codex router file)
+    if (-not (Test-Path "CODERULES.md")) {
+        if (Test-Path ".agent/templates/clients/CODERULES.md") {
+            Copy-Item -Path ".agent/templates/clients/CODERULES.md" -Destination "CODERULES.md"
+            Write-Host "[bootstrap] Created CODERULES.md (Codex router file)"
+        }
+    }
+}
+
 Write-Host "[bootstrap] structure ready"
 

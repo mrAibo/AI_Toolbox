@@ -1,0 +1,50 @@
+{
+  "_comment": "AI Toolbox Hooks for OpenAI Codex CLI. Place this file at <repo>/.codex/hooks.json",
+  "_activation": "Set [features] codex_hooks = true in ~/.codex/config.toml or .codex/config.toml",
+  "hooks": {
+    "SessionStart": [{
+      "matcher": "",
+      "hooks": [
+        {
+          "type": "command",
+          "command": "bash .agent/scripts/sync-task.sh",
+          "statusMessage": "AI Toolbox: Syncing task state...",
+          "timeout": 15
+        }
+      ]
+    }],
+    "PreToolUse": [{
+      "matcher": "Bash",
+      "hooks": [
+        {
+          "type": "command",
+          "command": "bash .agent/scripts/hook-pre-command-qwen.sh",
+          "statusMessage": "AI Toolbox: Validating command...",
+          "timeout": 10
+        }
+      ]
+    }],
+    "PostToolUse": [{
+      "matcher": "Bash",
+      "hooks": [
+        {
+          "type": "command",
+          "command": "bash .agent/scripts/hook-post-tool-qwen.sh",
+          "statusMessage": "AI Toolbox: Scanning for secrets...",
+          "timeout": 10
+        }
+      ]
+    }],
+    "Stop": [{
+      "matcher": "",
+      "hooks": [
+        {
+          "type": "command",
+          "command": "bash .agent/scripts/hook-stop-qwen.sh",
+          "statusMessage": "AI Toolbox: Consolidating memory...",
+          "timeout": 15
+        }
+      ]
+    }]
+  }
+}

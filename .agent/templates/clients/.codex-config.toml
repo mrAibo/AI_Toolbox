@@ -1,0 +1,32 @@
+# AI Toolbox Configuration for OpenAI Codex CLI
+# Place this file at <repo>/.codex/config.toml
+
+[features]
+codex_hooks = true
+skills = true
+
+# Model Configuration
+[model]
+provider = "openai"
+model = "o3"
+
+# Sandbox & Approval
+approval_policy = "on-request"
+sandbox_mode = "workspace-write"
+
+# MCP Servers (using AI Toolbox recommended servers)
+[mcp_servers.context7]
+command = "npx"
+args = ["-y", "@upstash/context7-mcp@1.2.0"]
+
+[mcp_servers.sequential_thinking]
+command = "npx"
+args = ["-y", "@modelcontextprotocol/server-sequential-thinking@0.1.0"]
+
+[mcp_servers.filesystem]
+command = "npx"
+args = ["-y", "@modelcontextprotocol/server-filesystem@0.6.2", "./src", "./docs", "./examples", ".agent/rules", ".agent/workflows"]
+
+[mcp_servers.fetch]
+command = "npx"
+args = ["-y", "@modelcontextprotocol/server-fetch@0.4.0"]
