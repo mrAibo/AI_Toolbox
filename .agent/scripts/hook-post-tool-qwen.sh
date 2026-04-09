@@ -28,10 +28,12 @@ if [ -z "$FILE_PATH" ]; then
     exit 0
 fi
 
-# Path validation: only allow files within the repository
+# Path validation: only allow files within the repository (resolved symlinks)
 REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
-case "$FILE_PATH" in
-  "$REPO_ROOT"/*) ;;
+RESOLVED=$(realpath -m -- "$FILE_PATH" 2>/dev/null || echo "")
+RESOLVED_ROOT=$(realpath -m -- "$REPO_ROOT" 2>/dev/null || echo "")
+case "$RESOLVED" in
+  "$RESOLVED_ROOT"/*) ;;
   *) echo '{"decision":"allow","reason":"File outside repository"}' ; exit 0 ;;
 esac
 

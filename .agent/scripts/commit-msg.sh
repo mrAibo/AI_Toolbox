@@ -6,9 +6,10 @@
 REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
 COMMIT_MSG_FILE="$1"
 
-# Validate commit message file path is within .git directory
-case "$COMMIT_MSG_FILE" in
-  .git/*|.git-*) ;;
+# Validate commit message file path is within .git directory (resolved symlinks)
+RESOLVED=$(realpath -m -- "$COMMIT_MSG_FILE" 2>/dev/null || echo "")
+case "$RESOLVED" in
+  */.git/COMMIT_EDITMSG|.git/COMMIT_EDITMSG) ;;
   *) exit 0 ;;
 esac
 

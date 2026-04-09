@@ -26,7 +26,7 @@
     "filesystem": {
       "description": "Controlled file system access. Restricts the AI to specific directories to prevent accidental damage.",
       "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/server-filesystem@0.6.2", "."],
+      "args": ["-y", "@modelcontextprotocol/server-filesystem@0.6.2", "./src", "./docs", "./examples", ".agent/rules", ".agent/workflows"],
       "env": {},
       "tier": "optional",
       "trust": "read-write"
