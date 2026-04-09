@@ -3,6 +3,7 @@
 
 $RepoRoot = git rev-parse --show-toplevel 2>$null
 if (-not $RepoRoot) { $RepoRoot = (Get-Location).Path }
+$RepoRootResolved = [System.IO.Path]::GetFullPath($RepoRoot)
 $Errors = 0
 
 # ---------------------------------------------------------------
@@ -20,6 +21,8 @@ foreach ($File in $RouterFiles) {
     # Only check if this file is in the staged changes
     if ($StagedFiles -contains $File) {
         $FullPath = Join-Path $RepoRoot $File
+    $PathResolved = [System.IO.Path]::GetFullPath($FullPath)
+    if (-not $PathResolved.StartsWith($RepoRootResolved)) { continue }
         if (Test-Path $FullPath) {
             $Content = Get-Content $FullPath -Raw
             if ($Content -notmatch "-- Tier:") {
@@ -36,9 +39,10 @@ foreach ($File in $RouterFiles) {
 # If architecture-decisions.md is non-empty, it should have ADR entries.
 # ---------------------------------------------------------------
 $ADRFile = Join-Path $RepoRoot ".agent/memory/architecture-decisions.md"
+$ADRFileResolved = [System.IO.Path]::GetFullPath($ADRFile)
 
-if ((Test-Path $ADRFile) -and ((Get-Item $ADRFile).Length -gt 0)) {
-    $Content = Get-Content $ADRFile -Raw
+if ((Test-Path $ADRFileResolved) -and ((Get-Item $ADRFileResolved).Length -gt 0)) {
+    $Content = Get-Content $ADRFileResolved -Raw
     if ($Content -notmatch "(?m)^### ADR-") {
         Write-Host "[WARN] AI Toolbox Note: architecture-decisions.md exists but contains no ADR entries."
         Write-Host "   Use the '### ADR-XXXX' format to document architectural decisions."
@@ -54,6 +58,8 @@ $StagedMD = $StagedFiles | Where-Object { $_ -match '\.md$' }
 
 foreach ($File in $StagedMD) {
     $FullPath = Join-Path $RepoRoot $File
+    $PathResolved = [System.IO.Path]::GetFullPath($FullPath)
+    if (-not $PathResolved.StartsWith($RepoRootResolved)) { continue }
     if (Test-Path $FullPath) {
         $Content = Get-Content $FullPath -Raw
         # Find all markdown links [text](path)
@@ -68,7 +74,7 @@ foreach ($File in $StagedMD) {
             # Normalize path
             $Resolved = [System.IO.Path]::GetFullPath($Resolved)
             if (-not (Test-Path $Resolved)) {
-                Write-Host "[WARN]  AI Toolbox Note: $File → broken link to '$Target'"
+                Write-Host "[WARN]  AI Toolbox Note: $File ? broken link to '$Target'"
                 # Note: Warning only, does not block commit
             }
         }
