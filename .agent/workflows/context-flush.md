@@ -37,6 +37,16 @@ Do NOT count turns — LLMs cannot reliably count. Use these semantic triggers i
 
 ---
 
+## Verification
+
+After flushing and restoring from `active-session.md`, verify:
+
+1. The saved state accurately reflects what was in progress.
+2. No open tasks or todos were lost during the flush.
+3. The next step is clearly defined and actionable.
+
+If any check fails, reconstruct the missing context before continuing.
+
 ## Cost Impact
 
 - A session with 20+ turns can cost 3-5x more per turn than a fresh session
