@@ -44,11 +44,12 @@ esac
 # Security patterns to scan for in written files
 SECRET_FOUND=""
 if [ -f "$FILE_PATH" ]; then
-    # Check for common secret patterns (skip patterns with 8+ char secrets)
-    if grep -qiE '(password|passwd|pwd)\s*[=:]\s*["'"'"'][^"'"'"']{8,}' "$FILE_PATH" 2>/dev/null; then
+    # Check for common secret patterns (passwords, API keys, tokens)
+    # Covers both quoted and unquoted values (YAML/TOML compatible)
+    if grep -qiE '(password|passwd|pwd)\s*[=:]\s*["'"'"']?[^"'"'"'[:space:]]{8,}' "$FILE_PATH" 2>/dev/null; then
         SECRET_FOUND="${SECRET_FOUND}password,"
     fi
-    if grep -qiE '(api[_-]?key|apikey)\s*[=:]\s*["'"'"'][^"'"'"']{8,}' "$FILE_PATH" 2>/dev/null; then
+    if grep -qiE '(api[_-]?key|apikey)\s*[=:]\s*["'"'"']?[^"'"'"'[:space:]]{8,}' "$FILE_PATH" 2>/dev/null; then
         SECRET_FOUND="${SECRET_FOUND}api_key,"
     fi
     if grep -qiE '(secret|token|auth[_-]?key)\s*[=:]\s*["'"'"'][^"'"'"']{8,}' "$FILE_PATH" 2>/dev/null; then

@@ -10,7 +10,7 @@ ERRORS=0
 # Check 1: Tier Badge on Router Files
 # If a router file is staged, it must contain a "-- Tier:" badge.
 # ---------------------------------------------------------------
-ROUTER_FILES="CLAUDE.md QWEN.md GEMINI.md CONVENTIONS.md .cursorrules .clinerules .windsurfrules"
+ROUTER_FILES="CLAUDE.md QWEN.md GEMINI.md CONVENTIONS.md .cursorrules .clinerules .windsurfrules CODERULES.md OPENCODERULES.md"
 
 for file in $ROUTER_FILES; do
     # Only check if this file is in the staged changes
@@ -48,9 +48,9 @@ for file in $STAGED_MD; do
     if [ -f "$full_path" ]; then
         # Find all markdown links [text](path) where path starts with . or ./
         while IFS= read -r link; do
-            # Extract the path from the link [text](path)
-            target="${link#*(}"
-            target="${target%)*}"
+            # Extract the path from the link [text](path) using sed for reliability
+            # This handles nested parens correctly: [text](path(with)paren)) -> path(with)paren)
+            target=$(echo "$link" | sed 's/^[^(]*(//; s/)[^)]*$//')
             target="${target%%#*}"
             # Skip external links, anchors, and root-relative paths
             if [[ $target =~ ^https?://|^mailto:|^#|^/ ]]; then

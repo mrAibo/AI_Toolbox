@@ -20,14 +20,6 @@ __pycache__/
 /build/
 /docs/build/
 
-.beads/
-
-.agent/memory/session-handover.md
-
-.agent/memory/current-task.md
-
-.agent/memory/.tool-stats.json
-
 # Beads / Dolt files (added by bd init)
 .dolt/
 *.db

@@ -38,24 +38,11 @@ track_tool() {
     count=$(grep -o "\"$tool\": [0-9]*" "$file" 2>/dev/null | grep -o '[0-9]*' || echo "0")
     count=$((count + 1))
     # Use python3/python for portable JSON update, fallback to sed
-    if command -v python3 &>/dev/null; then
+    PYTHON=$(command -v python3 || command -v python 2>/dev/null)
+    if [ -n "$PYTHON" ]; then
       export TOOL_NAME="$tool"
       export STATS_FILE="$file"
-      python3 -c "
-import json, os
-tool = os.environ.get('TOOL_NAME', '')
-fpath = os.environ.get('STATS_FILE', '')
-if tool and fpath:
-    try:
-        with open(fpath) as f: data = json.load(f)
-        data[tool] = data.get(tool, 0) + 1
-        with open(fpath, 'w') as f: json.dump(data, f)
-    except Exception: pass
-" 2>/dev/null || true
-    elif command -v python &>/dev/null; then
-      export TOOL_NAME="$tool"
-      export STATS_FILE="$file"
-      python -c "
+      $PYTHON -c "
 import json, os
 tool = os.environ.get('TOOL_NAME', '')
 fpath = os.environ.get('STATS_FILE', '')
