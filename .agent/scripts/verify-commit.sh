@@ -38,33 +38,43 @@ if [ -f "$ADR_FILE" ] && [ -s "$ADR_FILE" ]; then
 fi
 
 # ---------------------------------------------------------------
-# Check 3: Secret Patterns in Staged Code/Config Files
-# Scans staged code and config files for potential secrets.
-# Warns only — does not block. Runtime scanning is handled by
-# Qwen PostToolUse hooks; this provides baseline protection for
-# all clients at commit time.
+# Check 3: Secret Patterns in Staged Diffs (not entire files)
+# Scans only newly added lines in staged text files for secrets.
+# Blocks the commit if secrets are detected (unlike broken links).
+# This provides baseline protection for all clients at commit time.
 # ---------------------------------------------------------------
-STAGED_CODE=$(git diff --cached --name-only 2>/dev/null | grep -iE '\.(py|js|ts|jsx|tsx|json|yml|yaml|toml|env|sh|ps1|conf|cfg|ini)$' || true)
 
-if [ -n "$STAGED_CODE" ]; then
-    SECRET_FILES=""
-    for file in $STAGED_CODE; do
-        full_path="$REPO_ROOT/$file"
-        if [ -f "$full_path" ]; then
-            # Check for unquoted or quoted secret assignments (YAML/TOML/JSON compatible)
-            if grep -qiE '(password|passwd|pwd|api[_-]?key|secret|token|auth[_-]?key)\s*[=:]\s*["'"'"']?[^"'"'"'[:space:]]{8,}' "$full_path" 2>/dev/null; then
-                SECRET_FILES="${SECRET_FILES} $file"
+if [ "$SKIP_SECRET_SCAN" = "true" ]; then
+    echo "[INFO] AI Toolbox: Secret scanning skipped via SKIP_SECRET_SCAN."
+else
+    STAGED_FILES=$(git diff --cached --name-only 2>/dev/null || true)
+    if [ -n "$STAGED_FILES" ]; then
+        SECRET_FILES=""
+        for file in $STAGED_FILES; do
+            full_path="$REPO_ROOT/$file"
+            # Only scan text files (skip binaries efficiently)
+            if [ -f "$full_path" ] && file "$full_path" | grep -qi "text"; then
+                # Scan only newly added lines (lines starting with + in the diff)
+                DIFF_ADDITIONS=$(git diff --cached "$file" 2>/dev/null | grep '^+' | grep -v '^+++' || true)
+                if [ -n "$DIFF_ADDITIONS" ]; then
+                    # Check for secret assignments in added lines (quoted and unquoted)
+                    if echo "$DIFF_ADDITIONS" | grep -qiE '(password|passwd|pwd|api[_-]?key|secret|token|auth[_-]?key)\s*[=:]\s*["'"'"']?[^"'"'"'[:space:]]{8,}'; then
+                        SECRET_FILES="${SECRET_FILES} $file"
+                    fi
+                    # Check for private key blocks in added lines
+                    if echo "$DIFF_ADDITIONS" | grep -qE 'BEGIN\s+(RSA|DSA|EC|OPENSSH)\s+PRIVATE\s+KEY'; then
+                        SECRET_FILES="${SECRET_FILES} $file"
+                    fi
+                fi
             fi
-            # Check for private key blocks
-            if grep -qE 'BEGIN\s+(RSA|DSA|EC|OPENSSH)\s+PRIVATE\s+KEY' "$full_path" 2>/dev/null; then
-                SECRET_FILES="${SECRET_FILES} $file"
-            fi
+        done
+        if [ -n "$SECRET_FILES" ]; then
+            echo "[FAIL] AI Toolbox: Potential secrets detected in:$SECRET_FILES"
+            echo "       This commit is blocked to prevent accidental secret exposure."
+            echo "       Verify these are not accidental credentials."
+            echo "       If they are intentional test fixtures, set SKIP_SECRET_SCAN=true to bypass."
+            ERRORS=$((ERRORS + 1))
         fi
-    done
-    if [ -n "$SECRET_FILES" ]; then
-        echo "[WARN] AI Toolbox: Potential secrets detected in:$SECRET_FILES"
-        echo "       Please verify these are not accidental credentials."
-        echo "       If they are test fixtures, add a comment explaining this."
     fi
 fi
 
