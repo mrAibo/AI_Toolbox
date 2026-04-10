@@ -38,7 +38,38 @@ if [ -f "$ADR_FILE" ] && [ -s "$ADR_FILE" ]; then
 fi
 
 # ---------------------------------------------------------------
-# Check 3: Broken References in Modified .md Files
+# Check 3: Secret Patterns in Staged Code/Config Files
+# Scans staged code and config files for potential secrets.
+# Warns only — does not block. Runtime scanning is handled by
+# Qwen PostToolUse hooks; this provides baseline protection for
+# all clients at commit time.
+# ---------------------------------------------------------------
+STAGED_CODE=$(git diff --cached --name-only 2>/dev/null | grep -iE '\.(py|js|ts|jsx|tsx|json|yml|yaml|toml|env|sh|ps1|conf|cfg|ini)$' || true)
+
+if [ -n "$STAGED_CODE" ]; then
+    SECRET_FILES=""
+    for file in $STAGED_CODE; do
+        full_path="$REPO_ROOT/$file"
+        if [ -f "$full_path" ]; then
+            # Check for unquoted or quoted secret assignments (YAML/TOML/JSON compatible)
+            if grep -qiE '(password|passwd|pwd|api[_-]?key|secret|token|auth[_-]?key)\s*[=:]\s*["'"'"']?[^"'"'"'[:space:]]{8,}' "$full_path" 2>/dev/null; then
+                SECRET_FILES="${SECRET_FILES} $file"
+            fi
+            # Check for private key blocks
+            if grep -qE 'BEGIN\s+(RSA|DSA|EC|OPENSSH)\s+PRIVATE\s+KEY' "$full_path" 2>/dev/null; then
+                SECRET_FILES="${SECRET_FILES} $file"
+            fi
+        fi
+    done
+    if [ -n "$SECRET_FILES" ]; then
+        echo "[WARN] AI Toolbox: Potential secrets detected in:$SECRET_FILES"
+        echo "       Please verify these are not accidental credentials."
+        echo "       If they are test fixtures, add a comment explaining this."
+    fi
+fi
+
+# ---------------------------------------------------------------
+# Check 4: Broken References in Modified .md Files
 # Only check files that are staged for commit.
 # ---------------------------------------------------------------
 STAGED_MD=$(git diff --cached --name-only 2>/dev/null | grep '\.md$' || true)
