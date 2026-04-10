@@ -78,11 +78,23 @@ AI_Toolbox/
 │   │   └── testing-anti-patterns.md   # Common testing mistakes
 │   │
 │   ├── scripts/                  # Automation & Hooks
-│   │   ├── bootstrap.sh / .ps1        # Initial repo setup
+│   │   ├── bootstrap.sh / .ps1        # Initial repo setup (silent, idempotent)
+│   │   ├── setup.sh / .ps1            # Interactive setup wizard (client detection, tool install)
 │   │   ├── hook-pre-command.sh / .ps1 # Terminal safety guard (rtk check)
 │   │   ├── hook-stop.sh / .ps1        # Memory consolidation guard
-│   │   ├── verify-commit.sh / .ps1    # Git pre-commit logic
-│   │   └── sync-task.sh / .ps1        # Task tracker synchronization
+│   │   ├── verify-commit.sh / .ps1    # Git pre-commit logic (tier badges, broken links)
+│   │   ├── commit-msg.sh / .ps1       # TDD enforcement for commits
+│   │   ├── doctor.sh / .ps1           # Health check — validates entire setup
+│   │   ├── sync-task.sh / .ps1        # Task tracker synchronization
+│   │   ├── bootstrap-parity-check.sh  # Verifies .sh/.ps1 equivalence
+│   │   ├── check-trailing-newlines.sh # Ensures file formatting consistency
+│   │   ├── validate-client-capabilities.sh # Client capability matrix validation
+│   │   ├── test-scripts.sh            # Syntax validation for all scripts
+│   │   ├── test-hooks.sh              # Functional tests for all hook scripts
+│   │   ├── test-integration.sh        # End-to-end integration tests
+│   │   ├── test-git-hooks.sh          # Git hook behavior tests
+│   │   ├── test-content.sh            # Markdown content validation tests
+│   │   └── test-mcp-schema.sh         # MCP configuration schema tests
 │   │
 │   ├── templates/                # Standardized formats
 │   │   ├── adr-template.md            # Architecture Decision Record
@@ -190,6 +202,8 @@ The framework adapts its instructions to each client's actual capabilities via a
 | Gemini CLI | 🥉 Basic | ❌ | ❌ | ✅ | `GEMINI.md` |
 | Aider | 🥉 Basic | ❌ | ❌ | ✅ | `CONVENTIONS.md` |
 
+> **Note:** Antigravity is an internal client with full integration. For publicly available clients, see [Claude Code](https://docs.anthropic.com/en/docs/claude-code/), [Qwen Code](https://qwenlm.github.io/), [Codex CLI](https://github.com/openai/codex), [OpenCode](https://github.com/anomalyco/opencode), [Cursor](https://cursor.com/), [RooCode](https://roocode.com/), [Windsurf](https://windsurf.com/), [Gemini CLI](https://ai.google.dev/gemini-api/docs), and [Aider](https://aider.chat/).
+
 **Tier behavior:**
 - **Full:** Hooks enforce safety rules; multi-agent orchestration available; full automation via sync/handover scripts.
 - **Standard:** Hooks available for sync/handover; no multi-agent; rules enforced via file-based routing.
@@ -245,6 +259,8 @@ bash .agent/scripts/setup.sh
 # Windows
 powershell -ExecutionPolicy Bypass -File .agent\scripts\setup.ps1
 ```
+
+> **setup.sh vs bootstrap.sh:** `setup.sh` is the interactive wizard — it detects your AI clients, offers to install tools (rtk, Beads), and configures MCP servers. `bootstrap.sh` is the silent, idempotent version — it creates router files and memory structure without installing anything. Use `setup.sh` for new projects, `bootstrap.sh` for CI or when you already have tools installed.
 
 The script will:
 - ✅ Detect installed AI clients and let you pick a primary one
