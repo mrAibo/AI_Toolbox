@@ -6,7 +6,7 @@
 # Usage: bash test-hooks.sh
 # Exit: 0 = all pass, 1 = any fail
 
-set -u
+# Note: No set -u — some variables are intentionally checked for existence
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"

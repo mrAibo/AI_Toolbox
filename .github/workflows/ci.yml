@@ -151,7 +151,7 @@ jobs:
 
       - name: Hook functional tests
         run: |
-          bash .agent/scripts/test-hooks.sh 2>&1 || true
+          bash .agent/scripts/test-hooks.sh
 
       - name: Integration tests
         run: |
