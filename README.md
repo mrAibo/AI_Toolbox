@@ -1,8 +1,15 @@
 # 🚀 AI Toolbox: Universal Terminal AI Workflow
 
-A robust, reusable foundation for terminal-based AI-assisted development. 
+> **Terminal AI agents are brilliant — but without discipline, they forget, drift, and waste tokens.**
 
-This repository provides a strict workflow contract for AI agents like **Claude Code**, **Qwen Code**, and **Gemini CLI**. It solves the three biggest problems of terminal-based AI development: Context Bloat, Project Amnesia, and Execution Drift.
+AI Toolbox solves the three hardest problems of working with AI in your terminal:
+- **Context Bloat** — AI dumps 10,000-line build logs into the chat, burning tokens and losing focus.
+- **Project Amnesia** — After a restart, the AI forgets architecture decisions, test patterns, and where it left off.
+- **Execution Drift** — The AI starts coding before planning, skips tests, and claims success without verification.
+
+This project introduces a **Memory Layer**, a **Rule Layer**, and an **Automation Layer** that keep terminal AI agents disciplined, persistent, and token-efficient. It works with **9 AI clients** out of the box — Claude Code, Qwen Code, Gemini CLI, Aider, Cursor, Windsurf, RooCode/Cline, Codex CLI, and OpenCode — adapting its instructions to each client's actual capabilities.
+
+**Production-grade:** 100% test coverage (380 tests across 6 suites, 21 CI steps), 2 comprehensive security audits with all Critical/High findings resolved, and 11 structured workflows from TDD to multi-agent orchestration.
 
 ---
 
@@ -34,6 +41,8 @@ AI_Toolbox/
 ├── .cursorrules                  # Cursor router file
 ├── .clinerules                   # RooCode / Cline router file
 ├── .windsurfrules                # Windsurf router file
+├── CODERULES.md                  # Codex CLI router file
+├── OPENCODERULES.md              # OpenCode router file
 ├── .claude.json                  # Claude Code hook configuration (bootstrap-generated)
 ├── .aider.conf.yml               # Aider configuration file (bootstrap-generated)
 ├── .gitignore                    # Ignores local output and temporary files
@@ -118,6 +127,8 @@ This workflow assumes the use of a few key tools to keep the AI disciplined:
 5. **Terminal AI Agents**
    - **[Qwen Code](https://github.com/QwenLM/qwen-code)**: Full-Tier client with hooks, sub-agents, skills, and commands.
    - **[Claude Code](https://docs.anthropic.com/en/docs/claude-code)**: Full-Tier client with native plugin support.
+   - **[Codex CLI](https://github.com/openai/codex)**: Standard-Tier client with hooks and config-based routing.
+   - **[OpenCode](https://github.com/anomalyco/opencode)**: Standard-Tier client with commands, agents, and skills.
    - **[Cursor](https://cursor.sh/)**: Standard-Tier client via `.cursorrules`.
    - **[Gemini CLI](https://geminicli.com)**: Basic-Tier client via `GEMINI.md`.
    - **[Aider](https://aider.chat/)**: Basic-Tier client via `CONVENTIONS.md`.
@@ -174,6 +185,8 @@ The framework adapts its instructions to each client's actual capabilities via a
 | Cursor | 🥈 Standard | ✅ | ⚠️ Background | ✅ | `.cursorrules` |
 | RooCode / Cline | 🥈 Standard | ✅ (v3.36+) | ❌ | ✅ | `.clinerules` |
 | Windsurf | 🥈 Standard | ✅ | ❌ | ✅ | `.windsurfrules` |
+| Codex CLI | 🥈 Standard | ✅ | ❌ | ✅ | `CODERULES.md` |
+| OpenCode | 🥈 Standard | ⚠️ Commands | ✅ Agents | ✅ | `OPENCODERULES.md` |
 | Gemini CLI | 🥉 Basic | ❌ | ❌ | ✅ | `GEMINI.md` |
 | Aider | 🥉 Basic | ❌ | ❌ | ✅ | `CONVENTIONS.md` |
 
@@ -184,7 +197,7 @@ The framework adapts its instructions to each client's actual capabilities via a
 
 
 
-Want to convert an existing project into an AI Toolbox compliant project? Open your terminal AI (Claude Code, Qwen Code, Gemini CLI, RooCode/Cline, Cursor, Windsurf, Aider, or Antigravity) in your project directory and paste this exact prompt:
+Want to convert an existing project into an AI Toolbox compliant project? Open your terminal AI (Claude Code, Qwen Code, Gemini CLI, RooCode/Cline, Cursor, Windsurf, Codex CLI, OpenCode, Aider, or Antigravity) in your project directory and paste this exact prompt:
 
 ```text
 Follow the setup instructions here to initialize the AI Toolbox environment:
@@ -245,9 +258,10 @@ The script will:
 2. **Run the bootstrap script** for your OS to ensure all folders and router files exist:
    - Linux/macOS: `bash .agent/scripts/bootstrap.sh`
    - Windows: `powershell .agent/scripts/bootstrap.ps1`
-3. **Connect your AI agent** to the workspace.
+3. **Verify setup:** Run `.agent/scripts/doctor.sh` (or `.ps1`) to check all components.
+4. **Connect your AI agent** to the workspace.
 
-### 2. For AI Agents (Manual setup)
+### 3. For AI Agents (Manual setup)
 Give your terminal AI agent this exact prompt to start a project:
 
 > *"Use this repository as the strict project workflow standard. Read AGENT.md first and follow its Boot Sequence. Do not start coding until the memory is initialized."*

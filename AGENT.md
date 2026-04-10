@@ -22,6 +22,8 @@ This framework is architecturally **universal**. While this `AGENT.md` is the **
 - **Cursor:** Uses `.cursorrules`.
 - **RooCode / Cline:** Uses `.clinerules`.
 - **Windsurf:** Uses `.windsurfrules`.
+- **Codex CLI:** Uses `CODERULES.md` and `.codex/` config.
+- **OpenCode:** Uses `OPENCODERULES.md` and `opencode.json`.
 - **Antigravity:** Uses `SKILL.md` and `.agent/workflows/`.
 - **Aider:** Uses `CONVENTIONS.md` and `.aider.conf.yml`.
 
@@ -47,7 +49,13 @@ This is the **Definitive Boot Sequence**. All agents must follow this procedure 
 6. **Runbook:** Read `.agent/memory/runbook.md` if present (operational procedures).
 7. **Session Status Init:** If `.agent/memory/active-session.md` is empty or missing, initialize it with the template structure (created by bootstrap at `.agent/memory/active-session.md`).
 8. **Parallel Rules:** Read `.agent/rules/parallel-execution.md` to understand when parallel execution is required.
-9. **Summarization:** Briefly summarize the recovered context, current state, available tools, and the next planned task before continuing.
+9. **Additional Rules (on demand):** The following rule files extend core behavior — read when relevant to the current task:
+    - **[.agent/rules/receiving-code-review.md](.agent/rules/receiving-code-review.md)** — Anti-sycophancy: verify review feedback before blindly implementing
+    - **[.agent/rules/root-cause-tracing.md](.agent/rules/root-cause-tracing.md)** — Backward trace through call stack, don't patch symptoms
+    - **[.agent/rules/defense-in-depth.md](.agent/rules/defense-in-depth.md)** — Multi-layer post-fix validation (unit + integration + edge cases)
+    - **[.agent/rules/condition-based-waiting.md](.agent/rules/condition-based-waiting.md)** — Poll for conditions instead of using arbitrary timeouts
+    - **[.agent/rules/testing-anti-patterns.md](.agent/rules/testing-anti-patterns.md)** — Common testing mistakes to avoid
+10. **Summarization:** Briefly summarize the recovered context, current state, available tools, and the next planned task before continuing.
 
 Purpose:
 - Restore architecture and integration context.
@@ -83,6 +91,7 @@ For the complete 9-step process (TASK → BRAINSTORM → PLAN → ISOLATE → IM
 - Update memory when the project state changes
 - Do not silently introduce new frameworks, libraries, or major architecture changes without recording them
 - **Parallelize independent operations** — see [.agent/rules/parallel-execution.md](.agent/rules/parallel-execution.md). Never sequentially fetch URLs or read files that don't depend on each other.
+- **Test obligation:** All code changes MUST pass the test suite. Write tests before or alongside implementation (see [.agent/rules/tdd-rules.md](.agent/rules/tdd-rules.md)). If the project has an existing test suite, run it before claiming completion. If no tests exist, create at least one test that validates the core behavior.
 
 ---
 
@@ -223,6 +232,8 @@ Some AI assistant environments provide additional capabilities or specific rules
 
 - **Antigravity:** Refer to **[.agent/rules/antigravity.md](.agent/rules/antigravity.md)** for native slash commands and artifact workflows. These artifacts are first-class citizens in Antigravity and should be used to provide a premium agentic experience.
 - **Qwen Code:** Refer to **[.agent/rules/qwen-code.md](.agent/rules/qwen-code.md)** for SubAgent configuration, hook setup, plan mode usage, and multi-agent coordination patterns.
+- **Codex CLI:** Uses hooks via `.codex/hooks.json` and file-based rules via `CODERULES.md`. Full setup: **[docs/setup-codex.md](docs/setup-codex.md)**.
+- **OpenCode:** Uses commands (`/boot`, `/sync`, `/handover`, `/templates`) and sub-agents via `opencode.json`. Full setup: **[docs/setup-opencode.md](docs/setup-opencode.md)**.
 - **Other Clients:** Add your specific client instructions to the `[.agent/rules/](.agent/rules/)` directory and reference them here to ensure your environment's unique capabilities are leveraged.
 
 ---

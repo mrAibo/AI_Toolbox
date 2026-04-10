@@ -1,48 +1,143 @@
-# AI Toolbox Installation Instructions (For AI Agents)
+# AI Toolbox Installation
 
-You are an AI assistant (such as Claude Code, Qwen Code, Gemini CLI, RooCode/Cline, Cursor, Windsurf, Aider, or Antigravity) and the user has asked you to install the "AI Toolbox" workflow into the current repository/directory.
+## TL;DR — One-Command Setup
 
-## Phase 0: Environment Discovery
-Before you start, identify your own environment:
-1.  **Operating System:** Are you running on Linux/macOS (Bash) or Windows (PowerShell)? Choose the corresponding commands in the steps below.
-2.  **Platform Identity:** 
-    - If you are **Claude Code**, you can use `mcp add` commands.
-    - If you are **Antigravity**, you have access to **native slash-command workflows** and **artifacts**; prioritize these.
-    - If you are **Gemini CLI**, **Aider**, **Cursor**, or **Windsurf**, follow the generic terminal instructions.
-    - If you are **Qwen Code** or **RooCode/Cline**, you have file-based routing; follow the instructions in your respective router file.
-3.  **Tooling:** Check if you have direct access to `git`, `npx`, `go`, and `cargo`.
-
-## Step 1: Download the core files
-Fetch the boilerplate framework files from the `mrAibo/AI_Toolbox` repository. 
-
-**For Linux / macOS (Bash):**
 ```bash
-git clone https://github.com/mrAibo/AI_Toolbox.git /tmp/ai_toolbox_tmp
-cp -r /tmp/ai_toolbox_tmp/.agent .
-cp /tmp/ai_toolbox_tmp/AGENT.md .
-cp /tmp/ai_toolbox_tmp/SKILL.md .
-rm -rf /tmp/ai_toolbox_tmp
+git clone https://github.com/mrAibo/AI_Toolbox.git my-project
+cd my-project
+bash .agent/scripts/bootstrap.sh
 ```
 
-**For Windows (PowerShell):**
-```powershell
-git clone https://github.com/mrAibo/AI_Toolbox.git $env:TEMP\ai_toolbox_tmp
-Copy-Item -Path "$env:TEMP\ai_toolbox_tmp\.agent" -Destination ".\" -Recurse -Force
-Copy-Item -Path "$env:TEMP\ai_toolbox_tmp\AGENT.md" -Destination ".\" -Force
-Copy-Item -Path "$env:TEMP\ai_toolbox_tmp\SKILL.md" -Destination ".\" -Force
-Remove-Item -Path "$env:TEMP\ai_toolbox_tmp" -Recurse -Force
+That's it. Bootstrap detects your AI clients and configures everything automatically.
+
+**Optional but recommended:**
+```bash
+cargo install --git https://github.com/rtk-ai/rtk && rtk init -g   # Token optimization (60-90% savings)
+go install github.com/steveyegge/beads/cmd/bd@latest && bd init      # Task tracking
 ```
 
-## Step 2: Initialize AI Router Files & Workflows
-Run the bootstrap script to create the core structure, Antigravity workflows (`.agent/workflows/`), and auto-discovery files (`CLAUDE.md`, `GEMINI.md`, etc.).
+---
 
-- **On Linux/macOS:** `bash .agent/scripts/bootstrap.sh`
-- **On Windows:** `powershell .agent/scripts/bootstrap.ps1`
+## What Bootstrap Does
 
-## Step 3: Check Core Stack Dependencies
-The AI Toolbox relies on specific terminal tools. You must verify their presence and try to install them if missing.
+The bootstrap script (`.agent/scripts/bootstrap.sh` / `.ps1`) automatically:
+- ✅ Detects installed AI clients (Qwen Code, Claude Code, Codex CLI, OpenCode, Cursor, Windsurf, RooCode/Cline, Gemini CLI, Aider)
+- ✅ Creates router files (`CLAUDE.md`, `QWEN.md`, `CODERULES.md`, `OPENCODERULES.md`, etc.)
+- ✅ Creates `.agent/memory/` structure with seed content
+- ✅ Creates `.agent/rules/` with safety, testing, and TDD rules
+- ✅ Sets up Git pre-commit hook via `verify-commit.sh/.ps1`
+- ✅ Configures per-client hooks where supported (Claude Code, Qwen Code, Codex CLI)
+- ✅ Updates `.gitignore` with AI Toolbox entries
 
-### 3.1 Platform Prerequisites
+No manual configuration needed for supported clients. Bootstrap handles it all.
+
+---
+
+## Manual Installation (Per Client)
+
+### Qwen Code (Full Tier — Recommended)
+
+Qwen Code gets the deepest integration: 6 hooks + 8 sub-agents.
+
+1. **Clone + Bootstrap:**
+   ```bash
+   git clone https://github.com/mrAibo/AI_Toolbox.git my-project
+   cd my-project
+   bash .agent/scripts/bootstrap.sh
+   ```
+2. **Hooks are automatic** — bootstrap creates `.qwen/settings.json` with all 6 hooks.
+3. **Sub-agents** — 8 agents in `.qwen/agents/` delegate automatically (reviewer, tester, frontend, backend, security, performance, documenter, handover).
+4. **Start:** `qwen` — hooks activate on session start.
+
+Full details: **[.agent/rules/qwen-code.md](.agent/rules/qwen-code.md)**
+
+### Claude Code (Full Tier)
+
+1. **Clone + Bootstrap** (as above).
+2. **Hooks** — bootstrap configures `.claude.json` with pre-command and stop hooks.
+3. **Agent Teams** — Claude Code's native multi-agent works with AI Toolbox workflows.
+4. **Start:** `claude` — hooks run automatically.
+
+### Codex CLI (Standard Tier)
+
+1. **Clone + Bootstrap** (as above).
+2. **Configure hooks:**
+   ```bash
+   cp .agent/templates/clients/.codex-hooks.json .codex/hooks.json
+   ```
+3. **Enable hooks** in `~/.codex/config.toml` or `.codex/config.toml`:
+   ```toml
+   [features]
+   codex_hooks = true
+   ```
+4. **Optional:** Copy full config template:
+   ```bash
+   cp .agent/templates/clients/.codex-config.toml .codex/config.toml
+   ```
+5. **Start:** `codex` — reads `AGENTS.md` automatically.
+
+Full guide: **[docs/setup-codex.md](docs/setup-codex.md)**
+
+### OpenCode (Standard Tier)
+
+1. **Clone + Bootstrap** (as above).
+2. **Configure:**
+   ```bash
+   cp .agent/templates/clients/opencode-config.json opencode.json
+   ```
+3. **Edit** `opencode.json` to set your provider and model.
+4. **Optional:** Copy skills:
+   ```bash
+   cp -r .qwen/skills/* .opencode/skills/
+   ```
+5. **Start:** `opencode` — reads `AGENTS.md` automatically.
+
+**Available commands:** `/boot`, `/sync`, `/handover`, `/templates`
+
+Full guide: **[docs/setup-opencode.md](docs/setup-opencode.md)**
+
+### Cursor (Standard Tier)
+
+1. **Clone + Bootstrap** — creates `.cursorrules` automatically.
+2. **Hooks** — bootstrap configures Cursor's hook system.
+3. **Start:** Open project in Cursor.
+
+### RooCode / Cline (Standard Tier)
+
+1. **Clone + Bootstrap** — creates `.clinerules` automatically.
+2. **Hooks** — available in v3.36+.
+3. **Start:** Open project in RooCode/Cline.
+
+### Windsurf (Standard Tier)
+
+1. **Clone + Bootstrap** — creates `.windsurfrules` automatically.
+2. **Hooks** — bootstrap configures Windsurf hooks.
+3. **Start:** Open project in Windsurf.
+
+### Gemini CLI (Basic Tier)
+
+1. **Clone + Bootstrap** — creates `GEMINI.md` automatically.
+2. **No hooks** — safety rules are enforced via file-based instructions.
+3. **Manual sync:** Run `bash .agent/scripts/sync-task.sh` at session start.
+4. **Start:** `gemini`.
+
+### Aider (Basic Tier)
+
+1. **Clone + Bootstrap** — creates `CONVENTIONS.md` and `.aider.conf.yml`.
+2. **No hooks** — safety rules are soft reminders.
+3. **Start:** `aider`.
+
+### Antigravity (Full Tier)
+
+1. **Clone + Bootstrap** — creates `SKILL.md`.
+2. **Native slash commands:** `/start`, `/sync`, `/handover`.
+3. **Artifact workflows** — premium agentic experience with native artifacts.
+
+---
+
+## Prerequisites
+
+### Platform Prerequisites
 
 **Windows users:** Before installing Rust tools, ensure you have a C++ linker:
 - **Option A (Recommended):** Visual Studio Build Tools with "Desktop development with C++" workload (~2-3 GB)
@@ -53,98 +148,71 @@ The AI Toolbox relies on specific terminal tools. You must verify their presence
 
 **Linux/macOS:** No additional prerequisites needed beyond Rust and Go.
 
-### 3.2 rtk (Rust Token Killer)
-- Check if `rtk` is installed: `rtk --version`
-- If missing, verify Rust is available: `cargo --version`
-- **If Rust is installed, install rtk from GitHub (NOT crates.io):**
-  ```bash
-  # ⚠️ IMPORTANT: Use --git flag! The crates.io "rtk" is a different project (Rust Type Kit).
-  cargo install --git https://github.com/rtk-ai/rtk
-  ```
-- **After installation, run:** `rtk init -g`
-  - **Unix/macOS:** Installs pre-execution hooks for your AI client.
-  - **Windows:** Falls back to `--claude-md` mode (hook-based mode requires Unix). This is fully functional.
-- **If Rust is NOT installed:** Warn the user and point to https://rustup.rs/
+### Recommended Tools
 
-### 3.3 Beads (Task Tracker)
-- Check if `bd` is installed: `bd version`
-- If missing, install (all platforms, via Go):
-  ```bash
-  go install github.com/steveyegge/beads/cmd/bd@latest
-  ```
-  > **Note:** `steveyegge/beads` is the official repository. The `gastownhall` GitHub user is a fork that published the now-superseded npm package `@beads/bd` (see gastownhall/beads#1031). Use `steveyegge/beads` for all platforms.
-- **Alternative (all platforms):** Download the latest release directly from https://github.com/steveyegge/beads/releases
-- If Go is NOT installed: Warn the user and point to https://go.dev/dl/
+#### rtk (Rust Token Killer)
+Compresses test/build output by 60-90%, saving tokens and keeping the AI focused.
+```bash
+# ⚠️ IMPORTANT: Use --git flag! The crates.io "rtk" is a different project (Rust Type Kit).
+cargo install --git https://github.com/rtk-ai/rtk
+rtk init -g
+```
+- **Unix/macOS:** Installs pre-execution hooks for your AI client.
+- **Windows:** Falls back to `--claude-md` mode (fully functional).
+- **If Rust is NOT installed:** Install from https://rustup.rs/
 
-## Step 4: Configure MCP Servers & Plugins
-If you are **Claude Code** (or can execute configuring scripts), attempt to install the following recommended MCP servers and plugins. If they require cloning a repository, clone them into a tools directory (e.g., `~/.mcp-servers/` or `%USERPROFILE%\.mcp-servers\`):
+#### Beads (Task Tracker)
+Git-backed CLI task tracker for out-of-context planning.
+```bash
+go install github.com/steveyegge/beads/cmd/bd@latest
+bd init
+```
+- **Alternative:** Download from https://github.com/steveyegge/beads/releases
+- **If Go is NOT installed:** Install from https://go.dev/dl/
 
-**1. Core Protocol Servers**
+#### bat & rg (ripgrep)
+Modern replacements for `cat` and `grep`:
+```bash
+cargo install bat ripgrep
+# or: brew install bat ripgrep
+```
+
+---
+
+## MCP Servers (Optional but Recommended)
+
+MCP servers extend your AI with external resources (docs, web, GitHub, memory).
+
+**Claude Code:**
 ```bash
 claude mcp add context7 npx -y @upstash/context7-mcp
 claude mcp add sequential-thinking npx -y @modelcontextprotocol/server-sequential-thinking
+claude mcp add filesystem npx -y @modelcontextprotocol/server-filesystem .
+claude mcp add fetch npx -y @modelcontextprotocol/server-fetch
 ```
 
-**2. Memory MCP Server**
-- Official MCP Server: `npx -y @modelcontextprotocol/server-memory`
-- *Instruction for AI:* This provides cross-session memory for storing and retrieving context, bug fixes, and project experience.
+**Other clients:** Copy the appropriate template from `.agent/templates/mcp/`:
+- Qwen Code → `mcp-qwen.json`
+- Cursor → `mcp-cursor.json`
+- RooCode/Cline → `mcp-clinerules.json`
+- Windsurf → `mcp-windsurf.json`
+- Gemini CLI → `mcp-gemini.json`
+- Aider → `mcp-aider.yml`
 
-**3. bat & rg (ripgrep)**
-- Optional but recommended: modern replacements for `cat` and `grep`.
-- Install via your package manager (e.g. `cargo install bat ripgrep`, `brew install bat ripgrep`, or your OS package manager).
+**Profiles:**
+| Profile | Servers | When to Use |
+|---------|---------|-------------|
+| **minimal** | context7, sequential-thinking | Quick tasks |
+| **developer** | + filesystem, fetch | Daily work (recommended) |
+| **full** | + github, memory | Full project work |
 
-**4. Template Bridge & Superpowers**
-- **Superpowers:** No separate installation needed — the engineering discipline (TDD, Planning, Debugging) is encoded in `.agent/rules/` and applied automatically when the AI reads `AGENT.md`. TDD is enforced via [`.agent/rules/tdd-rules.md`](.agent/rules/tdd-rules.md).
-- **Template Bridge:** Provides 413+ specialist templates for when existing skills aren't enough. Access via `/browse-templates` (Claude Code) or browse the [GitHub repo](https://github.com/maslennikov-ig/template-bridge). Rules: [`.agent/rules/template-usage.md`](.agent/rules/template-usage.md).
+Full guide with security rules and troubleshooting: **[docs/mcp-guide.md](docs/mcp-guide.md)**
 
-**5. ⚡ Auto-Configure Terminal Hooks (CRITICAL)**
+---
 
-Each AI client has its own way of handling hooks. If your client supports them, configure them now:
+## Verify `.gitignore`
 
-*   **Claude Code:** We've provided a `.agent/templates/clients/.claude.json` template. Copy it to your root or update your existing config:
-    ```json
-    {
-      "NOTE": "EXPERIMENTAL: Claude Code hook API is evolving. This is a conceptual template.",
-      "PLATFORM_GUIDE": "Use .sh on Unix/macOS and .ps1 on Windows.",
-      "hooks": {
-        "pre-command": ".agent/scripts/hook-pre-command.sh \"$COMMAND\"",
-        "// windows-pre-command": "powershell -ExecutionPolicy Bypass -File .agent/scripts/hook-pre-command.ps1 \"$COMMAND\"",
-        "post-command": ".agent/scripts/hook-stop.sh",
-        "// windows-post-command": "powershell -ExecutionPolicy Bypass -File .agent/scripts/hook-stop.ps1",
-        "on-session-start": "bash .agent/scripts/sync-task.sh && cat .agent/memory/current-task.md",
-        "// windows-on-session-start": "powershell -ExecutionPolicy Bypass -File .agent/scripts/sync-task.ps1 ; Get-Content .agent/memory/current-task.md"
-      }
-    }
-    ```
-*   **Qwen Code (Full Tier):** Configure hooks in your Qwen Code config analogously to Claude Code.
-*   **Cursor / Windsurf / Cline (Standard Tier):** These clients primarily use rule files (`.cursorrules`, `.windsurfrules`, `.clinerules`). Run the `bootstrap` script to generate these with the **Critical 3 Session Rules**.
-*   **Gemini CLI (Basic Tier):** Does not natively support command hooks. Rely on the instructions in `GEMINI.md` and manually run the sync-task script (`.sh` on Unix, `.ps1` on Windows) at the start of a session.
-*   **Aider (Basic Tier):** Uses `CONVENTIONS.md` as its context file and `.aider.conf.yml` for configuration — both auto-generated by `bootstrap`. No hooks are configured; safety rules are soft reminders only.
-
-**6. 📡 Configure MCP Servers (Optional but Recommended)**
-
-MCP servers extend your AI agent with external resources (docs, web, GitHub, memory). Setup depends on your client:
-
-*   **Claude Code:**
-    ```bash
-    claude mcp add context7 npx -y @upstash/context7-mcp
-    claude mcp add sequential-thinking npx -y @modelcontextprotocol/server-sequential-thinking
-    ```
-*   **Qwen Code:** Add MCP servers to your Qwen Code MCP config (see `.agent/templates/mcp/mcp-qwen.json`).
-*   **Cursor:** Copy `.agent/templates/mcp/mcp-cursor.json` to `.cursor/settings.json`.
-*   **RooCode/Cline:** Copy `.agent/templates/mcp/mcp-clinerules.json` to Cline MCP settings.
-*   **Windsurf:** Copy `.agent/templates/mcp/mcp-windsurf.json` to Windsurf MCP settings.
-*   **Gemini CLI:** Copy `.agent/templates/mcp/mcp-gemini.json` to Gemini CLI config (minimal profile).
-*   **Aider:** Add MCP section to `.aider.conf.yml` (see `.agent/templates/mcp/mcp-aider.yml`).
-
-Full guide: **[docs/mcp-guide.md](docs/mcp-guide.md)**.
-
-
-If you are an agent without direct `mcp add` commands, inform the user they need to manually configure these servers in their respective MCP config files.
-
-## Step 5: Verify `.gitignore` (Optional)
-The bootstrap script from Step 2 already handles updating the `.gitignore`. You can verify that the following definitions exist in the project's `.gitignore`:
-
+Bootstrap handles this automatically. Verify these entries exist:
 ```text
 # AI Toolbox specific
 .beads/
@@ -152,32 +220,51 @@ The bootstrap script from Step 2 already handles updating the `.gitignore`. You 
 .agent/memory/current-task.md
 ```
 
-## Step 6: Qwen Code Setup (Automatic)
+---
 
-If Qwen Code is detected (either `qwen` command exists OR `.qwen/` directory exists), bootstrap automatically creates `.qwen/settings.json` with 6 AI Toolbox hooks:
+## For AI Agents
 
-| Hook | Purpose |
-|---|---|
-| `SessionStart` | Syncs task state from Beads/task tracker |
-| `PreToolUse` | Validates heavy commands, recommends `rtk` wrapper |
-| `PostToolUse` | Scans written/edited files for secrets and credentials |
-| `Stop` | Updates session memory files before each response |
-| `SessionEnd` | Full memory consolidation and handover creation |
-| `PreCompact` | Injects architecture context before context compaction |
+If you are an AI agent reading this file, follow these steps:
 
-**No manual configuration needed** — hooks are created automatically by bootstrap.
+1. **Detect your environment** (OS, AI client identity, available tools).
+2. **Download core files:**
+   ```bash
+   # Linux/macOS
+   git clone https://github.com/mrAibo/AI_Toolbox.git /tmp/ai_toolbox_tmp
+   cp -r /tmp/ai_toolbox_tmp/.agent .
+   cp /tmp/ai_toolbox_tmp/AGENT.md .
+   cp /tmp/ai_toolbox_tmp/SKILL.md .
+   rm -rf /tmp/ai_toolbox_tmp
 
-**No CLI flag needed** — hooks are enabled by default when `.qwen/settings.json` contains hook configuration.
+   # Windows (PowerShell)
+   git clone https://github.com/mrAibo/AI_Toolbox.git $env:TEMP\ai_toolbox_tmp
+   Copy-Item -Path "$env:TEMP\ai_toolbox_tmp\.agent" -Destination ".\" -Recurse -Force
+   Copy-Item -Path "$env:TEMP\ai_toolbox_tmp\AGENT.md" -Destination ".\" -Force
+   Copy-Item -Path "$env:TEMP\ai_toolbox_tmp\SKILL.md" -Destination ".\" -Force
+   Remove-Item -Path "$env:TEMP\ai_toolbox_tmp" -Recurse -Force
+   ```
+3. **Run bootstrap** to create router files and memory structure:
+   ```bash
+   # Linux/macOS
+   bash .agent/scripts/bootstrap.sh
+   # Windows
+   powershell .agent/scripts/bootstrap.ps1
+   ```
+4. **Configure MCP servers** if your client supports it (see MCP section above).
+5. **Read `AGENT.md`** to understand your operational bounds.
+6. **Report to user:**
+   > "✅ **AI Toolbox Environment initialized successfully.** The framework `.agent/` and rules are in place. Optional tools like `rtk` and `Beads` have been checked/installed. I have read the `AGENT.md` contract and am ready to work!"
 
-Qwen Code also supports **8 Sub-Agents** for parallel task delegation (reviewer, tester, frontend, backend, security, performance, documenter, handover). These are defined in `.qwen/agents/` and delegate automatically based on task context.
+---
 
-For manual setup or customization, see `.agent/templates/clients/qwen-hooks-unix.jsonc` (Linux/macOS) or your existing `.qwen/settings.json` (Windows).
+## Troubleshooting
 
-## Step 7: Finalization
-Once completed, read the `AGENT.md` file you just copied to understand your new operational bounds in this repository.
-Then, output a message to the user:
-> "✅ **AI Toolbox Environment initialized successfully.** The framework `.agent/` and rules are in place. Optional tools like `rtk` and `Beads` have been checked/installed. I have read the `AGENT.md` contract and am ready to work!
->
-> 💡 **Tip:** If you are using Antigravity, you can now use native workflows like `/start`, `/sync`, and `/handover`!
->
-> 💡 **Tip:** If you are using Qwen Code, hooks are enabled automatically when `.qwen/settings.json` contains hook configuration. 8 Sub-Agents are available for parallel task delegation."
+| Problem | Solution |
+|---------|----------|
+| Bootstrap fails | Ensure you have `git` and execute permission on scripts |
+| Hooks not running | Check `.git/hooks/pre-commit` exists; verify client-specific config |
+| `rtk` not found | Ensure Rust is installed; use `--git` flag (not crates.io) |
+| `bd` not found | Ensure Go is installed; use `steveyegge/beads` (not fork) |
+| MCP servers failing | Ensure Node.js and `npx` are installed |
+| Router files missing | Re-run `bootstrap.sh` / `.ps1` |
+| Windows hook issues | Use `.ps1` scripts; ensure ExecutionPolicy allows |
