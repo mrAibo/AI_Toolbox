@@ -1,5 +1,7 @@
 # 🚀 AI Toolbox: Universal Terminal AI Workflow
 
+![Latest Release](https://img.shields.io/github/v/release/mrAibo/AI_Toolbox?include_prereleases&label=version)
+
 > **Terminal AI agents are brilliant — but without discipline, they forget, drift, and waste tokens.**
 
 AI Toolbox solves the three hardest problems of working with AI in your terminal:

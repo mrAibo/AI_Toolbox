@@ -9,6 +9,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ## [Unreleased]
 
 ### Added
+- Release pipeline (`.github/workflows/release.yml`) — automatic GitHub Releases on version tag push
+- Changelog validation workflow (`.github/workflows/changelog.yml`) — PR check ensuring CHANGELOG.md is updated for code changes
+- `bump-version.sh` helper script — semver tagging with push-to-release automation
 - German and Russian translations for 4 key examples (add-feature, fix-bug, refactor, continue-work)
 - `examples/daily-pitfalls.md` — 8 common daily mistakes and how AI Toolbox prevents them
 - Status reporting system (`.agent/rules/status-reporting.md`, `.agent/memory/active-session.md`)

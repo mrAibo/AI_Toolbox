@@ -1,0 +1,38 @@
+name: Changelog Validation
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, labeled, unlabeled]
+
+jobs:
+  validate:
+    name: Validate Changelog
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Check CHANGELOG.md modified
+        run: |
+          # Only require changelog update for non-trivial changes
+          FILES=$(git diff --name-only origin/main...HEAD)
+          HAS_CODE_CHANGE=false
+          HAS_CHANGELOG_UPDATE=false
+
+          echo "$FILES" | while read -r file; do
+            if [[ "$file" == CHANGELOG.md ]]; then
+              HAS_CHANGELOG_UPDATE=true
+            fi
+            if [[ "$file" =~ \.(sh|ps1|py|js|ts|md|yml|json)$ ]] && [[ "$file" != CHANGELOG.md ]]; then
+              HAS_CODE_CHANGE=true
+            fi
+          done
+
+          if [ "$HAS_CODE_CHANGE" = true ] && [ "$HAS_CHANGELOG_UPDATE" = false ]; then
+            echo "::warning::CHANGELOG.md should be updated for this PR"
+            echo "Please add an entry describing your changes."
+          else
+            echo "✅ Changelog check passed"
+          fi

@@ -1,0 +1,83 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    name: Create Release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Generate Changelog
+        id: changelog
+        run: |
+          TAG=${GITHUB_REF#refs/tags/}
+          PREVIOUS_TAG=$(git tag --sort=-v:refname | grep -E '^v' | sed -n '2p' || echo "")
+
+          if [ -n "$PREVIOUS_TAG" ]; then
+            CHANGELOG=$(git log --pretty=format:"%s" "$PREVIOUS_TAG..HEAD")
+          else
+            CHANGELOG=$(git log --pretty=format:"%s")
+          fi
+
+          echo "changelog<<EOF" >> $GITHUB_OUTPUT
+          echo "$CHANGELOG" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+          echo "tag=$TAG" >> $GITHUB_OUTPUT
+
+      - name: Create Release Archive
+        run: |
+          mkdir -p dist
+          tar -czf dist/ai-toolbox-${{ steps.changelog.outputs.tag }}.tar.gz \
+            --exclude='.git' \
+            --exclude='node_modules' \
+            --exclude='dist' \
+            .
+          zip -r dist/ai-toolbox-${{ steps.changelog.outputs.tag }}.zip \
+            -x '.git/*' \
+            -x 'node_modules/*' \
+            -x 'dist/*' \
+            .
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.changelog.outputs.tag }}
+          name: AI Toolbox ${{ steps.changelog.outputs.tag }}
+          body: |
+            ## Changes
+
+            ${{ steps.changelog.outputs.changelog }}
+
+            ## Installation
+
+            ### Quick Start
+            ```bash
+            git clone https://github.com/mrAibo/AI_Toolbox.git my-project
+            cd my-project
+            bash .agent/scripts/bootstrap.sh
+            ```
+
+            ### Downloads
+            - [tar.gz](https://github.com/mrAibo/AI_Toolbox/releases/download/${{ steps.changelog.outputs.tag }}/ai-toolbox-${{ steps.changelog.outputs.tag }}.tar.gz)
+            - [zip](https://github.com/mrAibo/AI_Toolbox/releases/download/${{ steps.changelog.outputs.tag }}/ai-toolbox-${{ steps.changelog.outputs.tag }}.zip)
+
+            ## Documentation
+            - [README.md](https://github.com/mrAibo/AI_Toolbox/blob/main/README.md)
+            - [INSTALL.md](https://github.com/mrAibo/AI_Toolbox/blob/main/INSTALL.md)
+            - [AGENT.md](https://github.com/mrAibo/AI_Toolbox/blob/main/AGENT.md)
+          files: |
+            dist/*.tar.gz
+            dist/*.zip
+          draft: false
+          prerelease: ${{ contains(github.ref, 'beta') || contains(github.ref, 'alpha') || contains(github.ref, 'rc') }}
