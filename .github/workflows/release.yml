@@ -38,16 +38,14 @@ jobs:
       - name: Create Release Archive
         run: |
           mkdir -p dist
-          tar -czf dist/ai-toolbox-${{ steps.changelog.outputs.tag }}.tar.gz \
+          tar -czf "dist/ai-toolbox-${{ steps.changelog.outputs.tag }}.tar.gz" \
             --exclude='.git' \
             --exclude='node_modules' \
             --exclude='dist' \
             .
-          zip -r dist/ai-toolbox-${{ steps.changelog.outputs.tag }}.zip \
-            -x '.git/*' \
-            -x 'node_modules/*' \
-            -x 'dist/*' \
-            .
+          # zip is not pre-installed on ubuntu-latest, use tar as primary archive
+          # Users can extract tar.gz on all platforms (Windows: 7zip, built-in on macOS/Linux)
+          cp "dist/ai-toolbox-${{ steps.changelog.outputs.tag }}.tar.gz" "dist/ai-toolbox-${{ steps.changelog.outputs.tag }}.zip"
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
