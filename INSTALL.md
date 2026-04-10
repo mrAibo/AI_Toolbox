@@ -2,10 +2,25 @@
 
 ## TL;DR — One-Command Setup
 
+### Option A: Git Clone (Recommended for contributors)
 ```bash
 git clone https://github.com/mrAibo/AI_Toolbox.git my-project
 cd my-project
 bash .agent/scripts/bootstrap.sh
+```
+
+### Option B: Release Download (Recommended for users)
+Download the latest release from https://github.com/mrAibo/AI_Toolbox/releases, then extract and run bootstrap.
+
+```bash
+# Linux/macOS — replace X.Y.Z with the latest version
+curl -sL https://github.com/mrAibo/AI_Toolbox/releases/download/vX.Y.Z/ai-toolbox-vX.Y.Z.tar.gz | tar xz
+cd AI_Toolbox
+bash .agent/scripts/bootstrap.sh
+
+# Windows — download the .zip from the Releases page, extract, then:
+cd AI_Toolbox
+powershell -ExecutionPolicy Bypass -File .agent\scripts\bootstrap.ps1
 ```
 
 That's it. Bootstrap detects your AI clients and configures everything automatically.
