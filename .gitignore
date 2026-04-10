@@ -32,3 +32,8 @@ __pycache__/
 .dolt/
 *.db
 .beads-credential-key
+
+# AI tool artifacts
+*.log
+.aider.chat.history.md
+.cursorhistory

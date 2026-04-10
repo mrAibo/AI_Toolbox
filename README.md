@@ -52,6 +52,7 @@ AI_Toolbox/
 │   │   └── client-capabilities.json  # Tier matrix (documentation)
 │   │
 │   ├── memory/                   # Durable project state
+│   │   ├── memory-index.md          # Overview of all memory files (READ FIRST)
 │   │   ├── current-task.md            # The AI's active todo list
 │   │   ├── architecture-decisions.md  # Long-term architecture ADRs
 │   │   ├── integration-contracts.md   # APIs, schemas, data expectations
@@ -202,7 +203,7 @@ The framework adapts its instructions to each client's actual capabilities via a
 | Gemini CLI | 🥉 Basic | ❌ | ❌ | ✅ | `GEMINI.md` |
 | Aider | 🥉 Basic | ❌ | ❌ | ✅ | `CONVENTIONS.md` |
 
-> **Note:** Antigravity is an internal client with full integration. For publicly available clients, see [Claude Code](https://docs.anthropic.com/en/docs/claude-code/), [Qwen Code](https://qwenlm.github.io/), [Codex CLI](https://github.com/openai/codex), [OpenCode](https://github.com/anomalyco/opencode), [Cursor](https://cursor.com/), [RooCode](https://roocode.com/), [Windsurf](https://windsurf.com/), [Gemini CLI](https://ai.google.dev/gemini-api/docs), and [Aider](https://aider.chat/).
+> **Note:** Antigravity is an internal client with full integration. For publicly available clients, see [Claude Code](https://docs.anthropic.com/en/docs/claude-code/), [Qwen Code](https://qwenlm.github.io/), [Codex CLI](https://github.com/openai/codex), [OpenCode](https://github.com/anomalyco/opencode), [Cursor](https://cursor.com/), [RooCode](https://roocode.com/), [Windsurf](https://windsurf.com/), [Gemini CLI](https://ai.google.dev/), and [Aider](https://aider.chat/).
 
 **Tier behavior:**
 - **Full:** Hooks enforce safety rules; multi-agent orchestration available; full automation via sync/handover scripts.
@@ -213,12 +214,11 @@ The framework adapts its instructions to each client's actual capabilities via a
 
 Want to convert an existing project into an AI Toolbox compliant project? Open your terminal AI (Claude Code, Qwen Code, Gemini CLI, RooCode/Cline, Cursor, Windsurf, Codex CLI, OpenCode, Aider, or Antigravity) in your project directory and paste this exact prompt:
 
-```text
-Follow the setup instructions here to initialize the AI Toolbox environment:
-https://raw.githubusercontent.com/mrAibo/AI_Toolbox/main/INSTALL.md
-```
+> *"Use this repository as the strict project workflow standard. Read AGENT.md first and follow its Boot Sequence. Do not start coding until the memory is initialized. See INSTALL.md for setup instructions."*
 
-The AI will autonomously download the `.agent` folder, `AGENT.md`, run the bootstrap script to create the routers, and report back when finished.
+Alternatively, you can reference the installation guide directly:
+- GitHub: https://github.com/mrAibo/AI_Toolbox/blob/main/INSTALL.md
+- Raw: https://raw.githubusercontent.com/mrAibo/AI_Toolbox/main/INSTALL.md
 
 ---
 

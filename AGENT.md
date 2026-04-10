@@ -109,7 +109,7 @@ Before executing heavy commands, run the pre-command hook to validate:
 # Windows
 powershell -ExecutionPolicy Bypass -File .agent/scripts/hook-pre-command.ps1 "your command"
 ```
-If the hook passes (exit 0), execute with `rtk`. If it fails (exit 1), prefix with `rtk`.
+If the hook passes (exit 0), proceed with command execution. If it fails (exit 1), the command should be prefixed with `rtk` for token optimization or reviewed for safety concerns.
 
 At session end, run the stop hook to consolidate state:
 ```bash
