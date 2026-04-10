@@ -34,7 +34,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - Code Review workflow (`.agent/workflows/code-review.md`)
 - Branch Finish workflow (`.agent/workflows/branch-finish.md`)
 - Template Bridge integration (413+ specialist templates)
-- MCP configuration for all 8 AI clients (6 client configs + master config)
+- MCP configuration for all 10 AI clients (8 client configs + master config)
 - MCP guide (`docs/mcp-guide.md`) with setup for all clients
 - Status reporting rules and live session tracking
 - End-to-end ensemble walkthrough example

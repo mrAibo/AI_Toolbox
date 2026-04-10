@@ -7,9 +7,9 @@ AI Toolbox solves the three hardest problems of working with AI in your terminal
 - **Project Amnesia** — After a restart, the AI forgets architecture decisions, test patterns, and where it left off.
 - **Execution Drift** — The AI starts coding before planning, skips tests, and claims success without verification.
 
-This project introduces a **Memory Layer**, a **Rule Layer**, and an **Automation Layer** that keep terminal AI agents disciplined, persistent, and token-efficient. It works with **9 AI clients** out of the box — Claude Code, Qwen Code, Gemini CLI, Aider, Cursor, Windsurf, RooCode/Cline, Codex CLI, and OpenCode — adapting its instructions to each client's actual capabilities.
+This project introduces a **Memory Layer**, a **Rule Layer**, and an **Automation Layer** that keep terminal AI agents disciplined, persistent, and token-efficient. It works with **10 AI clients** out of the box — Claude Code, Antigravity, Qwen Code, Gemini CLI, Aider, Cursor, Windsurf, RooCode/Cline, Codex CLI, and OpenCode — adapting its instructions to each client's actual capabilities.
 
-**Production-grade:** 100% test coverage (380 tests across 6 suites, 21 CI steps), 2 comprehensive security audits with all Critical/High findings resolved, and 11 structured workflows from TDD to multi-agent orchestration.
+**Production-grade:** Comprehensive CI validation (18 steps across 6 test suites: syntax, hooks, integration, git hooks, content, MCP schema), 2 comprehensive security audits with all Critical/High findings resolved, and 11 structured workflows from TDD to multi-agent orchestration.
 
 ---
 
