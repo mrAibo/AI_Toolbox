@@ -157,6 +157,18 @@ jobs:
         run: |
           bash .agent/scripts/test-integration.sh
 
+      - name: Git hook tests
+        run: |
+          bash .agent/scripts/test-git-hooks.sh
+
+      - name: Content validation tests
+        run: |
+          bash .agent/scripts/test-content.sh
+
+      - name: MCP schema tests
+        run: |
+          bash .agent/scripts/test-mcp-schema.sh
+
       - name: Shellcheck (lint shell scripts)
         run: |
           # Shellcheck runs on all .sh scripts — output is informational only.

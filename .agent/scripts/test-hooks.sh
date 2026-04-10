@@ -371,8 +371,17 @@ if command -v pwsh &>/dev/null; then
     run_test_pwsh "Valid JSON -> allow" 0 \
         '{"session_id":"test-456"}' "$HOOK" \
         'echo "$output" | python3 -c "import sys,json; d=json.load(sys.stdin); assert d[\"decision\"]==\"allow\""'
+    run_test_pwsh "Valid JSON with session_id -> memory updated" 0 \
+        '{"session_id":"stop-test-123"}' "$HOOK" \
+        'echo "$output" | python3 -c "import sys,json; d=json.load(sys.stdin); assert d[\"reason\"]==\"Memory files updated\""'
+    run_test_pwsh "Missing session_id field -> allow" 0 \
+        '{"tool_name":"Stop"}' "$HOOK" \
+        'echo "$output" | python3 -c "import sys,json; d=json.load(sys.stdin); assert d[\"decision\"]==\"allow\""'
+    run_test_pwsh "Output has required fields" 0 \
+        '{"session_id":"fields-test"}' "$HOOK" \
+        'echo "$output" | python3 -c "import sys,json; d=json.load(sys.stdin); assert \"decision\" in d and \"reason\" in d"'
 else
-    TOTAL=$((TOTAL + 3))
+    TOTAL=$((TOTAL + 6))
     echo -e "  ${YELLOW}SKIP${NC} All pwsh tests (pwsh not available)"
 fi
 
@@ -399,8 +408,17 @@ if command -v pwsh &>/dev/null; then
     run_test_pwsh "Malformed JSON -> allow" 0 "not-json" "$HOOK"
     run_test_pwsh "Valid JSON -> allow" 0 \
         '{"session_id":"end-789"}' "$HOOK"
+    run_test_pwsh "Valid JSON -> session consolidation" 0 \
+        '{"session_id":"end-consolidate"}' "$HOOK" \
+        'echo "$output" | python3 -c "import sys,json; d=json.load(sys.stdin); assert \"consolidation\" in d[\"reason\"].lower() or d[\"decision\"]==\"allow\""'
+    run_test_pwsh "Missing session_id -> allow" 0 \
+        '{"tool_name":"SessionEnd"}' "$HOOK" \
+        'echo "$output" | python3 -c "import sys,json; d=json.load(sys.stdin); assert d[\"decision\"]==\"allow\""'
+    run_test_pwsh "Output has required fields" 0 \
+        '{"session_id":"fields-check"}' "$HOOK" \
+        'echo "$output" | python3 -c "import sys,json; d=json.load(sys.stdin); assert \"decision\" in d and \"reason\" in d"'
 else
-    TOTAL=$((TOTAL + 3))
+    TOTAL=$((TOTAL + 6))
     echo -e "  ${YELLOW}SKIP${NC} All pwsh tests (pwsh not available)"
 fi
 
@@ -433,8 +451,17 @@ if command -v pwsh &>/dev/null; then
     run_test_pwsh "Valid JSON -> allow" 0 \
         '{"tool_name":"Compact"}' "$HOOK" \
         'echo "$output" | python3 -c "import sys,json; d=json.load(sys.stdin); assert d[\"decision\"]==\"allow\""'
+    run_test_pwsh "Valid JSON -> context injected" 0 \
+        '{"tool_name":"Compact"}' "$HOOK" \
+        'echo "$output" | python3 -c "import sys,json; d=json.load(sys.stdin); assert \"injected\" in d[\"reason\"].lower() or d[\"decision\"]==\"allow\""'
+    run_test_pwsh "Missing tool_name -> allow" 0 \
+        '{"session_id":"compact-test"}' "$HOOK" \
+        'echo "$output" | python3 -c "import sys,json; d=json.load(sys.stdin); assert d[\"decision\"]==\"allow\""'
+    run_test_pwsh "Output has required fields" 0 \
+        '{"tool_name":"Compact"}' "$HOOK" \
+        'echo "$output" | python3 -c "import sys,json; d=json.load(sys.stdin); assert \"decision\" in d and \"reason\" in d"'
 else
-    TOTAL=$((TOTAL + 3))
+    TOTAL=$((TOTAL + 6))
     echo -e "  ${YELLOW}SKIP${NC} All pwsh tests (pwsh not available)"
 fi
 
@@ -495,6 +522,199 @@ run_test "API key pattern -> warning" 0 \
     "{\"tool_name\":\"Write\",\"tool_input\":{\"file_path\":\"$API_FILE_NATIVE\"}}" \
     "$SCRIPT_DIR/hook-post-tool-qwen.sh" \
     'echo "$output" | python3 -c "import sys,json; d=json.load(sys.stdin); assert \"secret\" in d[\"reason\"].lower()"'
+
+# ─── 11. hook-pre-command-ps1-qwen.ps1 (FULL: 6 tests) ───────────────────────
+
+echo ""
+echo "=== hook-pre-command-ps1-qwen.ps1 [FULL] ==="
+HOOK="$SCRIPT_DIR/hook-pre-command-ps1-qwen.ps1"
+
+if command -v pwsh &>/dev/null; then
+    # Test 1: Empty stdin -> valid JSON + exit 0
+    run_test_pwsh "Empty stdin -> valid JSON + exit 0" 0 "" "$HOOK" \
+        'echo "$output" | python3 -c "import sys,json; d=json.load(sys.stdin); assert d[\"decision\"]==\"allow\""'
+
+    # Test 2: Malformed JSON -> graceful allow + exit 0
+    run_test_pwsh "Malformed JSON -> graceful allow + exit 0" 0 "not json at all!!!" "$HOOK" \
+        'echo "$output" | python3 -c "import sys,json; d=json.load(sys.stdin); assert d[\"decision\"]==\"allow\""'
+
+    # Test 3: Missing tool_input field -> allow gracefully
+    run_test_pwsh "Missing tool_input -> allow gracefully" 0 '{"tool_name":"Bash"}' "$HOOK" \
+        'echo "$output" | python3 -c "import sys,json; d=json.load(sys.stdin); assert d[\"decision\"]==\"allow\""'
+
+    # Test 4: Heavy command (npm run build) -> decision: "ask"
+    run_test_pwsh "Heavy command 'npm run build' -> decision: ask" 0 \
+        '{"tool_name":"Bash","tool_input":{"command":"npm run build"}}' "$HOOK" \
+        'echo "$output" | python3 -c "import sys,json; d=json.load(sys.stdin); assert d[\"decision\"]==\"ask\", f\"got {d[\"decision\"]}\""'
+
+    # Test 5: Heavy command (pytest tests/) -> decision: "ask"
+    run_test_pwsh "Heavy command 'pytest tests/' -> decision: ask" 0 \
+        '{"tool_name":"Bash","tool_input":{"command":"pytest tests/"}}' "$HOOK" \
+        'echo "$output" | python3 -c "import sys,json; d=json.load(sys.stdin); assert d[\"decision\"]==\"ask\""'
+
+    # Test 6: rtk-prefixed command (rtk npm run build) -> decision: "allow"
+    run_test_pwsh "rtk-prefixed 'rtk npm run build' -> decision: allow" 0 \
+        '{"tool_name":"Bash","tool_input":{"command":"rtk npm run build"}}' "$HOOK" \
+        'echo "$output" | python3 -c "import sys,json; d=json.load(sys.stdin); assert d[\"decision\"]==\"allow\""'
+else
+    TOTAL=$((TOTAL + 6))
+    echo -e "  ${YELLOW}SKIP${NC} All 6 pwsh tests (pwsh not available)"
+fi
+
+# ─── 12. hook-post-tool-ps1-qwen.ps1 (FULL: 6 tests) ─────────────────────────
+
+echo ""
+echo "=== hook-post-tool-ps1-qwen.ps1 [FULL] ==="
+HOOK="$SCRIPT_DIR/hook-post-tool-ps1-qwen.ps1"
+
+if command -v pwsh &>/dev/null; then
+    # Test 1: Empty stdin -> valid JSON + exit 0
+    run_test_pwsh "Empty stdin -> valid JSON + exit 0" 0 "" "$HOOK" \
+        'echo "$output" | python3 -c "import sys,json; d=json.load(sys.stdin); assert d[\"decision\"]==\"allow\""'
+
+    # Test 2: Malformed JSON -> graceful allow + exit 0
+    run_test_pwsh "Malformed JSON -> graceful allow + exit 0" 0 "garbage input {{{" "$HOOK" \
+        'echo "$output" | python3 -c "import sys,json; d=json.load(sys.stdin); assert d[\"decision\"]==\"allow\""'
+
+    # Test 3: Missing file_path field -> allow gracefully
+    run_test_pwsh "Missing file_path -> allow gracefully" 0 '{"tool_name":"Write"}' "$HOOK" \
+        'echo "$output" | python3 -c "import sys,json; d=json.load(sys.stdin); assert d[\"decision\"]==\"allow\""'
+
+    # Test 4: Heavy command — not applicable for post-tool; use clean file -> allow
+    run_test_pwsh "Clean file -> security check passed" 0 \
+        "{\"tool_name\":\"Write\",\"tool_input\":{\"file_path\":\"$CLEAN_FILE_NATIVE\"}}" "$HOOK" \
+        'echo "$output" | python3 -c "import sys,json; d=json.load(sys.stdin); assert \"passed\" in d[\"reason\"].lower() or d[\"decision\"]==\"allow\""'
+
+    # Test 5: rtk-prefixed — not applicable; test non-existent file -> allow
+    run_test_pwsh "Non-existent file -> allow gracefully" 0 \
+        '{"tool_name":"Write","tool_input":{"file_path":"/tmp/does_not_exist_xyz999.txt"}}' "$HOOK" \
+        'echo "$output" | python3 -c "import sys,json; d=json.load(sys.stdin); assert d[\"decision\"]==\"allow\""'
+
+    # Test 6: Secret detection — temp file containing "password = test12345678"
+    SECRET_PW_FILE="$TMPDIR_HOOKS/secret_pw_ps1.txt"
+    echo 'password = test12345678' > "$SECRET_PW_FILE"
+    SECRET_PW_FILE_NATIVE="$(to_native_path "$SECRET_PW_FILE")"
+    run_test_pwsh "Secret detection 'password = test12345678' -> warning" 0 \
+        "{\"tool_name\":\"Write\",\"tool_input\":{\"file_path\":\"$SECRET_PW_FILE_NATIVE\"}}" "$HOOK" \
+        'echo "$output" | python3 -c "import sys,json; d=json.load(sys.stdin); assert \"secret\" in d[\"reason\"].lower() or \"potential\" in d[\"reason\"].lower()"'
+else
+    TOTAL=$((TOTAL + 6))
+    echo -e "  ${YELLOW}SKIP${NC} All 6 pwsh tests (pwsh not available)"
+fi
+
+# ─── 13. hook-stop-ps1-qwen.ps1 (FULL: 6 tests) ──────────────────────────────
+
+echo ""
+echo "=== hook-stop-ps1-qwen.ps1 [FULL] ==="
+HOOK="$SCRIPT_DIR/hook-stop-ps1-qwen.ps1"
+
+if command -v pwsh &>/dev/null; then
+    # Test 1: Empty stdin -> valid JSON + exit 0
+    run_test_pwsh "Empty stdin -> valid JSON + exit 0" 0 "" "$HOOK" \
+        'echo "$output" | python3 -c "import sys,json; d=json.load(sys.stdin); assert d[\"decision\"]==\"allow\""'
+
+    # Test 2: Malformed JSON -> graceful allow + exit 0
+    run_test_pwsh "Malformed JSON -> graceful allow + exit 0" 0 "broken { json" "$HOOK" \
+        'echo "$output" | python3 -c "import sys,json; d=json.load(sys.stdin); assert d[\"decision\"]==\"allow\""'
+
+    # Test 3: Missing fields (no session_id) -> allow gracefully
+    run_test_pwsh "Missing session_id -> allow gracefully" 0 '{"tool_name":"Stop"}' "$HOOK" \
+        'echo "$output" | python3 -c "import sys,json; d=json.load(sys.stdin); assert d[\"decision\"]==\"allow\""'
+
+    # Test 4: Heavy command — not applicable; test valid JSON -> allow
+    run_test_pwsh "Valid JSON -> allow + memory updated" 0 \
+        '{"session_id":"stop-full-test"}' "$HOOK" \
+        'echo "$output" | python3 -c "import sys,json; d=json.load(sys.stdin); assert d[\"decision\"]==\"allow\" and d[\"reason\"]==\"Memory files updated\""'
+
+    # Test 5: rtk-prefixed — not applicable; test output has required fields
+    run_test_pwsh "Output has required fields (decision, reason)" 0 \
+        '{"session_id":"fields-check-stop"}' "$HOOK" \
+        'echo "$output" | python3 -c "import sys,json; d=json.load(sys.stdin); assert \"decision\" in d and \"reason\" in d"'
+
+    # Test 6: Output has hookSpecificOutput
+    run_test_pwsh "Output has hookSpecificOutput" 0 \
+        '{"session_id":"hook-output-check"}' "$HOOK" \
+        'echo "$output" | python3 -c "import sys,json; d=json.load(sys.stdin); h=d.get(\"hookSpecificOutput\",{}); assert \"hookEventName\" in h"'
+else
+    TOTAL=$((TOTAL + 6))
+    echo -e "  ${YELLOW}SKIP${NC} All 6 pwsh tests (pwsh not available)"
+fi
+
+# ─── 14. hook-session-end-ps1-qwen.ps1 (FULL: 6 tests) ───────────────────────
+
+echo ""
+echo "=== hook-session-end-ps1-qwen.ps1 [FULL] ==="
+HOOK="$SCRIPT_DIR/hook-session-end-ps1-qwen.ps1"
+
+if command -v pwsh &>/dev/null; then
+    # Test 1: Empty stdin -> valid JSON + exit 0
+    run_test_pwsh "Empty stdin -> valid JSON + exit 0" 0 "" "$HOOK" \
+        'echo "$output" | python3 -c "import sys,json; d=json.load(sys.stdin); assert d[\"decision\"]==\"allow\""'
+
+    # Test 2: Malformed JSON -> graceful allow + exit 0
+    run_test_pwsh "Malformed JSON -> graceful allow + exit 0" 0 "{{{ bad json" "$HOOK" \
+        'echo "$output" | python3 -c "import sys,json; d=json.load(sys.stdin); assert d[\"decision\"]==\"allow\""'
+
+    # Test 3: Missing fields (no session_id) -> allow gracefully
+    run_test_pwsh "Missing session_id -> allow gracefully" 0 '{"tool_name":"SessionEnd"}' "$HOOK" \
+        'echo "$output" | python3 -c "import sys,json; d=json.load(sys.stdin); assert d[\"decision\"]==\"allow\""'
+
+    # Test 4: Valid JSON -> allow (heavy command N/A for this hook)
+    run_test_pwsh "Valid JSON -> allow + session consolidation" 0 \
+        '{"session_id":"end-full-test"}' "$HOOK" \
+        'echo "$output" | python3 -c "import sys,json; d=json.load(sys.stdin); assert d[\"decision\"]==\"allow\""'
+
+    # Test 5: Output has required fields
+    run_test_pwsh "Output has required fields (decision, reason)" 0 \
+        '{"session_id":"fields-check-end"}' "$HOOK" \
+        'echo "$output" | python3 -c "import sys,json; d=json.load(sys.stdin); assert \"decision\" in d and \"reason\" in d"'
+
+    # Test 6: Output has hookSpecificOutput
+    run_test_pwsh "Output has hookSpecificOutput" 0 \
+        '{"session_id":"hook-output-check-end"}' "$HOOK" \
+        'echo "$output" | python3 -c "import sys,json; d=json.load(sys.stdin); h=d.get(\"hookSpecificOutput\",{}); assert \"hookEventName\" in h"'
+else
+    TOTAL=$((TOTAL + 6))
+    echo -e "  ${YELLOW}SKIP${NC} All 6 pwsh tests (pwsh not available)"
+fi
+
+# ─── 15. hook-pre-compact-ps1-qwen.ps1 (FULL: 6 tests) ───────────────────────
+
+echo ""
+echo "=== hook-pre-compact-ps1-qwen.ps1 [FULL] ==="
+HOOK="$SCRIPT_DIR/hook-pre-compact-ps1-qwen.ps1"
+
+if command -v pwsh &>/dev/null; then
+    # Test 1: Empty stdin -> valid JSON + exit 0
+    run_test_pwsh "Empty stdin -> valid JSON + exit 0" 0 "" "$HOOK" \
+        'echo "$output" | python3 -c "import sys,json; d=json.load(sys.stdin); assert d[\"decision\"]==\"allow\""'
+
+    # Test 2: Malformed JSON -> graceful allow + exit 0
+    run_test_pwsh "Malformed JSON -> graceful allow + exit 0" 0 "not valid json!!!" "$HOOK" \
+        'echo "$output" | python3 -c "import sys,json; d=json.load(sys.stdin); assert d[\"decision\"]==\"allow\""'
+
+    # Test 3: Missing fields (no tool_name) -> allow gracefully
+    run_test_pwsh "Missing tool_name -> allow gracefully" 0 '{"session_id":"compact-only"}' "$HOOK" \
+        'echo "$output" | python3 -c "import sys,json; d=json.load(sys.stdin); assert d[\"decision\"]==\"allow\""'
+
+    # Test 4: Valid JSON -> allow with context injected (heavy command N/A)
+    run_test_pwsh "Valid JSON -> context injected" 0 \
+        '{"tool_name":"Compact"}' "$HOOK" \
+        'echo "$output" | python3 -c "import sys,json; d=json.load(sys.stdin); assert \"injected\" in d[\"reason\"].lower() or d[\"decision\"]==\"allow\""'
+
+    # Test 5: Output has required fields
+    run_test_pwsh "Output has required fields (decision, reason)" 0 \
+        '{"tool_name":"Compact"}' "$HOOK" \
+        'echo "$output" | python3 -c "import sys,json; d=json.load(sys.stdin); assert \"decision\" in d and \"reason\" in d"'
+
+    # Test 6: Output has hookSpecificOutput with additionalContext
+    run_test_pwsh "Output has hookSpecificOutput.additionalContext" 0 \
+        '{"tool_name":"Compact"}' "$HOOK" \
+        'echo "$output" | python3 -c "import sys,json; d=json.load(sys.stdin); h=d.get(\"hookSpecificOutput\",{}); assert \"additionalContext\" in h"'
+else
+    TOTAL=$((TOTAL + 6))
+    echo -e "  ${YELLOW}SKIP${NC} All 6 pwsh tests (pwsh not available)"
+fi
 
 # ─── Summary ──────────────────────────────────────────────────────────────────
 

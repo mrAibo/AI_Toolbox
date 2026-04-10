@@ -6,3 +6,12 @@ description: Create a new Architecture Decision Record (ADR)
 2. Determine the next ADR number based on existing records in `.agent/memory/architecture-decisions.md`
 3. Append the new ADR to `.agent/memory/architecture-decisions.md` or create a new entry
 4. Summarize the decision to the user
+
+## Verification
+
+Before recording an ADR:
+- Verify the decision addresses a real architectural need
+- Check that rejected alternatives were genuinely considered
+- Confirm consequences are documented
+- Verify the ADR follows the template format (ADR-XXXX, Status, Date, Context, Decision, Consequences, Rejected alternatives)
+- Check that related ADRs are linked if applicable
