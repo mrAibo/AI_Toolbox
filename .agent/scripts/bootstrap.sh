@@ -143,6 +143,29 @@ cat << 'EOF' > .agent/memory/.tool-stats.json
 EOF
 fi
 
+# Initialize memory index (READ FIRST during boot sequence)
+if [ ! -s .agent/memory/memory-index.md ]; then
+cat << 'EOF' > .agent/memory/memory-index.md
+# Memory Index
+
+This file provides a quick overview of all memory files. Read this first during boot, then load detail files only when relevant.
+
+## Memory Files
+
+- **architecture-decisions.md** — ADR log (architectural decisions)
+- **integration-contracts.md** — API/schema contracts
+- **session-handover.md** — Unfinished work from last session
+- **current-task.md** — Active todo list (Beads tracker mirror)
+- **runbook.md** — Operational procedures (if present)
+- **active-session.md** — Live session state
+
+## ADRs
+
+See `.agent/memory/adrs/` for individual Architecture Decision Records.
+
+EOF
+fi
+
 if [ ! -s .agent/rules/safety-rules.md ]; then
 cat << 'EOF' > .agent/rules/safety-rules.md
 # Safety Rules

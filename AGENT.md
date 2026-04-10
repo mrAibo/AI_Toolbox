@@ -43,7 +43,7 @@ This is the **Definitive Boot Sequence**. All agents must follow this procedure 
      → MCP: [configured / not configured]
    ```
 2. **Memory Index:** Read `.agent/memory/memory-index.md` first — it provides an overview of all memory files. Load detail files only on demand.
-3. **Context Recovery:** Read `.agent/memory/architecture-decisions.md` (ADRs indexed in `adrs/`) and `.agent/memory/integration-contracts.md`.
+3. **Lazy Context Loading:** Read `.agent/memory/memory-index.md` to understand what ADRs and contracts exist. **DO NOT read the full architecture-decisions.md or integration-contracts.md unless the index indicates they are directly relevant to your current task.**
 4. **Work-in-Progress Check:** Read `.agent/memory/session-handover.md` if it exists.
 5. **Task Synchronization:** Run `.agent/scripts/sync-task.sh` (or `.ps1` on Windows) to update `.agent/memory/current-task.md` with the latest state from the task tracker.
 6. **Runbook:** Read `.agent/memory/runbook.md` if present (operational procedures).
@@ -55,6 +55,7 @@ This is the **Definitive Boot Sequence**. All agents must follow this procedure 
     - **[.agent/rules/defense-in-depth.md](.agent/rules/defense-in-depth.md)** — Multi-layer post-fix validation (unit + integration + edge cases)
     - **[.agent/rules/condition-based-waiting.md](.agent/rules/condition-based-waiting.md)** — Poll for conditions instead of using arbitrary timeouts
     - **[.agent/rules/testing-anti-patterns.md](.agent/rules/testing-anti-patterns.md)** — Common testing mistakes to avoid
+    - **[.agent/rules/diff-editing.md](.agent/rules/diff-editing.md)** — Token-efficient editing: NEVER output full files, use sed/Python patches
 10. **Summarization:** Briefly summarize the recovered context, current state, available tools, and the next planned task before continuing.
 
 Purpose:

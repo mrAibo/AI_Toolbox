@@ -107,6 +107,30 @@ if (-not (Test-Path ".agent/memory/.tool-stats.json") -or (Get-Item ".agent/memo
     Set-Content -Path ".agent/memory/.tool-stats.json" -Value '{"rtk": 0, "beads": 0, "mcp": 0}' -Encoding utf8
 }
 
+# Initialize memory index (READ FIRST during boot sequence)
+if (-not (Test-Path ".agent/memory/memory-index.md") -or (Get-Item ".agent/memory/memory-index.md").Length -eq 0) {
+    $MIContent = @'
+# Memory Index
+
+This file provides a quick overview of all memory files. Read this first during boot, then load detail files only when relevant.
+
+## Memory Files
+
+- **architecture-decisions.md** — ADR log (architectural decisions)
+- **integration-contracts.md** — API/schema contracts
+- **session-handover.md** — Unfinished work from last session
+- **current-task.md** — Active todo list (Beads tracker mirror)
+- **runbook.md** — Operational procedures (if present)
+- **active-session.md** — Live session state
+
+## ADRs
+
+See `.agent/memory/adrs/` for individual Architecture Decision Records.
+
+'@
+    Set-Content -Path ".agent/memory/memory-index.md" -Value $MIContent -Encoding utf8
+}
+
 if (-not (Test-Path ".agent/memory/integration-contracts.md") -or (Get-Item ".agent/memory/integration-contracts.md").Length -eq 0) {
     $ICContent = @'
 # Integration Contracts
