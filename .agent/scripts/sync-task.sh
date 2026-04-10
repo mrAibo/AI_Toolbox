@@ -3,7 +3,11 @@
 # Export current task state to a static file for the AI to read.
 # Also detects task type and suggests the appropriate workflow.
 
-REPO_ROOT="$(git rev-parse --show-toplevel)"
+REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
+if [ -z "$REPO_ROOT" ] || [ "$REPO_ROOT" = "/" ]; then
+    echo "[ERROR] Cannot determine repository root" >&2
+    exit 1
+fi
 TASK_FILE="$REPO_ROOT/.agent/memory/current-task.md"
 ACTIVE_SESSION="$REPO_ROOT/.agent/memory/active-session.md"
 
@@ -55,7 +59,8 @@ if [ -f "$ACTIVE_SESSION" ]; then
     TASK_INFO=$(head -3 "$TASK_FILE" 2>/dev/null || echo "No task info")
     # Remove old Current Step section using portable approach
     # Stop at next H2 heading (any letter after ## )
-    TMPFILE=$(mktemp 2>/dev/null || echo "/tmp/sync-task-tmp.$$")
+    TMPFILE="${ACTIVE_SESSION}.tmp.$$"
+    trap 'rm -f "$TMPFILE" 2>/dev/null' EXIT
     awk '/^## Current Step/{found=1; next} /^## [A-Za-z]/{found=0} !found' "$ACTIVE_SESSION" > "$TMPFILE"
     cat << EOF >> "$TMPFILE"
 ## Current Step

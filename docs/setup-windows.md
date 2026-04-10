@@ -51,7 +51,7 @@ rtk init -g  # Installs hooks (Windows: fallback to --claude-md)
 
 # Beads — task tracking (recommended)
 # Install Go from https://go.dev/dl/, then:
-go install github.com/steveyegge/beads/cmd/bd@latest
+go install github.com/steveyegge/beads/cmd/bd@v0.63.3
 
 # Alternative: Manual download if go install is not available
 # Download from https://github.com/steveyegge/beads/releases, extract, and add bd.exe to PATH
@@ -117,8 +117,8 @@ Both bootstrap scripts produce equivalent output:
 | `rustup-init` asks for C++ linker | Choose option `1)` (VS Build Tools) or `3)` (GNU ABI) |
 | `cargo install rtk` installs wrong tool | Use `cargo install --git https://github.com/rtk-ai/rtk` |
 | `rtk: command not found` | Install Rust first, then `cargo install --git https://github.com/rtk-ai/rtk` |
-| `npm install -g @beads/bd` fails | Beads no longer uses npm. Use `go install github.com/steveyegge/beads/cmd/bd@latest` instead |
-| `bd: command not found` | Install Go, then `go install github.com/steveyegge/beads/cmd/bd@latest`, or download from https://github.com/steveyegge/beads/releases |
+| `npm install -g @beads/bd` fails | Beads no longer uses npm. Use `go install github.com/steveyegge/beads/cmd/bd@v0.63.3` instead |
+| `bd: command not found` | Install Go, then `go install github.com/steveyegge/beads/cmd/bd@v0.63.3`, or download from https://github.com/steveyegge/beads/releases |
 | AI doesn't read AGENT.md | Ensure your client's router file references AGENT.md |
 | Git hooks not running | On Windows, use `bootstrap.ps1` for `.bat` wrapper creation |
 | `rtk init -g` Warning "No hook installed" | Normal on Windows — rtk uses `--claude-md` mode as fallback |

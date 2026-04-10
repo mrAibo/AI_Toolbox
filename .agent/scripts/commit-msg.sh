@@ -7,7 +7,9 @@ REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
 COMMIT_MSG_FILE="$1"
 
 # Validate commit message file path is within .git directory (resolved symlinks)
-RESOLVED=$(realpath -m -- "$COMMIT_MSG_FILE" 2>/dev/null || echo "")
+RESOLVED=$(realpath -m -- "$COMMIT_MSG_FILE" 2>/dev/null || {
+    cd "$(dirname "$COMMIT_MSG_FILE")" 2>/dev/null && echo "$(pwd)/$(basename "$COMMIT_MSG_FILE")"
+} || echo "")
 case "$RESOLVED" in
   */.git/COMMIT_EDITMSG|.git/COMMIT_EDITMSG) ;;
   *) exit 0 ;;

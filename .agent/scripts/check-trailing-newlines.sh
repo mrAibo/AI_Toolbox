@@ -22,8 +22,15 @@ done
 # Find all matching files
 FILES=()
 for ext in "${EXTENSIONS[@]}"; do
-    mapfile -d '' -t found < <(find . -name "$ext" -type f "${EXCLUDE_ARGS[@]}" -print0 2>/dev/null)
-    FILES+=("${found[@]}")
+    if [[ "${BASH_VERSINFO[0]}" -lt 4 ]] || [[ "${BASH_VERSINFO[0]}" -eq 4 && "${BASH_VERSINFO[1]}" -lt 4 ]]; then
+        # Fallback for bash < 4.4: use while-read instead of mapfile
+        while IFS= read -r -d '' file; do
+            FILES+=("$file")
+        done < <(find . -name "$ext" -type f "${EXCLUDE_ARGS[@]}" -print0 2>/dev/null)
+    else
+        mapfile -d '' -t found < <(find . -name "$ext" -type f "${EXCLUDE_ARGS[@]}" -print0 2>/dev/null)
+        FILES+=("${found[@]}")
+    fi
 done
 
 for file in "${FILES[@]}"; do

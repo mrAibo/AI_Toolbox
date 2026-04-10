@@ -13,7 +13,7 @@ That's it. Bootstrap detects your AI clients and configures everything automatic
 **Optional but recommended:**
 ```bash
 cargo install --git https://github.com/rtk-ai/rtk && rtk init -g   # Token optimization (60-90% savings)
-go install github.com/steveyegge/beads/cmd/bd@latest && bd init      # Task tracking
+go install github.com/steveyegge/beads/cmd/bd@v0.63.3 && bd init      # Task tracking
 ```
 
 ---
@@ -164,7 +164,7 @@ rtk init -g
 #### Beads (Task Tracker)
 Git-backed CLI task tracker for out-of-context planning.
 ```bash
-go install github.com/steveyegge/beads/cmd/bd@latest
+go install github.com/steveyegge/beads/cmd/bd@v0.63.3
 bd init
 ```
 - **Alternative:** Download from https://github.com/steveyegge/beads/releases

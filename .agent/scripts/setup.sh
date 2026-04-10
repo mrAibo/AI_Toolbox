@@ -228,10 +228,10 @@ if [ -n "$PRIMARY_CLIENT" ]; then
     case "$PRIMARY_CLIENT" in
       claude)
         echo "  ✅ context7"
-        claude mcp add context7 npx -y @upstash/context7-mcp 2>/dev/null || echo "  ⚠️  Failed to add context7 (may already exist)"
+        claude mcp add context7 npx -y @upstash/context7-mcp@1.2.0 2>/dev/null || echo "  ⚠️  Failed to add context7 (may already exist)"
 
         echo "  ✅ sequential-thinking"
-        claude mcp add sequential-thinking npx -y @modelcontextprotocol/server-sequential-thinking 2>/dev/null || echo "  ⚠️  Failed to add sequential-thinking (may already exist)"
+        claude mcp add sequential-thinking npx -y @modelcontextprotocol/server-sequential-thinking@0.1.0 2>/dev/null || echo "  ⚠️  Failed to add sequential-thinking (may already exist)"
         ;;
       qwen|aider|cursor|cline|windsurf|gemini)
         # For other clients, we provide the config file

@@ -263,7 +263,7 @@ Toolbox — это не один инструмент, а координиров
 | Инструмент | Решает | Установка |
 |------------|--------|-----------|
 | [rtk](https://github.com/rtk-ai/rtk) | Сжатие вывода (60-90% экономии токенов) | `cargo install --git https://github.com/rtk-ai/rtk` + `rtk init -g` |
-| [Beads](https://github.com/steveyegge/beads) | Трекинг задач вне контекста чата | `go install github.com/steveyegge/beads/cmd/bd@latest` + `bd init` |
+| [Beads](https://github.com/steveyegge/beads) | Трекинг задач вне контекста чата | `go install github.com/steveyegge/beads/cmd/bd@v0.63.3` + `bd init` |
 | [Superpowers](https://github.com/obra/superpowers) | Инженерная дисциплина (TDD, планирование, ревью) | Встроено в `.agent/rules/` — установка не нужна |
 | [Template Bridge](https://github.com/maslennikov-ig/template-bridge) | 413+ экспертных шаблонов для специализированных задач | Claude Code plugin или `npx` |
 | [MCP-серверы](https://modelcontextprotocol.io/) | Внешние ресурсы: документация, GitHub, веб | `claude mcp add ...` |

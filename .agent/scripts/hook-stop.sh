@@ -70,8 +70,22 @@ for tool, count in sorted(stats.items(), key=lambda x: -x[1]):
       # Find the line number of the (TRIM_COUNT+1)-th "## Session Summary" header
       KEEP_FROM=$(grep -n "^## Session Summary " "$HANDOVER_FILE" | sed -n "$((TRIM_COUNT + 1))p" | cut -d: -f1)
       if [ -n "$KEEP_FROM" ]; then
+        # Preserve content before the first summary header (e.g., project info, instructions)
+        FIRST_SUMMARY=$(grep -n "^## Session Summary " "$HANDOVER_FILE" | head -1 | cut -d: -f1)
+        if [ -n "$FIRST_SUMMARY" ] && [ "$FIRST_SUMMARY" -gt 1 ]; then
+          HEADER=$(head -n $((FIRST_SUMMARY - 1)) "$HANDOVER_FILE")
+        else
+          HEADER=""
+        fi
         tail -n +"$KEEP_FROM" "$HANDOVER_FILE" > "$HANDOVER_FILE.tmp"
-        mv "$HANDOVER_FILE.tmp" "$HANDOVER_FILE"
+        if [ -n "$HEADER" ]; then
+          echo "$HEADER" > "$HANDOVER_FILE"
+          echo "" >> "$HANDOVER_FILE"
+        else
+          : > "$HANDOVER_FILE"
+        fi
+        cat "$HANDOVER_FILE.tmp" >> "$HANDOVER_FILE"
+        rm -f "$HANDOVER_FILE.tmp"
       fi
     fi
   fi

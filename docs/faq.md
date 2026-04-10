@@ -105,7 +105,7 @@ Make sure `AGENT.md` is in the project root and the AI reads it at session start
 Install Rust first (`curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh` or https://rustup.rs/ for Windows), then run `cargo install --git https://github.com/rtk-ai/rtk`. **Do NOT use `cargo install rtk`** — that installs a different project (Rust Type Kit). After installation, run `rtk init -g` to install hooks for your AI client.
 
 ### Beads is not found
-Install Go first, then run `go install github.com/steveyegge/beads/cmd/bd@latest`. Initialize with `bd init` in your project directory. Alternatively, download the binary directly from https://github.com/steveyegge/beads/releases and place `bd` (or `bd.exe` on Windows) in your PATH.
+Install Go first, then run `go install github.com/steveyegge/beads/cmd/bd@v0.63.3`. Initialize with `bd init` in your project directory. Alternatively, download the binary directly from https://github.com/steveyegge/beads/releases and place `bd` (or `bd.exe` on Windows) in your PATH.
 
 ### MCP servers fail to connect
 Ensure Node.js and `npx` are installed. For Claude Code, use `claude mcp add`. For other clients, copy the JSON config from `.agent/templates/mcp/` to your client's MCP settings. See [MCP Guide](mcp-guide.md) for client-specific instructions.

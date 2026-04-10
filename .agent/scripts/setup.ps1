@@ -267,10 +267,10 @@ if ($PrimaryClient) {
     switch ($PrimaryClient) {
       "claude" {
         Write-Host "  ? context7"
-        try { claude mcp add context7 npx -y @upstash/context7-mcp 2>$null } catch { Write-Host "  [WARN]  Failed to add context7 (may already exist)" -ForegroundColor Yellow }
+        try { claude mcp add context7 npx -y @upstash/context7-mcp@1.2.0 2>$null } catch { Write-Host "  [WARN]  Failed to add context7 (may already exist)" -ForegroundColor Yellow }
 
         Write-Host "  ? sequential-thinking"
-        try { claude mcp add sequential-thinking npx -y @modelcontextprotocol/server-sequential-thinking 2>$null } catch { Write-Host "  [WARN]  Failed to add sequential-thinking (may already exist)" -ForegroundColor Yellow }
+        try { claude mcp add sequential-thinking npx -y @modelcontextprotocol/server-sequential-thinking@0.1.0 2>$null } catch { Write-Host "  [WARN]  Failed to add sequential-thinking (may already exist)" -ForegroundColor Yellow }
       }
       "qwen" { $McpFile = "mcp-qwen.json" }
       "aider" { $McpFile = "mcp-aider.yml" }

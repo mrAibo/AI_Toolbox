@@ -28,6 +28,16 @@ try {
         exit 0
     }
 
+    # Path traversal guard: resolve and verify file is within repo root
+    $RepoRoot = git rev-parse --show-toplevel 2>$null
+    if (-not $RepoRoot) { $RepoRoot = (Get-Location).Path }
+    $ResolvedFile = [System.IO.Path]::GetFullPath($FilePath)
+    $ResolvedRoot = [System.IO.Path]::GetFullPath($RepoRoot)
+    if (-not $ResolvedFile.StartsWith($ResolvedRoot)) {
+        Write-Host '{"decision":"allow","reason":"File outside repository"}'
+        exit 0
+    }
+
     # Security patterns to scan for in written files
     $SecretPatterns = @(
         '(?i)(password|passwd|pwd)\s*[=:]\s*["''][^"'']+["'']',
