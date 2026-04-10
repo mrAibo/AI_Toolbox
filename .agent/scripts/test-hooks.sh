@@ -11,6 +11,11 @@ set -u
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 
+# Temp directory for test artifacts — set early so all functions can use it
+TMPDIR_HOOKS="$REPO_ROOT/.agent/scripts/.test-tmp-$$"
+mkdir -p "$TMPDIR_HOOKS"
+trap 'rm -rf "$TMPDIR_HOOKS"' EXIT
+
 PASS=0
 FAIL=0
 TOTAL=0
