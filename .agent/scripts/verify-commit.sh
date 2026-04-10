@@ -50,29 +50,59 @@ else
     STAGED_FILES=$(git diff --cached --name-only 2>/dev/null || true)
     if [ -n "$STAGED_FILES" ]; then
         SECRET_FILES=""
+        HARD_BLOCKED_FILES=""
         for file in $STAGED_FILES; do
+            filename=$(basename "$file")
             full_path="$REPO_ROOT/$file"
+
+            # Hard block: Never commit sensitive file types regardless of content
+            case "$filename" in
+                .env|*.pem|*.key|*.p12|*.pfx|*.jks)
+                    HARD_BLOCKED_FILES="${HARD_BLOCKED_FILES} $file"
+                    continue
+                    ;;
+            esac
+
+            # Skip deleted files (they don't exist on disk)
+            if [ ! -f "$full_path" ]; then
+                continue
+            fi
+
             # Only scan text files (skip binaries efficiently)
-            if [ -f "$full_path" ] && file "$full_path" | grep -qi "text"; then
+            if file "$full_path" | grep -qi "text"; then
                 # Scan only newly added lines (lines starting with + in the diff)
                 DIFF_ADDITIONS=$(git diff --cached "$file" 2>/dev/null | grep '^+' | grep -v '^+++' || true)
                 if [ -n "$DIFF_ADDITIONS" ]; then
-                    # Check for secret assignments in added lines (quoted and unquoted)
-                    if echo "$DIFF_ADDITIONS" | grep -qiE '(password|passwd|pwd|api[_-]?key|secret|token|auth[_-]?key)\s*[=:]\s*["'"'"']?[^"'"'"'[:space:]]{8,}'; then
-                        SECRET_FILES="${SECRET_FILES} $file"
-                    fi
-                    # Check for private key blocks in added lines
-                    if echo "$DIFF_ADDITIONS" | grep -qE 'BEGIN\s+(RSA|DSA|EC|OPENSSH)\s+PRIVATE\s+KEY'; then
-                        SECRET_FILES="${SECRET_FILES} $file"
+                    # Filter out common false positives (empty values, placeholders)
+                    REAL_ADDITIONS=$(echo "$DIFF_ADDITIONS" | grep -viE '[=:]\s*(""|'"'"''"'"'|null|undefined|PLACEHOLDER|YOUR_.*_HERE|change[_-]?me|todo)' || true)
+                    if [ -n "$REAL_ADDITIONS" ]; then
+                        # Check for secret assignments in added lines (quoted and unquoted)
+                        if echo "$REAL_ADDITIONS" | grep -qiE '(password|passwd|pwd|api[_-]?key|secret|token|auth[_-]?key)\s*[=:]\s*["'"'"']?[^"'"'"'[:space:]]{8,}'; then
+                            SECRET_FILES="${SECRET_FILES} $file"
+                        fi
+                        # Check for private key blocks in added lines
+                        if echo "$REAL_ADDITIONS" | grep -qE 'BEGIN\s+(RSA|DSA|EC|OPENSSH)\s+PRIVATE\s+KEY'; then
+                            SECRET_FILES="${SECRET_FILES} $file"
+                        fi
                     fi
                 fi
             fi
         done
+
+        # Report hard-blocked files first (always block)
+        if [ -n "$HARD_BLOCKED_FILES" ]; then
+            echo "[FAIL] AI Toolbox: Sensitive file types must never be committed:$HARD_BLOCKED_FILES"
+            echo "       Remove these files and use .env.example or placeholder files instead."
+            ERRORS=$((ERRORS + 1))
+        fi
+
+        # Report secret pattern matches (always block)
         if [ -n "$SECRET_FILES" ]; then
             echo "[FAIL] AI Toolbox: Potential secrets detected in:$SECRET_FILES"
             echo "       This commit is blocked to prevent accidental secret exposure."
             echo "       Verify these are not accidental credentials."
-            echo "       If they are intentional test fixtures, set SKIP_SECRET_SCAN=true to bypass."
+            echo "       If they are intentional test fixtures, bypass with:"
+            echo "         SKIP_SECRET_SCAN=true git commit -m \"your message\""
             ERRORS=$((ERRORS + 1))
         fi
     fi
