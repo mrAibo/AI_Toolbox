@@ -143,14 +143,28 @@ jobs:
         run: |
           bash .agent/scripts/test-scripts.sh
 
+      - name: Install PowerShell
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq powershell >/dev/null 2>&1
+          pwsh --version
+
+      - name: Hook functional tests
+        run: |
+          bash .agent/scripts/test-hooks.sh
+
+      - name: Integration tests
+        run: |
+          bash .agent/scripts/test-integration.sh
+
       - name: Shellcheck (lint shell scripts)
         run: |
           # Shellcheck runs on all .sh scripts — output is informational only.
           # We exclude common patterns that are intentional in this project.
-          # Full list of exclusions: SC1090,SC1091,SC2086,SC2016,SC2015,SC2005,SC2002,SC2162,SC2207,SC2034,SC2155,SC2046,SC2181,SC2154
+          # Full list of exclusions: SC1090,SC1091,SC2016,SC2015,SC2005,SC2002,SC2162,SC2207,SC2034,SC2155,SC2181,SC2154
           set +e  # Don't fail on first error
           for script in .agent/scripts/*.sh; do
             [ -f "$script" ] || continue
-            shellcheck -e SC1090,SC1091,SC2086,SC2016,SC2015,SC2005,SC2002,SC2162,SC2207,SC2034,SC2155,SC2046,SC2181,SC2154 "$script" 2>&1 || true
+            shellcheck -e SC1090,SC1091,SC2016,SC2015,SC2005,SC2002,SC2162,SC2207,SC2034,SC2155,SC2181,SC2154 "$script" 2>&1 || true
           done
           echo "OK — shellcheck scan complete"
