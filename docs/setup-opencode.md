@@ -43,7 +43,7 @@ Edit `opencode.json` to add your provider and model:
 AI Toolbox skills are compatible with OpenCode's skills system. Copy them:
 ```bash
 # For project-level skills
-cp -r .qwen/skills/* .opencode/skills/
+cp -r .agent/skills/* .opencode/skills/
 ```
 
 ### 5. Start OpenCode

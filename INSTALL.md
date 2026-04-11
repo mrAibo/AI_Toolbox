@@ -103,7 +103,7 @@ Full guide: **[docs/setup-codex.md](docs/setup-codex.md)**
 3. **Edit** `opencode.json` to set your provider and model.
 4. **Optional:** Copy skills:
    ```bash
-   cp -r .qwen/skills/* .opencode/skills/
+   cp -r .agent/skills/* .opencode/skills/
    ```
 5. **Start:** `opencode` — reads `AGENTS.md` automatically.
 

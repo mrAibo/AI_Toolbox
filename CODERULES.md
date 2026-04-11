@@ -19,7 +19,7 @@ codex_hooks = true
 
 ## Skills
 
-AI Toolbox provides 8 skills in `.qwen/skills/` (compatible with Codex `.codex/skills/` format). Each skill has YAML frontmatter with `name` and `description` fields for auto-triggering.
+AI Toolbox provides 9 skills in `.agent/skills/` (compatible with Codex `.codex/skills/` format). Each skill has YAML frontmatter with `name` and `description` fields for auto-triggering.
 
 ## Memory Layer
 

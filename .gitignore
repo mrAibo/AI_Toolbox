@@ -6,10 +6,8 @@
 *.pyc
 __pycache__/
 
-# Local IDE config (skills and commands ARE tracked)
+# Local IDE config
 /.qwen/
-!/.qwen/skills/
-!/.qwen/commands/
 /.claude/
 
 # Common build and dependency artifacts
