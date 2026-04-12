@@ -12,7 +12,8 @@ $Errors = 0
 # ---------------------------------------------------------------
 $RouterFiles = @(
     "CLAUDE.md", "QWEN.md", "GEMINI.md", "CONVENTIONS.md",
-    ".cursorrules", ".clinerules", ".windsurfrules"
+    ".cursorrules", ".clinerules", ".windsurfrules",
+    "CODERULES.md", "OPENCODERULES.md"
 )
 
 $StagedFiles = git diff --cached --name-only 2>$null

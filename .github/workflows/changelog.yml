@@ -21,14 +21,14 @@ jobs:
           HAS_CODE_CHANGE=false
           HAS_CHANGELOG_UPDATE=false
 
-          echo "$FILES" | while read -r file; do
+          while read -r file; do
             if [[ "$file" == CHANGELOG.md ]]; then
               HAS_CHANGELOG_UPDATE=true
             fi
             if [[ "$file" =~ \.(sh|ps1|py|js|ts|md|yml|json)$ ]] && [[ "$file" != CHANGELOG.md ]]; then
               HAS_CODE_CHANGE=true
             fi
-          done
+          done < <(echo "$FILES")
 
           if [ "$HAS_CODE_CHANGE" = true ] && [ "$HAS_CHANGELOG_UPDATE" = false ]; then
             echo "::warning::CHANGELOG.md should be updated for this PR"

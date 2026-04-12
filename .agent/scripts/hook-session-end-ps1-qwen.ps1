@@ -30,7 +30,8 @@ try {
     $StopHook = Join-Path $RepoRoot ".agent\scripts\hook-stop.ps1"
     if (Test-Path $StopHook) {
         try {
-            & powershell -ExecutionPolicy Bypass -File $StopHook 2>$null | Out-Null
+            $Shell = if (Get-Command pwsh -ErrorAction SilentlyContinue) { "pwsh" } else { "powershell" }
+            & $Shell -ExecutionPolicy Bypass -File $StopHook 2>$null | Out-Null
         } catch {}
     }
 

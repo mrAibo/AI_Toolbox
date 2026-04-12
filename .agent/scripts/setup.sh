@@ -169,7 +169,7 @@ if ! command -v rtk &> /dev/null; then
   if [[ "$install_rtk" =~ ^[Yy]$ ]]; then
     if command -v cargo &> /dev/null; then
       echo "  ✅ Installing: cargo install rtk --version 0.35.0"
-      cargo install rtk --version 0.35.0
+      cargo install rtk --version 0.35.0 --locked
       echo "  ✅ rtk installed"
 
       read -r -p "  Configure rtk hooks for $PRIMARY_CLIENT? [Y/n] " init_rtk

@@ -36,6 +36,18 @@ fi
 REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
 RESOLVED=$(realpath -m -- "$FILE_PATH" 2>/dev/null || echo "")
 RESOLVED_ROOT=$(realpath -m -- "$REPO_ROOT" 2>/dev/null || echo "")
+
+# If realpath failed, use manual resolution
+if [ -z "$RESOLVED" ] || [ -z "$RESOLVED_ROOT" ]; then
+    RESOLVED=$(cd "$(dirname "$FILE_PATH")" 2>/dev/null && pwd)/$(basename "$FILE_PATH")
+    RESOLVED_ROOT=$(cd "$REPO_ROOT" 2>/dev/null && pwd)
+    # If we still can't resolve, deny by default
+    if [ -z "$RESOLVED" ] || [ -z "$RESOLVED_ROOT" ]; then
+        echo '{"decision":"allow","reason":"Cannot resolve path — verification skipped"}'
+        exit 0
+    fi
+fi
+
 case "$RESOLVED" in
   "$RESOLVED_ROOT"/*) ;;
   *) echo '{"decision":"allow","reason":"File outside repository"}' ; exit 0 ;;
@@ -52,7 +64,7 @@ if [ -f "$FILE_PATH" ]; then
     if grep -qiE '(api[_-]?key|apikey)\s*[=:]\s*["'"'"']?[^"'"'"'[:space:]]{8,}' "$FILE_PATH" 2>/dev/null; then
         SECRET_FOUND="${SECRET_FOUND}api_key,"
     fi
-    if grep -qiE '(secret|token|auth[_-]?key)\s*[=:]\s*["'"'"'][^"'"'"']{8,}' "$FILE_PATH" 2>/dev/null; then
+    if grep -qiE '(secret|token|auth[_-]?key)\s*[=:]\s*["'"'"']?[^"'"'"'[:space:]]{8,}' "$FILE_PATH" 2>/dev/null; then
         SECRET_FOUND="${SECRET_FOUND}secret,"
     fi
     if grep -qE 'BEGIN\s+(RSA|DSA|EC|OPENSSH)\s+PRIVATE\s+KEY' "$FILE_PATH" 2>/dev/null; then

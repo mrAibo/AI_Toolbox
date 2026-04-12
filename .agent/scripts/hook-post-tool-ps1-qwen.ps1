@@ -40,12 +40,12 @@ try {
 
     # Security patterns to scan for in written files
     $SecretPatterns = @(
-        '(?i)(password|passwd|pwd)\s*[=:]\s*["''][^"'']+["'']',
-        '(?i)(api[_-]?key|apikey)\s*[=:]\s*["''][^"'']+["'']',
-        '(?i)(secret|token|auth[_-]?key)\s*[=:]\s*["''][^"'']+["'']',
-        '(?i)(aws[_-]?access|aws[_-]?secret)\s*[=:]\s*["''][^"'']+["'']',
+        '(?i)(password|passwd|pwd)\s*[=:]\s*["'']?[^''"\s]+',
+        '(?i)(api[_-]?key|apikey)\s*[=:]\s*["'']?[^''"\s]+',
+        '(?i)(secret|token|auth[_-]?key)\s*[=:]\s*["'']?[^''"\s]+',
+        '(?i)(aws[_-]?access|aws[_-]?secret)\s*[=:]\s*["'']?[^''"\s]+',
         '(?i)BEGIN\s+(RSA|DSA|EC|OPENSSH)\s+PRIVATE\s+KEY',
-        '(?i)(connection[_-]?string|database[_-]?url)\s*[=:]\s*["''][^"'']+["'']'
+        '(?i)(connection[_-]?string|database[_-]?url)\s*[=:]\s*["'']?[^''"\s]+'
     )
 
     $Findings = @()

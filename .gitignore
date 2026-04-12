@@ -10,6 +10,12 @@ __pycache__/
 /.qwen/
 /.claude/
 
+# Local client configs (may contain hooks/tokens)
+.qwen/settings.json
+.codex/
+opencode.json
+opencode.jsonc
+
 # Common build and dependency artifacts
 /node_modules/
 /.venv/

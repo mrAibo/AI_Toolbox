@@ -34,6 +34,10 @@ fi
 HEAVY_REGEX="^(python|python3|mvn|gradle|gradlew|pytest|npm run|npm test|pnpm run|pnpm test|yarn run|yarn test|cargo build|cargo test|cargo run|cargo check|go build|go test|go run|docker build|docker compose build|docker-compose build)"
 
 if echo "$TOOL_INPUT" | grep -qE "$HEAVY_REGEX" && ! echo "$TOOL_INPUT" | grep -q "^rtk "; then
+    if ! command -v python3 &>/dev/null; then
+        echo '{"decision":"ask","reason":"Heavy command detected — consider rtk wrapper","hookSpecificOutput":{"hookEventName":"PreToolUse","permissionDecision":"ask","permissionDecisionReason":"AI Toolbox: Heavy command. Prefix with rtk."}}'
+        exit 0
+    fi
     export HOOK_TOOL_INPUT="$TOOL_INPUT"
     python3 -c "
 import json, os
@@ -49,6 +53,10 @@ print(json.dumps({
 }))
 "
 elif echo "$TOOL_INPUT" | grep -qE "^(cat|less|tail|head) .+\.log" && ! echo "$TOOL_INPUT" | grep -q "^rtk "; then
+    if ! command -v python3 &>/dev/null; then
+        echo '{"decision":"allow","reason":"Log file detected — consider rtk read","hookSpecificOutput":{"hookEventName":"PreToolUse","additionalContext":"AI Toolbox: Large log file detected. Consider using rtk read <file> for efficient reading."}}'
+        exit 0
+    fi
     python3 -c "
 import json
 print(json.dumps({
