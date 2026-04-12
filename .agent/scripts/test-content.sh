@@ -167,63 +167,58 @@ test_router_files() {
 }
 
 # ─── Memory files tests ──────────────────────────────────────────────────────
-# TEMPORARILY DISABLED for CI debugging - tests pass locally but fail on CI
-# test_memory_files() {
-#     section "Memory Files (.agent/memory/*.md)"
-#
-#     local memory_dir="$REPO_ROOT/.agent/memory"
-#     if [ ! -d "$memory_dir" ]; then
-#         fail_test "Memory directory not found"; return
-#     fi
-#
-#     # Debug: list files being checked
-#     echo "  [DEBUG] Memory files:"
-#     for mem_file in "$memory_dir"/*.md; do
-#         echo "    $(basename "$mem_file")"
-#     done
-#
-#     for mem_file in "$memory_dir"/*.md; do
-#         [ -f "$mem_file" ] || continue
-#         local bname
-#         bname=$(basename "$mem_file")
-#
-#         # Skip active-session.md, audit files, and development artifacts
-#         case "$bname" in
-#             active-session.md) continue ;;
-#             audit-*) continue ;;
-#             *-plan.md) continue ;;
-#             *-compatibility-analysis.md) continue ;;
-#             integration-plan-ARCHIVED.md) continue ;;
-#             implementation-plan-v2.md) continue ;;
-#             test-suite-plan.md) continue ;;
-#             test-coverage-100-plan.md) continue ;;
-#             opencode-integration.md) continue ;;
-#         esac
-#
-#         # Test: Has at least one ## header
-#         if grep -q '^## ' "$mem_file" 2>/dev/null; then
-#             pass_test "$bname: has ## header"
-#         else
-#             fail_test "$bname: missing ## header"
-#         fi
-#
-#         # Test: Has at least 3 lines of content
-#         local lines
-#         lines=$(wc -l < "$mem_file" 2>/dev/null || echo 0)
-#         if [ "$lines" -ge 3 ]; then
-#             pass_test "$bname: has >= 3 lines ($lines lines)"
-#         else
-#             fail_test "$bname: too few lines ($lines lines)"
-#         fi
-#
-#         # Test: Not a template placeholder (no [Describe...] or [List...])
-#         if grep -qiE '\[Describe|\[List' "$mem_file" 2>/dev/null; then
-#             fail_test "$bname: appears to be template placeholder"
-#         else
-#             pass_test "$bname: not a template placeholder"
-#         fi
-#     done
-# }
+
+test_memory_files() {
+    section "Memory Files (.agent/memory/*.md)"
+
+    local memory_dir="$REPO_ROOT/.agent/memory"
+    if [ ! -d "$memory_dir" ]; then
+        fail_test "Memory directory not found"; return
+    fi
+
+    for mem_file in "$memory_dir"/*.md; do
+        [ -f "$mem_file" ] || continue
+        local bname
+        bname="$(basename "$mem_file")"
+
+        # Skip active-session.md, audit files, and development artifacts
+        case "$bname" in
+            active-session.md) continue ;;
+            audit-*) continue ;;
+            *-plan.md) continue ;;
+            *-compatibility-analysis.md) continue ;;
+            integration-plan-ARCHIVED.md) continue ;;
+            implementation-plan-v2.md) continue ;;
+            test-suite-plan.md) continue ;;
+            test-coverage-100-plan.md) continue ;;
+            opencode-integration.md) continue ;;
+        esac
+
+        # Test: Has at least one ## header
+        if grep -q '^## ' "$mem_file" 2>/dev/null; then
+            pass_test "$bname: has ## header"
+        else
+            fail_test "$bname: missing ## header"
+        fi
+
+        # Test: Has at least 3 lines of content
+        local lines
+        lines="$(wc -l < "$mem_file" 2>/dev/null)" || lines=0
+        lines="$(echo "$lines" | tr -d '[:space:]')"
+        if [ "$lines" -ge 3 ] 2>/dev/null; then
+            pass_test "$bname: has >= 3 lines ($lines lines)"
+        else
+            fail_test "$bname: too few lines ($lines lines)"
+        fi
+
+        # Test: Not a template placeholder (no [Describe...] or [List...])
+        if grep -qiE '\[Describe|\[List' "$mem_file" 2>/dev/null; then
+            fail_test "$bname: appears to be template placeholder"
+        else
+            pass_test "$bname: not a template placeholder"
+        fi
+    done
+}
 
 # ─── CI workflow test ────────────────────────────────────────────────────────
 
@@ -260,7 +255,7 @@ echo "========================================="
 test_rule_files
 test_workflow_files
 test_router_files
-# test_memory_files  # TEMPORARILY DISABLED - CI debugging
+test_memory_files
 test_ci_workflow
 
 echo ""
