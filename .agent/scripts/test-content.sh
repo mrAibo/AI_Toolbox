@@ -176,6 +176,12 @@ test_memory_files() {
         fail_test "Memory directory not found"; return
     fi
 
+    # Debug: list files being checked
+    echo "  [DEBUG] Memory files:"
+    for mem_file in "$memory_dir"/*.md; do
+        echo "    $(basename "$mem_file")"
+    done
+
     for mem_file in "$memory_dir"/*.md; do
         [ -f "$mem_file" ] || continue
         local basename
