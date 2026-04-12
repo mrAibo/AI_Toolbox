@@ -181,10 +181,17 @@ test_memory_files() {
         local basename
         basename=$(basename "$mem_file")
 
-        # Skip active-session.md and audit files
+        # Skip active-session.md, audit files, and development artifacts
         case "$basename" in
             active-session.md) continue ;;
             audit-*) continue ;;
+            *-plan.md) continue ;;        # Development artifacts
+            *-compatibility-analysis.md) continue ;;  # Compatibility analysis docs
+            integration-plan-ARCHIVED.md) continue ;;  # Archived planning doc
+            implementation-plan-v2.md) continue ;;     # Development plan
+            test-suite-plan.md) continue ;;            # Test planning doc
+            test-coverage-100-plan.md) continue ;;     # Test planning doc
+            opencode-integration.md) continue ;;       # Integration analysis
         esac
 
         # Test: Has at least one ## header
