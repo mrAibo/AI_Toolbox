@@ -1,0 +1,191 @@
+{
+  "_meta": {
+    "version": "1.0",
+    "description": "Central source of truth for AI Toolbox client configuration.",
+    "source_of_truth_rules": [
+      "1. This file is the canonical client registry — edit here, not in bootstrap scripts.",
+      "2. Templates in .agent/templates/clients/ define file content.",
+      "3. Repo-root client files are generated outputs — restore them with the generator.",
+      "4. Run generate_client_files.py --sync to install any missing template-backed files.",
+      "5. bootstrap.sh/ps1 remain the install mechanism today; a future PR will delegate to this generator."
+    ],
+    "generator": {
+      "check": "python3 .agent/scripts/generate_client_files.py --check",
+      "sync": "python3 .agent/scripts/generate_client_files.py --sync",
+      "unix_wrapper": "bash .agent/scripts/generate-client-files.sh --sync",
+      "windows_wrapper": "powershell -ExecutionPolicy Bypass -File .agent/scripts/generate-client-files.ps1 -Mode sync"
+    }
+  },
+  "tiers": {
+    "full": {
+      "description": "Hooks + Multi-Agent + Sync + Handover + Plan Mode",
+      "capabilities": ["hooks", "multi_agent", "file_rules", "plan_mode", "sync"]
+    },
+    "standard": {
+      "description": "Hooks + Sync + Handover (no Multi-Agent)",
+      "capabilities": ["hooks", "file_rules", "sync"]
+    },
+    "basic": {
+      "description": "Memory + Rules only (Soft-Reminders, no Guards)",
+      "capabilities": ["file_rules"]
+    }
+  },
+  "clients": {
+    "claude-code": {
+      "tier": "full",
+      "router_file": "CLAUDE.md",
+      "template_router": null,
+      "config_file": ".claude.json",
+      "template_config": ".agent/templates/clients/.claude.json",
+      "hooks": true,
+      "multi_agent": true,
+      "file_rules": true,
+      "plan_mode": true,
+      "autodetect_cmd": "claude",
+      "managed_by": "bootstrap-inline+template",
+      "notes": "CLAUDE.md is generated inline by bootstrap (no template). .claude.json comes from template."
+    },
+    "qwen-code": {
+      "tier": "full",
+      "router_file": "QWEN.md",
+      "template_router": ".agent/templates/clients/QWEN.md",
+      "config_file": null,
+      "template_config": null,
+      "hooks": true,
+      "multi_agent": true,
+      "file_rules": true,
+      "plan_mode": true,
+      "autodetect_cmd": "qwen",
+      "managed_by": "template",
+      "extra_files": [
+        {
+          "source": null,
+          "target": ".qwen/settings.json",
+          "condition": "autodetect",
+          "managed_by": "bootstrap-inline",
+          "note": "Created by bootstrap when qwen CLI is detected; platform-specific hook paths."
+        }
+      ]
+    },
+    "antigravity": {
+      "tier": "full",
+      "router_file": "SKILL.md",
+      "template_router": null,
+      "config_file": null,
+      "template_config": null,
+      "hooks": true,
+      "multi_agent": true,
+      "file_rules": true,
+      "plan_mode": true,
+      "slash_commands": true,
+      "autodetect_cmd": null,
+      "managed_by": "manual",
+      "notes": "No autodetect; manual setup only."
+    },
+    "cline": {
+      "tier": "standard",
+      "router_file": ".clinerules",
+      "template_router": null,
+      "config_file": null,
+      "template_config": null,
+      "hooks": true,
+      "multi_agent": false,
+      "file_rules": true,
+      "autodetect_cmd": null,
+      "managed_by": "bootstrap-inline",
+      "notes": "Hooks require manual config in Cline client settings."
+    },
+    "windsurf": {
+      "tier": "standard",
+      "router_file": ".windsurfrules",
+      "template_router": null,
+      "config_file": null,
+      "template_config": null,
+      "hooks": true,
+      "multi_agent": false,
+      "file_rules": true,
+      "autodetect_cmd": null,
+      "managed_by": "bootstrap-inline"
+    },
+    "cursor": {
+      "tier": "standard",
+      "router_file": ".cursorrules",
+      "template_router": null,
+      "config_file": null,
+      "template_config": null,
+      "hooks": true,
+      "multi_agent": false,
+      "file_rules": true,
+      "autodetect_cmd": null,
+      "managed_by": "bootstrap-inline"
+    },
+    "gemini-cli": {
+      "tier": "basic",
+      "router_file": "GEMINI.md",
+      "template_router": null,
+      "config_file": null,
+      "template_config": null,
+      "hooks": false,
+      "multi_agent": false,
+      "file_rules": true,
+      "autodetect_cmd": "gemini",
+      "managed_by": "bootstrap-inline",
+      "notes": "Soft reminders only; no hook enforcement."
+    },
+    "aider": {
+      "tier": "basic",
+      "router_file": "CONVENTIONS.md",
+      "template_router": ".agent/templates/clients/CONVENTIONS.md",
+      "config_file": ".aider.conf.yml",
+      "template_config": ".agent/templates/clients/.aider.conf.yml",
+      "hooks": false,
+      "multi_agent": false,
+      "file_rules": true,
+      "autodetect_cmd": "aider",
+      "managed_by": "template"
+    },
+    "codex": {
+      "tier": "full",
+      "router_file": null,
+      "template_router": null,
+      "config_file": null,
+      "template_config": null,
+      "hooks": true,
+      "multi_agent": true,
+      "file_rules": true,
+      "autodetect_cmd": "codex",
+      "managed_by": "template",
+      "extra_files": [
+        {
+          "source": ".agent/templates/clients/.codex-hooks.json",
+          "target": ".codex/hooks.json",
+          "condition": "autodetect"
+        },
+        {
+          "source": ".agent/templates/clients/.codex-config.toml",
+          "target": ".codex/config.toml",
+          "condition": "autodetect"
+        }
+      ]
+    },
+    "opencode": {
+      "tier": "full",
+      "router_file": null,
+      "template_router": null,
+      "config_file": null,
+      "template_config": null,
+      "hooks": true,
+      "multi_agent": true,
+      "file_rules": true,
+      "autodetect_cmd": "opencode",
+      "managed_by": "template",
+      "extra_files": [
+        {
+          "source": ".agent/templates/clients/opencode-config.json",
+          "target": "opencode.json",
+          "condition": "autodetect"
+        }
+      ]
+    }
+  }
+}

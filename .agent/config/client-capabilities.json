@@ -1,5 +1,5 @@
 {
-  "_comment": "AI Toolbox Client Capability Matrix. DOCUMENTATION ONLY — not consumed by bootstrap scripts. Tier assignments are hard-coded in bootstrap.sh/ps1. This file serves as a human-readable reference for the 3-Tier Orchestration System.",
+  "_comment": "DEPRECATED (PR4): This file is superseded by .ai-toolbox/config.json which is the new source of truth and IS consumed by the generator. This file is kept for backwards-compatibility only and will be removed in a future PR. Do not add new clients here.",
   "tiers": {
     "full": {
       "description": "Hooks + Multi-Agent + Sync + Handover + Plan Mode",
