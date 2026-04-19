@@ -50,12 +50,40 @@ If something is inferred rather than verified:
 
 ---
 
-## Change scope rule
+## Smallest safe change
 
-Keep changes as small and local as possible.
+Always prefer the smallest change that achieves the goal.
 
-Avoid broad rewrites when a focused change is enough.
-Do not refactor unrelated parts of the system during a targeted fix unless the user asks for it.
+Before implementing, ask: is there a smaller, safer version of this change?
+If yes, do that first. Expand only when the smaller version proves insufficient.
+
+Do not refactor, rename, or reorganize anything not directly related to the current task.
+Stop and surface scope questions to the user rather than deciding silently.
+
+---
+
+## Scope control
+
+Do not expand the scope of a task without explicit user approval.
+
+If you discover something related that seems worth fixing:
+- note it
+- finish the current task
+- propose the additional work separately
+
+Silent scope expansion is a safety violation, not a helpful bonus.
+
+---
+
+## High-risk and public surfaces
+
+Apply extra scrutiny before changing:
+- public APIs and interfaces used by callers outside this module
+- schema or protocol definitions that other systems depend on
+- authentication, authorization, and security boundaries
+- external-facing behavior (webhooks, events, CLI outputs)
+
+For these surfaces: describe the change and its impact before implementing.
 
 ---
 
@@ -73,10 +101,10 @@ That means:
 
 ## Communication rule
 
-If a task has real risk, communicate the risk before proceeding.
+If a task has real risk, communicate the risk before proceeding — not after.
 
-Examples:
-- destructive migrations
-- removing compatibility layers
-- changing public interfaces
-- replacing a key dependency
+Always communicate before acting when:
+- the change touches a public or high-risk surface
+- you are about to delete, overwrite, or restructure something significant
+- you are making an assumption that the user has not confirmed
+- scope is growing beyond what was originally requested

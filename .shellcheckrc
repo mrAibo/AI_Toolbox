@@ -1,0 +1,48 @@
+# ShellCheck configuration — AI_Toolbox
+# All exclusions are documented here. Add new entries with justification only.
+# To run locally: shellcheck --severity=warning .agent/scripts/*.sh
+
+# SC1090/SC1091: Can't follow non-constant / not-found source paths.
+# This project sources scripts via variables and relative paths (intentional).
+disable=SC1090
+disable=SC1091
+
+# SC2016: Expressions in single quotes don't expand.
+# Some scripts pass literal '$var' strings to sub-shells intentionally.
+disable=SC2016
+
+# SC2015: A || B || C — use if instead.
+# Accepted guard-clause pattern for compact one-liners in hooks.
+disable=SC2015
+
+# SC2005: Useless echo before command substitution.
+# Cosmetic pattern used for readable informational output in hook scripts.
+disable=SC2005
+
+# SC2002: Useless cat (pipe input to command instead).
+# Readability preference accepted for long pipeline chains.
+disable=SC2002
+
+# SC2162: read without -r may mangle backslashes.
+# Some scripts target POSIX /bin/sh where read -r is not guaranteed.
+disable=SC2162
+
+# SC2207: Prefer mapfile or read -a for word-split arrays.
+# mapfile requires Bash 4+; macOS ships Bash 3.x as the default shell.
+disable=SC2207
+
+# SC2034: Variable appears unused.
+# Many variables are exported for sub-shells or read by sourced scripts.
+disable=SC2034
+
+# SC2155: Declare and assign separately to avoid masking return values.
+# Accepted style; assignment errors are not safety-critical in this context.
+disable=SC2155
+
+# SC2181: Check exit code directly, not via $?.
+# Pattern accepted for clarity in long sequential command chains.
+disable=SC2181
+
+# SC2154: Variable referenced but not assigned in this script.
+# Many variables are injected by the caller environment or sourced files.
+disable=SC2154

@@ -17,6 +17,20 @@ If something cannot be verified, state that clearly.
 
 ---
 
+## Evidence ladder
+
+State only what evidence you actually have. The tiers are:
+
+1. **Code written** — the code exists; behavior not yet verified
+2. **Command ran** — a command was executed; output not yet reviewed
+3. **Output reviewed** — the output was inspected; behavior not fully tested
+4. **Tests pass** — automated tests pass; side effects not yet checked
+5. **Behavior verified** — the intended behavior is confirmed end-to-end
+
+Never skip a tier implicitly. If you are at tier 2, say so.
+
+---
+
 ## Preferred workflow
 
 When possible, use one of these approaches:
@@ -66,6 +80,28 @@ For bug fixes, prefer this sequence:
 3. Implement the fix
 4. Re-run verification
 5. Record durable knowledge if the bug was non-trivial
+
+---
+
+## Side-effect check
+
+After verifying the primary behavior, check neighboring behavior:
+- Did other tests still pass?
+- Did adjacent functionality remain intact?
+- Were any files, state, or outputs changed that were not intended?
+
+A fix is not complete until side effects are ruled out.
+
+---
+
+## Verified vs. unclear
+
+When reporting, explicitly separate:
+- **Verified:** what was directly observed or tested
+- **Assumed:** what was inferred but not directly confirmed
+- **Unknown:** what was not checked
+
+Do not collapse these categories. "It should work" or "it looks right" without evidence is not verification.
 
 ---
 

@@ -18,6 +18,32 @@ If a new dependency is necessary:
 
 ---
 
+## Simplicity first
+
+Prefer the simplest solution that correctly solves the problem.
+
+Before adding complexity:
+- ask whether a simpler mechanism already exists in the project
+- ask whether the added complexity will outlast this task
+- prefer boring and predictable over clever and fragile
+
+A solution that requires explanation is harder to maintain than one that does not.
+
+---
+
+## Abstraction discipline
+
+Do not introduce a new abstraction unless it eliminates repeated, concrete complexity.
+
+An abstraction is justified only when:
+- the same pattern recurs in at least two real places
+- a simpler mechanism does not already handle it
+- the abstraction makes the code easier to understand, not harder
+
+When in doubt, duplicate first. Refactor only when the duplication pattern is clear.
+
+---
+
 ## Stack selection principles
 
 - Prefer the smallest stack that solves the problem

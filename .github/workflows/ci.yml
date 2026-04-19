@@ -171,14 +171,42 @@ jobs:
         run: |
           bash .agent/scripts/test-mcp-schema.sh
 
-      - name: Shellcheck (lint shell scripts)
+      - name: ShellCheck (lint shell scripts)
         run: |
-          # Shellcheck runs on all .sh scripts — output is informational only.
-          # We exclude common patterns that are intentional in this project.
-          # Full list of exclusions: SC1090,SC1091,SC2016,SC2015,SC2005,SC2002,SC2162,SC2207,SC2034,SC2155,SC2181,SC2154
-          set +e  # Don't fail on first error
+          # Exclusions are defined in .shellcheckrc — see that file for justifications.
+          # CI fails if any script has an error or warning that is not excluded.
+          fail=0
           for script in .agent/scripts/*.sh; do
             [ -f "$script" ] || continue
-            shellcheck -e SC1090,SC1091,SC2016,SC2015,SC2005,SC2002,SC2162,SC2207,SC2034,SC2155,SC2181,SC2154 "$script" 2>&1 || true
+            if ! shellcheck --severity=warning "$script"; then
+              fail=1
+            fi
           done
-          echo "OK — shellcheck scan complete"
+          if [ "$fail" -ne 0 ]; then
+            echo "FAIL — ShellCheck found issues in one or more scripts (see above)"
+            exit 1
+          fi
+          echo "OK — ShellCheck passed"
+
+      - name: PSScriptAnalyzer (lint PowerShell scripts)
+        shell: pwsh
+        run: |
+          # Install PSScriptAnalyzer if not already cached.
+          if (-not (Get-Module -ListAvailable -Name PSScriptAnalyzer)) {
+            Install-Module -Name PSScriptAnalyzer -Force -Scope CurrentUser -ErrorAction Stop
+          }
+          $settings = '.agent/config/PSScriptAnalyzerSettings.psd1'
+          $scripts   = Get-ChildItem -Path '.agent/scripts' -Filter '*.ps1'
+          $fail      = $false
+          foreach ($script in $scripts) {
+            $results = Invoke-ScriptAnalyzer -Path $script.FullName -Settings $settings
+            if ($results) {
+              $results | Format-List RuleName, Severity, Message, ScriptName, Line
+              $fail = $true
+            }
+          }
+          if ($fail) {
+            Write-Error 'FAIL — PSScriptAnalyzer found issues in one or more scripts (see above)'
+            exit 1
+          }
+          Write-Host 'OK — PSScriptAnalyzer passed'

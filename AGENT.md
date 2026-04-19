@@ -13,6 +13,11 @@ The agent must treat this file as the primary execution standard for project wor
 - Keep the project state durable in files, not only in chat context.
 - Use the repository memory and task structure before asking the user to repeat context.
 - Do not claim completion without verification.
+- **Smallest safe change:** prefer the smallest change that achieves the goal; expand only when proven necessary.
+- **Explicit assumptions:** mark inferences clearly; do not treat an assumption as a confirmed fact.
+- **Inspect before editing:** when practical, read and understand existing behavior before modifying it.
+- **No silent scope expansion:** if the scope grows beyond what was requested, surface it before acting.
+- **Prefer existing mechanisms:** use simpler tools and patterns already in the repository before adding new ones.
 
 ### Universal vs. Client-Specific
 This framework is architecturally **universal**. While this `AGENT.md` is the **Master Protocol**, individual AI agents should prioritize their optimized entry points:

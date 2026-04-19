@@ -44,6 +44,68 @@ When proposing a feature:
 
 ---
 
+## Script Quality Checks
+
+AI Toolbox ships shell and PowerShell scripts for bootstrap, hooks, routing, and
+session logic. Static analysis runs automatically in CI on every push and pull
+request. Run the same checks locally before opening a PR.
+
+### ShellCheck (`.sh` files)
+
+**Requires:** `shellcheck` ≥ 0.7
+
+```bash
+# Lint all shell scripts (exclusions come from .shellcheckrc)
+shellcheck --severity=warning .agent/scripts/*.sh
+
+# Lint a single script
+shellcheck --severity=warning .agent/scripts/hook-stop.sh
+```
+
+Install:
+- macOS: `brew install shellcheck`
+- Debian/Ubuntu: `sudo apt-get install shellcheck`
+- Windows (scoop): `scoop install shellcheck`
+
+**Exclusion policy:** All disabled rules are documented in [`.shellcheckrc`](.shellcheckrc)
+with a one-line justification. Do not add new exclusions without a clear reason.
+
+### PSScriptAnalyzer (`.ps1` files)
+
+**Requires:** PowerShell 7+ (`pwsh`) and the `PSScriptAnalyzer` module.
+
+```powershell
+# Install the module once (CurrentUser scope, no admin needed)
+Install-Module -Name PSScriptAnalyzer -Force -Scope CurrentUser
+
+# Lint all PowerShell scripts
+$settings = '.agent/config/PSScriptAnalyzerSettings.psd1'
+Invoke-ScriptAnalyzer -Path .agent/scripts -Filter '*.ps1' -Settings $settings |
+    Format-List RuleName, Severity, Message, ScriptName, Line
+
+# Lint a single script
+Invoke-ScriptAnalyzer -Path .agent/scripts/hook-stop.ps1 -Settings $settings
+```
+
+**Exclusion policy:** Excluded rules are listed in
+[`.agent/config/PSScriptAnalyzerSettings.psd1`](.agent/config/PSScriptAnalyzerSettings.psd1)
+with inline comments explaining the justification.
+
+### Script Conventions
+
+**`set -euo pipefail`** — add to every standalone `.sh` entry point that is not
+sourced and does not need to tolerate partial failures. Omit when:
+- The script is sourced (`.`) by another — let the parent control error mode.
+- A command is expected to fail and the return code is handled (`cmd || true`).
+- The script must remain POSIX `/bin/sh` compatible (`-o pipefail` is bash-only).
+
+**Handling ShellCheck warnings:**
+1. Fix the warning — preferred for real issues.
+2. Inline suppression — `# shellcheck disable=SCxxxx` on the preceding line with a comment.
+3. Global suppression — add to `.shellcheckrc` only for patterns deliberately repeated codebase-wide.
+
+---
+
 ## Commit Message Convention
 
 Use the [Conventional Commits](https://www.conventionalcommits.org/) format:

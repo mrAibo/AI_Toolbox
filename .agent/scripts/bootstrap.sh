@@ -220,12 +220,40 @@ If something is inferred rather than verified:
 
 ---
 
-## Change scope rule
+## Smallest safe change
 
-Keep changes as small and local as possible.
+Always prefer the smallest change that achieves the goal.
 
-Avoid broad rewrites when a focused change is enough.
-Do not refactor unrelated parts of the system during a targeted fix unless the user asks for it.
+Before implementing, ask: is there a smaller, safer version of this change?
+If yes, do that first. Expand only when the smaller version proves insufficient.
+
+Do not refactor, rename, or reorganize anything not directly related to the current task.
+Stop and surface scope questions to the user rather than deciding silently.
+
+---
+
+## Scope control
+
+Do not expand the scope of a task without explicit user approval.
+
+If you discover something related that seems worth fixing:
+- note it
+- finish the current task
+- propose the additional work separately
+
+Silent scope expansion is a safety violation, not a helpful bonus.
+
+---
+
+## High-risk and public surfaces
+
+Apply extra scrutiny before changing:
+- public APIs and interfaces used by callers outside this module
+- schema or protocol definitions that other systems depend on
+- authentication, authorization, and security boundaries
+- external-facing behavior (webhooks, events, CLI outputs)
+
+For these surfaces: describe the change and its impact before implementing.
 
 ---
 
@@ -243,13 +271,13 @@ That means:
 
 ## Communication rule
 
-If a task has real risk, communicate the risk before proceeding.
+If a task has real risk, communicate the risk before proceeding — not after.
 
-Examples:
-- destructive migrations
-- removing compatibility layers
-- changing public interfaces
-- replacing a key dependency
+Always communicate before acting when:
+- the change touches a public or high-risk surface
+- you are about to delete, overwrite, or restructure something significant
+- you are making an assumption that the user has not confirmed
+- scope is growing beyond what was originally requested
 EOF
 fi
 
@@ -261,6 +289,8 @@ This file defines how work must be verified before it is considered complete.
 
 The purpose is to prevent false completion, unverified assumptions, and silent regressions.
 
+For the mandatory TDD process (RED-GREEN-REFACTOR), see **[tdd-rules.md](tdd-rules.md)**.
+
 ---
 
 ## Core rule
@@ -269,6 +299,20 @@ Do not claim that something works unless it has been checked.
 
 Verification is mandatory.
 If something cannot be verified, state that clearly.
+
+---
+
+## Evidence ladder
+
+State only what evidence you actually have. The tiers are:
+
+1. **Code written** — the code exists; behavior not yet verified
+2. **Command ran** — a command was executed; output not yet reviewed
+3. **Output reviewed** — the output was inspected; behavior not fully tested
+4. **Tests pass** — automated tests pass; side effects not yet checked
+5. **Behavior verified** — the intended behavior is confirmed end-to-end
+
+Never skip a tier implicitly. If you are at tier 2, say so.
 
 ---
 
@@ -324,6 +368,28 @@ For bug fixes, prefer this sequence:
 
 ---
 
+## Side-effect check
+
+After verifying the primary behavior, check neighboring behavior:
+- Did other tests still pass?
+- Did adjacent functionality remain intact?
+- Were any files, state, or outputs changed that were not intended?
+
+A fix is not complete until side effects are ruled out.
+
+---
+
+## Verified vs. unclear
+
+When reporting, explicitly separate:
+- **Verified:** what was directly observed or tested
+- **Assumed:** what was inferred but not directly confirmed
+- **Unknown:** what was not checked
+
+Do not collapse these categories. "It should work" or "it looks right" without evidence is not verification.
+
+---
+
 ## Reporting rule
 
 When reporting completion, mention:
@@ -352,6 +418,32 @@ If a new dependency is necessary:
 - explain what problem it solves
 - compare it with at least one simpler alternative
 - record the decision in `architecture-decisions.md`
+
+---
+
+## Simplicity first
+
+Prefer the simplest solution that correctly solves the problem.
+
+Before adding complexity:
+- ask whether a simpler mechanism already exists in the project
+- ask whether the added complexity will outlast this task
+- prefer boring and predictable over clever and fragile
+
+A solution that requires explanation is harder to maintain than one that does not.
+
+---
+
+## Abstraction discipline
+
+Do not introduce a new abstraction unless it eliminates repeated, concrete complexity.
+
+An abstraction is justified only when:
+- the same pattern recurs in at least two real places
+- a simpler mechanism does not already handle it
+- the abstraction makes the code easier to understand, not harder
+
+When in doubt, duplicate first. Refactor only when the duplication pattern is clear.
 
 ---
 
