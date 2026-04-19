@@ -26,42 +26,14 @@ if [[ $cmd =~ ^(cat|less|tail|head)\ .+\.log$ ]] && [[ $cmd != "rtk "* ]]; then
 fi
 
 # Track tool usage for session statistics
+# PR1: Uses lib-atomic-write.sh for concurrency-safe JSON updates.
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# shellcheck source=lib-atomic-write.sh
+. "$SCRIPT_DIR/lib-atomic-write.sh"
+
 track_tool() {
   local tool="$1"
-  local file="$STATS_FILE"
-  # Initialize stats file if missing
-  if [ ! -f "$file" ]; then
-    echo '{"rtk": 0, "beads": 0, "mcp": 0}' > "$file"
-  fi
-  # Increment counter using portable approach (no sed -i compatibility issues)
-  if [ -f "$file" ]; then
-    count=$(grep -o "\"$tool\": [0-9]*" "$file" 2>/dev/null | grep -o '[0-9]*' || echo "0")
-    count=$((count + 1))
-    # Use python3/python for portable JSON update, fallback to sed
-    PYTHON=$(command -v python3 || command -v python 2>/dev/null)
-    if [ -n "$PYTHON" ]; then
-      export TOOL_NAME="$tool"
-      export STATS_FILE="$file"
-      $PYTHON -c "
-import json, os
-tool = os.environ.get('TOOL_NAME', '')
-fpath = os.environ.get('STATS_FILE', '')
-if tool and fpath:
-    try:
-        with open(fpath) as f: data = json.load(f)
-        data[tool] = data.get(tool, 0) + 1
-        with open(fpath, 'w') as f: json.dump(data, f)
-    except Exception: pass
-" 2>/dev/null || true
-    else
-      # Fallback: use sed with platform detection
-      if sed --version 2>/dev/null | grep -q GNU; then
-        sed -i "s/\"$tool\": [0-9]*/\"$tool\": $count/" "$file" 2>/dev/null || true
-      else
-        sed -i '' "s/\"$tool\": [0-9]*/\"$tool\": $count/" "$file" 2>/dev/null || true
-      fi
-    fi
-  fi
+  atomic_json_increment "$STATS_FILE" "$tool"
 }
 
 # Detect which tool is being used

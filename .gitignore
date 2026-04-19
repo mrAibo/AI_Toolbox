@@ -3,6 +3,9 @@
 /.agent/memory/session-handover.md
 /.agent/memory/current-task.md
 /.agent/memory/.tool-stats.json
+# PR1: Concurrency lock files and atomic write temporaries (transient, never commit)
+/.agent/memory/*.lock
+/.agent/memory/*.tmp
 *.pyc
 __pycache__/
 

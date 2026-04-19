@@ -75,7 +75,10 @@ if (Test-Path $ActiveSession) {
             $Content = $Content -replace '(?s)## Current Step.*?(?=\n## |\z)', ''
         }
         $Content += "`n## Current Step`n- **Workflow:** Awaiting task analysis`n- **Task:** $($TaskInfo -join "`n")`n"
-        $Content | Out-File -FilePath $ActiveSession -Encoding utf8
+        # PR1: Atomic write — temp file then rename — prevents a truncated active-session.md
+        $TmpFile = "$ActiveSession.tmp"
+        $Content | Set-Content $TmpFile -Encoding utf8
+        Move-Item -Path $TmpFile -Destination $ActiveSession -Force
     }
 }
 

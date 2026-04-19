@@ -36,14 +36,23 @@ try {
     $StatsFile = Join-Path $RepoRoot ".agent\memory\.tool-stats.json"
 
     # Update tool stats (increment stop hook usage)
+    # PR1: Named Mutex + atomic temp-file write to prevent JSON corruption under concurrency.
     if (Test-Path $StatsFile) {
+        $mutex = [System.Threading.Mutex]::new($false, "AI_Toolbox_Stats")
         try {
-            $stats = Get-Content $StatsFile -Raw | ConvertFrom-Json
+            $mutex.WaitOne(5000) | Out-Null
+            $stats = Get-Content $StatsFile -Raw -ErrorAction Stop | ConvertFrom-Json
             $statsHash = @{}
             $stats.PSObject.Properties | ForEach-Object { $statsHash[$_.Name] = $_.Value }
             $statsHash["stop_hook"] = ($statsHash["stop_hook"] + 1)
-            $statsHash | ConvertTo-Json -Depth 3 | Set-Content $StatsFile -Encoding utf8
-        } catch {}
+            $TmpFile = "$StatsFile.tmp"
+            $statsHash | ConvertTo-Json -Depth 3 | Set-Content $TmpFile -Encoding utf8
+            Move-Item -Path $TmpFile -Destination $StatsFile -Force
+        } catch {
+        } finally {
+            try { $mutex.ReleaseMutex() } catch {}
+            $mutex.Dispose()
+        }
     }
 
     # Generate additional context for the AI's response

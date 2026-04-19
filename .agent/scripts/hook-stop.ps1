@@ -35,6 +35,8 @@ if (Test-Path $StatsFile) {
 }
 
 # 4. Append session summary to handover (capped to last 10 entries)
+# PR1: Named Mutex serializes concurrent hook-stop invocations; atomic temp-file write
+# prevents readers from seeing a truncated handover file during the cap operation.
 $HandoverFile = "$RepoRoot/.agent/memory/session-handover.md"
 $ActiveFile = "$RepoRoot/.agent/memory/active-session.md"
 if (Test-Path $ActiveFile) {
@@ -42,21 +44,35 @@ if (Test-Path $ActiveFile) {
     $ActiveContent = Get-Content $ActiveFile -Raw
     if ($ActiveContent -notmatch '\[Date\]' -and $ActiveContent -notmatch 'Awaiting task analysis') {
         if (Test-Path $HandoverFile) {
-            # Cap handover to last 10 session summaries to prevent unbounded growth
-            $HandoverContent = Get-Content $HandoverFile -Raw
-            $Sections = [regex]::Matches($HandoverContent, '(?m)^## Session Summary')
-            if ($Sections.Count -ge 10) {
-                # Keep only the last 9 summaries + header content before first summary
-                $FirstSummaryPos = $Sections[0].Index
-                $RecentContent = $HandoverContent.Substring($FirstSummaryPos)
-                $RecentSections = $RecentContent -split '(?m)^## Session Summary' | Where-Object { $_.Trim() } | Select-Object -Last 9
-                $HeaderContent = $HandoverContent.Substring(0, $FirstSummaryPos)
-                $HandoverContent = $HeaderContent + ($RecentSections | ForEach-Object { "## Session Summary$_" }) -join "`n"
-                $HandoverContent | Out-File -FilePath $HandoverFile -Encoding utf8
-            }
+            $mutex = [System.Threading.Mutex]::new($false, "AI_Toolbox_Handover")
+            try {
+                $mutex.WaitOne(5000) | Out-Null
 
-            "`n## Session Summary - $(Get-Date -Format 'yyyy-MM-dd HH:mm UTC')" | Out-File -FilePath $HandoverFile -Append -Encoding utf8
-            $ActiveContent | Out-File -FilePath $HandoverFile -Append -Encoding utf8
+                # Cap handover to last 10 session summaries to prevent unbounded growth
+                $HandoverContent = Get-Content $HandoverFile -Raw
+                $Sections = [regex]::Matches($HandoverContent, '(?m)^## Session Summary')
+                if ($Sections.Count -ge 10) {
+                    # Keep only the last 9 summaries + header content before first summary
+                    $FirstSummaryPos = $Sections[0].Index
+                    $RecentContent = $HandoverContent.Substring($FirstSummaryPos)
+                    $RecentSections = $RecentContent -split '(?m)^## Session Summary' |
+                        Where-Object { $_.Trim() } | Select-Object -Last 9
+                    $HeaderContent = $HandoverContent.Substring(0, $FirstSummaryPos)
+                    $HandoverContent = $HeaderContent + ($RecentSections |
+                        ForEach-Object { "## Session Summary$_" }) -join "`n"
+                    # Atomic write: temp file then rename — no truncated file visible to readers
+                    $TmpFile = "$HandoverFile.tmp"
+                    $HandoverContent | Set-Content $TmpFile -Encoding utf8
+                    Move-Item -Path $TmpFile -Destination $HandoverFile -Force
+                }
+
+                "`n## Session Summary - $(Get-Date -Format 'yyyy-MM-dd HH:mm UTC')" |
+                    Out-File -FilePath $HandoverFile -Append -Encoding utf8
+                $ActiveContent | Out-File -FilePath $HandoverFile -Append -Encoding utf8
+            } finally {
+                try { $mutex.ReleaseMutex() } catch {}
+                $mutex.Dispose()
+            }
         }
     }
 }

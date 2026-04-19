@@ -31,22 +31,29 @@ if ($Command -match '^(cat|less|tail|head) .+\.log' -and $Command -notmatch '^rt
 }
 
 # Track tool usage for session statistics
+# PR1: Uses Named Mutex for serialization + temp file for atomic write to prevent JSON corruption.
 function Track-Tool {
   param([string]$Tool)
-  # Initialize stats file if missing
+  # Initialize stats file if missing (outside lock — benign if two processes race here)
   if (-not (Test-Path $StatsFile)) {
     @{ "rtk" = 0; "beads" = 0; "mcp" = 0 } | ConvertTo-Json | Set-Content $StatsFile -Encoding utf8
   }
-  # Increment counter
+  $mutex = [System.Threading.Mutex]::new($false, "AI_Toolbox_Stats")
   try {
-    $stats = Get-Content $StatsFile -Raw | ConvertFrom-Json
-    # Use hash table syntax which works for both existing and new properties
+    $mutex.WaitOne(5000) | Out-Null
+    $stats = Get-Content $StatsFile -Raw -ErrorAction Stop | ConvertFrom-Json
     $statsHash = @{}
     $stats.PSObject.Properties | ForEach-Object { $statsHash[$_.Name] = $_.Value }
     if ($statsHash.ContainsKey($Tool)) { $statsHash[$Tool] += 1 } else { $statsHash[$Tool] = 1 }
-    $statsHash | ConvertTo-Json -Depth 3 | Set-Content $StatsFile -Encoding utf8
+    # Atomic write: write to temp file first, then rename — prevents truncated JSON on crash
+    $TmpFile = "$StatsFile.tmp"
+    $statsHash | ConvertTo-Json -Depth 3 | Set-Content $TmpFile -Encoding utf8
+    Move-Item -Path $TmpFile -Destination $StatsFile -Force
   } catch {
-    # Stats file corrupted — ignore silently
+    # Stats file corrupted or lock timeout — ignore silently
+  } finally {
+    try { $mutex.ReleaseMutex() } catch {}
+    $mutex.Dispose()
   }
 }
 
