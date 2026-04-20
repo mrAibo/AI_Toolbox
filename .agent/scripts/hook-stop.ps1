@@ -1,4 +1,4 @@
-# hook-stop.ps1 - Session end consolidation
+﻿# hook-stop.ps1 - Session end consolidation
 # Runs after every command (post-command hook).
 # No $ErrorActionPreference = "Stop" - must be resilient to individual failures.
 

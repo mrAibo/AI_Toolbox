@@ -1,4 +1,4 @@
-# generate-client-files.ps1 — Windows wrapper around the Python3 generator.
+﻿# generate-client-files.ps1 — Windows wrapper around the Python3 generator.
 # Usage: powershell -ExecutionPolicy Bypass -File .agent/scripts/generate-client-files.ps1 -Mode check|sync
 param(
     [ValidateSet("check","sync")]

@@ -1,4 +1,4 @@
-# AI Toolbox Setup Script — One-command setup with client selection
+ï»¿# AI Toolbox Setup Script — One-command setup with client selection
 # Usage: powershell -ExecutionPolicy Bypass -File .agent/scripts/setup.ps1
 # No $ErrorActionPreference = "Stop" — must be resilient.
 

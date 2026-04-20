@@ -1,4 +1,4 @@
-# sync-task.ps1
+﻿# sync-task.ps1
 # Export current task state to a static file for the AI to read.
 # Also detects task type and suggests the appropriate workflow.
 

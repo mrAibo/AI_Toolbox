@@ -20,6 +20,19 @@
         # Hook parameters follow the Claude Code call convention. Some
         # parameters may be unused when the script only handles a subset of
         # hook events.
-        'PSReviewUnusedParameter'
+        'PSReviewUnusedParameter',
+
+        # Hook scripts intentionally use empty catch blocks to swallow all
+        # exceptions. Hooks must never throw — a failure would abort the AI
+        # session. Adding Write-Error inside catch would change the stdout
+        # protocol that Claude Code reads.
+        'PSAvoidUsingEmptyCatchBlock',
+
+        # PSScriptAnalyzer does not track variable assignments made inside
+        # ForEach-Object / Where-Object script blocks, producing false positives
+        # (e.g. $hasStats assigned inside ForEach-Object and read outside).
+        # Hook scripts also intentionally compute named intermediates for
+        # readability even when the value flows to a single consumer.
+        'PSUseDeclaredVarsMoreThanAssignments'
     )
 }

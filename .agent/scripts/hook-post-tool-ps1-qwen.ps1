@@ -53,8 +53,8 @@ try {
         $Content = Get-Content $FilePath -Raw -ErrorAction SilentlyContinue
         if ($Content) {
             foreach ($pattern in $SecretPatterns) {
-                $matches = [regex]::Matches($Content, $pattern)
-                foreach ($m in $matches) {
+                $regexMatches = [regex]::Matches($Content, $pattern)
+                foreach ($m in $regexMatches) {
                     $lineNum = ($Content.Substring(0, $m.Index) -split "`n").Count
                     $Findings += "Line ${lineNum}: potential secret detected"
                 }

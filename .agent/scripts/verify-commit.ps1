@@ -64,8 +64,8 @@ foreach ($File in $StagedMD) {
     if (Test-Path $FullPath) {
         $Content = Get-Content $FullPath -Raw
         # Find all markdown links [text](path)
-        $Matches = [regex]::Matches($Content, '\[([^\]]+)\]\(([^)]+)\)')
-        foreach ($Match in $Matches) {
+        $LinkMatches = [regex]::Matches($Content, '\[([^\]]+)\]\(([^)]+)\)')
+        foreach ($Match in $LinkMatches) {
             $Target = $Match.Groups[2].Value -split '#' | Select-Object -First 1
             # Skip external links, anchors, and root-relative paths
             if ($Target -match '^https?://|^mailto:|^#|^/') { continue }
