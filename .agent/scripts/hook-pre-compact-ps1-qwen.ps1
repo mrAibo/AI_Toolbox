@@ -45,9 +45,9 @@ try {
     if (Test-Path $ADRFile) {
         $content = Get-Content $ADRFile -Raw -ErrorAction SilentlyContinue
         if ($content) {
-            $lastADR = $content -split '(?=### ADR-)' | Select-Object -Last 2
+            $lastADR = @($content -split '(?=### ADR-)' | Select-Object -Last 2)
             if ($lastADR.Count -ge 1) {
-                $ContextParts += "### Latest Architecture Decision:`n$($lastADR[-1].Trim())"
+                $ContextParts += "### Latest Architecture Decision:`n$([string]$lastADR[-1].Trim())"
             }
         }
     }
