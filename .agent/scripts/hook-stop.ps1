@@ -44,8 +44,9 @@ if (Test-Path $ActiveFile) {
     $ActiveContent = Get-Content $ActiveFile -Raw
     if ($ActiveContent -notmatch '\[Date\]' -and $ActiveContent -notmatch 'Awaiting task analysis') {
         if (Test-Path $HandoverFile) {
-            $mutex = [System.Threading.Mutex]::new($false, "AI_Toolbox_Handover")
+            $mutex = $null
             try {
+                $mutex = [System.Threading.Mutex]::new($false, "AI_Toolbox_Handover")
                 $mutex.WaitOne(5000) | Out-Null
 
                 # Cap handover to last 10 session summaries to prevent unbounded growth
@@ -70,8 +71,10 @@ if (Test-Path $ActiveFile) {
                     Out-File -FilePath $HandoverFile -Append -Encoding utf8
                 $ActiveContent | Out-File -FilePath $HandoverFile -Append -Encoding utf8
             } finally {
-                try { $mutex.ReleaseMutex() } catch {}
-                $mutex.Dispose()
+                if ($mutex) {
+                    try { $mutex.ReleaseMutex() } catch {}
+                    $mutex.Dispose()
+                }
             }
         }
     }

@@ -39,8 +39,9 @@ function Update-ToolStat {
   if (-not (Test-Path $StatsFile)) {
     @{ "rtk" = 0; "beads" = 0; "mcp" = 0 } | ConvertTo-Json | Set-Content $StatsFile -Encoding utf8
   }
-  $mutex = [System.Threading.Mutex]::new($false, "AI_Toolbox_Stats")
+  $mutex = $null
   try {
+    $mutex = [System.Threading.Mutex]::new($false, "AI_Toolbox_Stats")
     $mutex.WaitOne(5000) | Out-Null
     $stats = Get-Content $StatsFile -Raw -ErrorAction Stop | ConvertFrom-Json
     $statsHash = @{}
@@ -51,10 +52,12 @@ function Update-ToolStat {
     $statsHash | ConvertTo-Json -Depth 3 | Set-Content $TmpFile -Encoding utf8
     Move-Item -Path $TmpFile -Destination $StatsFile -Force
   } catch {
-    # Stats file corrupted or lock timeout — ignore silently
+    # Stats file corrupted, lock timeout, or Mutex not supported — ignore silently
   } finally {
-    try { $mutex.ReleaseMutex() } catch {}
-    $mutex.Dispose()
+    if ($mutex) {
+      try { $mutex.ReleaseMutex() } catch {}
+      $mutex.Dispose()
+    }
   }
 }
 

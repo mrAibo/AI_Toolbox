@@ -38,8 +38,9 @@ try {
     # Update tool stats (increment stop hook usage)
     # PR1: Named Mutex + atomic temp-file write to prevent JSON corruption under concurrency.
     if (Test-Path $StatsFile) {
-        $mutex = [System.Threading.Mutex]::new($false, "AI_Toolbox_Stats")
+        $mutex = $null
         try {
+            $mutex = [System.Threading.Mutex]::new($false, "AI_Toolbox_Stats")
             $mutex.WaitOne(5000) | Out-Null
             $stats = Get-Content $StatsFile -Raw -ErrorAction Stop | ConvertFrom-Json
             $statsHash = @{}
@@ -50,8 +51,10 @@ try {
             Move-Item -Path $TmpFile -Destination $StatsFile -Force
         } catch {
         } finally {
-            try { $mutex.ReleaseMutex() } catch {}
-            $mutex.Dispose()
+            if ($mutex) {
+                try { $mutex.ReleaseMutex() } catch {}
+                $mutex.Dispose()
+            }
         }
     }
 
