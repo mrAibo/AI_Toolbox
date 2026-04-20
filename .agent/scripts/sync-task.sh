@@ -1,4 +1,4 @@
-﻿#!/bin/bash
+#!/bin/bash
 # sync-task.sh
 # Export current task state to a static file for the AI to read.
 # Also detects task type and suggests the appropriate workflow.

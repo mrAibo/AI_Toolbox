@@ -189,8 +189,6 @@ test_memory_files() {
             *-compatibility-analysis.md) continue ;;
             integration-plan-ARCHIVED.md) continue ;;
             implementation-plan-v2.md) continue ;;
-            test-suite-plan.md) continue ;;
-            test-coverage-100-plan.md) continue ;;
             opencode-integration.md) continue ;;
         esac
 
