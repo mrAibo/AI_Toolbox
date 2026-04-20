@@ -32,8 +32,8 @@ if ($Command -match '^(cat|less|tail|head) .+\.log' -and $Command -notmatch '^rt
 
 # Track tool usage for session statistics
 # PR1: Uses Named Mutex for serialization + temp file for atomic write to prevent JSON corruption.
-# Named Update-ToolStats (not Update-ToolStats) to satisfy PSUseApprovedVerbs.
-function Update-ToolStats {
+# Named Update-ToolStat (not Update-ToolStat) to satisfy PSUseApprovedVerbs.
+function Update-ToolStat {
   param([string]$Tool)
   # Initialize stats file if missing (outside lock — benign if two processes race here)
   if (-not (Test-Path $StatsFile)) {
@@ -59,9 +59,9 @@ function Update-ToolStats {
 }
 
 # Detect which tool is being used
-if ($Command -match '^rtk ') { Update-ToolStats "rtk" }
-if ($Command -match '^bd\s+') { Update-ToolStats "beads" }
-if ($Command -match 'claude\s+mcp|context7|sequential-thinking') { Update-ToolStats "mcp" }
+if ($Command -match '^rtk ') { Update-ToolStat "rtk" }
+if ($Command -match '^bd\s+') { Update-ToolStat "beads" }
+if ($Command -match 'claude\s+mcp|context7|sequential-thinking') { Update-ToolStat "mcp" }
 
 exit 0
 
