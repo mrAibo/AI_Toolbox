@@ -12,122 +12,164 @@ Write-Host "===================" -ForegroundColor Cyan
 Write-Host ""
 
 # ---------------------------------------------------------------
-# Step 1: Detect installed AI clients
+# Step 1: Determine primary AI client
+#
+# Priority:
+#   1. Explicit primary_client in .ai-toolbox/config.json  (always wins)
+#   2. Autodetection via Get-Command / path heuristics     (fallback)
+#   3. Interactive selection when multiple detected         (last resort)
+#   4. User's choice is written back to config so (1) applies next time
 # ---------------------------------------------------------------
-Write-Host "?? Scanning for installed AI clients..." -ForegroundColor Yellow
 
-$Clients = @()
-$ClientNames = @()
-
-# Check Claude Code
-if (Get-Command claude -ErrorAction SilentlyContinue) {
-  try { $ver = (claude --version 2>$null) } catch { $ver = "installed" }
-  $Clients += "claude"
-  $ClientNames += "Claude Code ($ver)"
-  Write-Host "  ? Claude Code ($ver)" -ForegroundColor Green
-}
-
-# Check Qwen Code
-if (Get-Command qwen -ErrorAction SilentlyContinue) {
-  try { $ver = (qwen --version 2>$null) } catch { $ver = "installed" }
-  $Clients += "qwen"
-  $ClientNames += "Qwen Code ($ver)"
-  Write-Host "  ? Qwen Code ($ver)" -ForegroundColor Green
-}
-
-# Check Gemini CLI
-if (Get-Command gemini -ErrorAction SilentlyContinue) {
-  try { $ver = (gemini --version 2>$null) } catch { $ver = "installed" }
-  $Clients += "gemini"
-  $ClientNames += "Gemini CLI ($ver)"
-  Write-Host "  ? Gemini CLI ($ver)" -ForegroundColor Green
-}
-
-# Check Aider
-if (Get-Command aider -ErrorAction SilentlyContinue) {
-  try { $ver = (aider --version 2>$null) } catch { $ver = "installed" }
-  $Clients += "aider"
-  $ClientNames += "Aider ($ver)"
-  Write-Host "  ? Aider ($ver)" -ForegroundColor Green
-}
-
-# GUI-based clients (detect via install paths — unreliable, user can override)
-
-# Cursor: common install locations
-$CursorFound = (Get-Command cursor -ErrorAction SilentlyContinue) -or
-    (Test-Path "$env:LOCALAPPDATA\Programs\cursor") -or
-    (Test-Path "$env:LOCALAPPDATA\Programs\Cursor") -or
-    (Test-Path "$env:USERPROFILE\.cursor") -or
-    (Test-Path "$env:USERPROFILE\AppData\Local\Programs\Cursor")
-if ($CursorFound) {
-  $Clients += "cursor"
-  $ClientNames += "Cursor (GUI)"
-  Write-Host "  ? Cursor (GUI)" -ForegroundColor Green
-}
-
-# Cline/RooCode: VS Code extension — check extension storage + data dirs
-$ClineFound = (Get-Command cline -ErrorAction SilentlyContinue) -or
-    (Test-Path "$env:USERPROFILE\.cline") -or
-    (Test-Path "$env:USERPROFILE\.roocode") -or
-    ((Test-Path "$env:USERPROFILE\.vscode\extensions") -and (Get-ChildItem "$env:USERPROFILE\.vscode\extensions" -Filter "*cline*" -ErrorAction SilentlyContinue).Count -gt 0) -or
-    ((Test-Path "$env:USERPROFILE\.vscode\extensions") -and (Get-ChildItem "$env:USERPROFILE\.vscode\extensions" -Filter "*roo*" -ErrorAction SilentlyContinue).Count -gt 0)
-if ($ClineFound) {
-  $Clients += "cline"
-  $ClientNames += "Cline / RooCode (VS Code extension)"
-  Write-Host "  ? Cline / RooCode (VS Code extension)" -ForegroundColor Green
-}
-
-# Windsurf: IDE — check common install locations
-$WindsurfFound = (Get-Command windsurf -ErrorAction SilentlyContinue) -or
-    (Test-Path "$env:LOCALAPPDATA\Programs\windsurf") -or
-    (Test-Path "$env:LOCALAPPDATA\Programs\Windsurf") -or
-    (Test-Path "$env:USERPROFILE\.windsurf") -or
-    (Test-Path "$env:ProgramFiles\Windsurf")
-if ($WindsurfFound) {
-  $Clients += "windsurf"
-  $ClientNames += "Windsurf (GUI)"
-  Write-Host "  ? Windsurf (GUI)" -ForegroundColor Green
-}
-
-if ($Clients.Count -eq 0) {
-  Write-Host "  [WARN]  No supported AI clients detected." -ForegroundColor Yellow
-  Write-Host "  Supported: Claude Code, Qwen Code, Gemini CLI, Aider, Cursor, Cline, Windsurf"
-  Write-Host "  Install one first, then re-run this setup."
-  Write-Host ""
-  Write-Host "  Continuing with bootstrap only..."
-  $PrimaryClient = ""
-} else {
-  Write-Host ""
-  Write-Host "  Found $($Clients.Count) client(s)."
-  Write-Host ""
-
-  if ($Clients.Count -eq 1) {
-    $PrimaryClient = $Clients[0]
-    Write-Host "  Auto-selected: $($ClientNames[0])" -ForegroundColor Green
-  } else {
-    Write-Host "  Select PRIMARY client (used for hooks + MCP config):"
-    for ($i = 0; $i -lt $Clients.Count; $i++) {
-      Write-Host "  $($i+1). $($ClientNames[$i])"
+# --- Priority 1: Check for explicit override in central config ---
+$ConfigPrimary = ""
+if (Test-Path ".ai-toolbox/config.json") {
+  try {
+    $AiConfig = Get-Content ".ai-toolbox/config.json" -Raw | ConvertFrom-Json
+    if ($AiConfig.primary_client) {
+      $ConfigPrimary = $AiConfig.primary_client.Trim()
     }
+  } catch { }
+}
+
+if ($ConfigPrimary) {
+  Write-Host "  [CONFIG] Explicit primary_client in .ai-toolbox/config.json: $ConfigPrimary" -ForegroundColor Cyan
+  Write-Host "           (Autodetection skipped. Edit primary_client in .ai-toolbox/config.json to change.)"
+  $PrimaryClient = $ConfigPrimary
+  Write-Host ""
+  Write-Host "[OK] Primary client (from config): $PrimaryClient" -ForegroundColor Green
+  Write-Host "   -> All router files will be created for ALL clients"
+  Write-Host "   -> Hooks + MCP will be configured for $PrimaryClient"
+} else {
+  # --- Priority 2: Autodetect ---
+  Write-Host "[SCAN] Scanning for installed AI clients..." -ForegroundColor Yellow
+
+  $Clients = @()
+  $ClientNames = @()
+
+  # Check Claude Code
+  if (Get-Command claude -ErrorAction SilentlyContinue) {
+    try { $ver = (claude --version 2>$null) } catch { $ver = "installed" }
+    $Clients += "claude"
+    $ClientNames += "Claude Code ($ver)"
+    Write-Host "  [OK] Claude Code ($ver)" -ForegroundColor Green
+  }
+
+  # Check Qwen Code
+  if (Get-Command qwen -ErrorAction SilentlyContinue) {
+    try { $ver = (qwen --version 2>$null) } catch { $ver = "installed" }
+    $Clients += "qwen"
+    $ClientNames += "Qwen Code ($ver)"
+    Write-Host "  [OK] Qwen Code ($ver)" -ForegroundColor Green
+  }
+
+  # Check Gemini CLI
+  if (Get-Command gemini -ErrorAction SilentlyContinue) {
+    try { $ver = (gemini --version 2>$null) } catch { $ver = "installed" }
+    $Clients += "gemini"
+    $ClientNames += "Gemini CLI ($ver)"
+    Write-Host "  [OK] Gemini CLI ($ver)" -ForegroundColor Green
+  }
+
+  # Check Aider
+  if (Get-Command aider -ErrorAction SilentlyContinue) {
+    try { $ver = (aider --version 2>$null) } catch { $ver = "installed" }
+    $Clients += "aider"
+    $ClientNames += "Aider ($ver)"
+    Write-Host "  [OK] Aider ($ver)" -ForegroundColor Green
+  }
+
+  # GUI-based clients: check command + common install paths
+
+  # Cursor
+  $CursorFound = (Get-Command cursor -ErrorAction SilentlyContinue) -or
+      (Test-Path "$env:LOCALAPPDATA\Programs\cursor") -or
+      (Test-Path "$env:LOCALAPPDATA\Programs\Cursor") -or
+      (Test-Path "$env:USERPROFILE\.cursor") -or
+      (Test-Path "$env:USERPROFILE\AppData\Local\Programs\Cursor")
+  if ($CursorFound) {
+    $Clients += "cursor"
+    $ClientNames += "Cursor (GUI)"
+    Write-Host "  [OK] Cursor (GUI)" -ForegroundColor Green
+  }
+
+  # Cline/RooCode: command, config dirs, VS Code extension directory
+  $ClineFound = (Get-Command cline -ErrorAction SilentlyContinue) -or
+      (Test-Path "$env:USERPROFILE\.cline") -or
+      (Test-Path "$env:USERPROFILE\.roocode") -or
+      ((Test-Path "$env:USERPROFILE\.vscode\extensions") -and (Get-ChildItem "$env:USERPROFILE\.vscode\extensions" -Filter "*cline*" -ErrorAction SilentlyContinue).Count -gt 0) -or
+      ((Test-Path "$env:USERPROFILE\.vscode\extensions") -and (Get-ChildItem "$env:USERPROFILE\.vscode\extensions" -Filter "*roo*" -ErrorAction SilentlyContinue).Count -gt 0)
+  if ($ClineFound) {
+    $Clients += "cline"
+    $ClientNames += "Cline / RooCode (VS Code extension)"
+    Write-Host "  [OK] Cline / RooCode (VS Code extension)" -ForegroundColor Green
+  }
+
+  # Windsurf
+  $WindsurfFound = (Get-Command windsurf -ErrorAction SilentlyContinue) -or
+      (Test-Path "$env:LOCALAPPDATA\Programs\windsurf") -or
+      (Test-Path "$env:LOCALAPPDATA\Programs\Windsurf") -or
+      (Test-Path "$env:USERPROFILE\.windsurf") -or
+      (Test-Path "$env:ProgramFiles\Windsurf")
+  if ($WindsurfFound) {
+    $Clients += "windsurf"
+    $ClientNames += "Windsurf (GUI)"
+    Write-Host "  [OK] Windsurf (GUI)" -ForegroundColor Green
+  }
+
+  if ($Clients.Count -eq 0) {
+    Write-Host "  [WARN]  No supported AI clients detected." -ForegroundColor Yellow
+    Write-Host "  Supported: Claude Code, Qwen Code, Gemini CLI, Aider, Cursor, Cline, Windsurf"
+    Write-Host "  Install one first, then re-run this setup."
+    Write-Host "  Or set primary_client in .ai-toolbox/config.json to bypass autodetection."
+    Write-Host ""
+    Write-Host "  Continuing with bootstrap only..."
+    $PrimaryClient = ""
+  } else {
+    Write-Host ""
+    Write-Host "  Found $($Clients.Count) client(s)."
     Write-Host ""
 
-    while ($true) {
-      $selection = Read-Host "  > "
-      if ($selection -match '^\d+$' -and [int]$selection -ge 1 -and [int]$selection -le $Clients.Count) {
-        $PrimaryClient = $Clients[[int]$selection - 1]
-        break
+    if ($Clients.Count -eq 1) {
+      $PrimaryClient = $Clients[0]
+      Write-Host "  Auto-selected: $($ClientNames[0])" -ForegroundColor Green
+    } else {
+      # --- Priority 3: Interactive selection ---
+      Write-Host "  Select PRIMARY client (used for hooks + MCP config):"
+      for ($i = 0; $i -lt $Clients.Count; $i++) {
+        Write-Host "  $($i+1). $($ClientNames[$i])"
       }
-      Write-Host "  Invalid selection. Enter a number between 1 and $($Clients.Count)." -ForegroundColor Red
+      Write-Host ""
+
+      while ($true) {
+        $selection = Read-Host "  > "
+        if ($selection -match '^\d+$' -and [int]$selection -ge 1 -and [int]$selection -le $Clients.Count) {
+          $PrimaryClient = $Clients[[int]$selection - 1]
+          break
+        }
+        Write-Host "  Invalid selection. Enter a number between 1 and $($Clients.Count)." -ForegroundColor Red
+      }
     }
   }
+
+  # --- Priority 4: Persist choice back to config (so next run uses Priority 1) ---
+  if ($PrimaryClient -and (Test-Path ".ai-toolbox/config.json")) {
+    try {
+      $AiConfig = Get-Content ".ai-toolbox/config.json" -Raw | ConvertFrom-Json
+      $AiConfig | Add-Member -MemberType NoteProperty -Name "primary_client" -Value $PrimaryClient -Force
+      $AiConfig | ConvertTo-Json -Depth 10 | Set-Content ".ai-toolbox/config.json" -Encoding utf8
+      Write-Host "  [SAVE] Saved primary_client=$PrimaryClient to .ai-toolbox/config.json" -ForegroundColor Cyan
+    } catch {
+      Write-Host "  [NOTE] Could not persist primary client to config: $_" -ForegroundColor Yellow
+    }
+  }
+
+  Write-Host ""
+  Write-Host "[OK] Primary client: $PrimaryClient" -ForegroundColor Green
+  Write-Host "   -> All router files will be created for ALL clients"
+  Write-Host "   -> Hooks + MCP will be configured for $PrimaryClient"
 }
 
-Write-Host ""
-Write-Host "? Primary client: $PrimaryClient" -ForegroundColor Green
-Write-Host "   ? All router files will be created for ALL clients"
-Write-Host "   ? Hooks + MCP will be configured for $PrimaryClient"
-
-# ---------------------------------------------------------------
 # Step 2: Run bootstrap
 # ---------------------------------------------------------------
 Write-Host ""

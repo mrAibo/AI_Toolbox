@@ -1,6 +1,6 @@
 {
   "_meta": {
-    "version": "1.0",
+    "version": "1.1",
     "description": "Central source of truth for AI Toolbox client configuration.",
     "source_of_truth_rules": [
       "1. This file is the canonical client registry — edit here, not in bootstrap scripts.",
@@ -9,6 +9,13 @@
       "4. Run generate_client_files.py --sync to install any missing template-backed files.",
       "5. bootstrap.sh/ps1 remain the install mechanism today; a future PR will delegate to this generator."
     ],
+    "detection_priority": [
+      "1. primary_client field (if non-null) — always wins, autodetection is skipped entirely.",
+      "2. Autodetection via command-v checks and folder/path heuristics in setup.sh / setup.ps1 — fallback only.",
+      "3. Interactive user selection when autodetection finds multiple clients.",
+      "4. User's selection is written back to primary_client so future runs use rule (1)."
+    ],
+    "primary_client_values": "Short name matching setup.sh/ps1 identifiers: claude, qwen, gemini, aider, cursor, cline, windsurf, codex, opencode. Use null to enable autodetection.",
     "generator": {
       "check": "python3 .agent/scripts/generate_client_files.py --check",
       "sync": "python3 .agent/scripts/generate_client_files.py --sync",
@@ -16,6 +23,7 @@
       "windows_wrapper": "powershell -ExecutionPolicy Bypass -File .agent/scripts/generate-client-files.ps1 -Mode sync"
     }
   },
+  "primary_client": null,
   "tiers": {
     "full": {
       "description": "Hooks + Multi-Agent + Sync + Handover + Plan Mode",

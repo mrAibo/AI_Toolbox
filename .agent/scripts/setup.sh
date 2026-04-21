@@ -13,104 +13,161 @@ echo "==================="
 echo ""
 
 # ---------------------------------------------------------------
-# Step 1: Detect installed AI clients
+# Step 1: Determine primary AI client
+#
+# Priority:
+#   1. Explicit primary_client in .ai-toolbox/config.json  (always wins)
+#   2. Autodetection via command-v / path heuristics       (fallback)
+#   3. Interactive selection when multiple detected         (last resort)
+#   4. User's choice is written back to config so (1) applies next time
 # ---------------------------------------------------------------
-echo "📋 Scanning for installed AI clients..."
 
-CLIENTS=()
-CLIENT_NAMES=()
-
-# Check Claude Code
-if command -v claude &> /dev/null; then
-  CLAUDE_VERSION=$(claude --version 2>/dev/null || echo "installed")
-  CLIENTS+=("claude")
-  CLIENT_NAMES+=("Claude Code ($CLAUDE_VERSION)")
-  echo "  ✅ Claude Code ($CLAUDE_VERSION)"
+# --- Priority 1: Check for explicit override in central config ---
+CONFIG_PRIMARY=""
+if [ -f ".ai-toolbox/config.json" ] && command -v python3 &>/dev/null; then
+  CONFIG_PRIMARY=$(python3 -c "
+import json, sys
+try:
+    with open('.ai-toolbox/config.json') as f:
+        data = json.load(f)
+    pc = (data.get('primary_client') or '').strip()
+    print(pc)
+except Exception:
+    print('')
+" 2>/dev/null || echo "")
 fi
 
-# Check Qwen Code
-if command -v qwen &> /dev/null; then
-  QWEN_VERSION=$(qwen --version 2>/dev/null || echo "installed")
-  CLIENTS+=("qwen")
-  CLIENT_NAMES+=("Qwen Code ($QWEN_VERSION)")
-  echo "  ✅ Qwen Code ($QWEN_VERSION)"
-fi
-
-# Check Gemini CLI
-if command -v gemini &> /dev/null; then
-  GEMINI_VERSION=$(gemini --version 2>/dev/null || echo "installed")
-  CLIENTS+=("gemini")
-  CLIENT_NAMES+=("Gemini CLI ($GEMINI_VERSION)")
-  echo "  ✅ Gemini CLI ($GEMINI_VERSION)"
-fi
-
-# Check Aider
-if command -v aider &> /dev/null; then
-  AIDER_VERSION=$(aider --version 2>/dev/null || echo "installed")
-  CLIENTS+=("aider")
-  CLIENT_NAMES+=("Aider ($AIDER_VERSION)")
-  echo "  ✅ Aider ($AIDER_VERSION)"
-fi
-
-# GUI-based clients (no CLI binary — detect via common install paths)
-if command -v cursor &> /dev/null || [ -d "$HOME/.cursor" ] || [ -d "$HOME/.config/cursor" ] || [ -d "$LOCALAPPDATA/Programs/cursor" ] 2>/dev/null; then
-  CLIENTS+=("cursor")
-  CLIENT_NAMES+=("Cursor (GUI)")
-  echo "  ✅ Cursor (GUI)"
-fi
-
-if command -v cline &> /dev/null || [ -d "$HOME/.cline" ] || [ -d "$HOME/.config/cline" ] || [ -d "$HOME/.roocode" ] 2>/dev/null; then
-  CLIENTS+=("cline")
-  CLIENT_NAMES+=("Cline / RooCode (VS Code extension)")
-  echo "  ✅ Cline / RooCode (VS Code extension)"
-fi
-
-if command -v windsurf &> /dev/null || [ -d "$HOME/.windsurf" ] || [ -d "$HOME/.config/windsurf" ] 2>/dev/null; then
-  CLIENTS+=("windsurf")
-  CLIENT_NAMES+=("Windsurf (GUI)")
-  echo "  ✅ Windsurf (GUI)"
-fi
-
-# If no clients found, show message
-if [ ${#CLIENTS[@]} -eq 0 ]; then
-  echo "  ⚠️  No supported AI clients detected."
-  echo "  Supported: Claude Code, Qwen Code, Gemini CLI, Aider, Cursor, Cline, Windsurf"
-  echo "  Install one first, then re-run this setup."
+if [ -n "$CONFIG_PRIMARY" ]; then
+  echo "  📌 Explicit primary_client in .ai-toolbox/config.json: $CONFIG_PRIMARY"
+  echo "     (Autodetection skipped. Edit primary_client in .ai-toolbox/config.json to change.)"
+  PRIMARY_CLIENT="$CONFIG_PRIMARY"
   echo ""
-  echo "  Continuing with bootstrap only..."
-  PRIMARY_CLIENT=""
+  echo "✅ Primary client (from config): $PRIMARY_CLIENT"
+  echo "   → All router files will be created for ALL clients"
+  echo "   → Hooks + MCP will be configured for $PRIMARY_CLIENT"
 else
-  echo ""
-  echo "  Found ${#CLIENTS[@]} client(s)."
-  echo ""
+  # --- Priority 2: Autodetect ---
+  echo "📋 Scanning for installed AI clients..."
 
-  # If only one client, auto-select
-  if [ ${#CLIENTS[@]} -eq 1 ]; then
-    PRIMARY_CLIENT="${CLIENTS[0]}"
-    echo "  Auto-selected: ${CLIENT_NAMES[0]}"
+  CLIENTS=()
+  CLIENT_NAMES=()
+
+  # Check Claude Code
+  if command -v claude &> /dev/null; then
+    CLAUDE_VERSION=$(claude --version 2>/dev/null || echo "installed")
+    CLIENTS+=("claude")
+    CLIENT_NAMES+=("Claude Code ($CLAUDE_VERSION)")
+    echo "  ✅ Claude Code ($CLAUDE_VERSION)"
+  fi
+
+  # Check Qwen Code
+  if command -v qwen &> /dev/null; then
+    QWEN_VERSION=$(qwen --version 2>/dev/null || echo "installed")
+    CLIENTS+=("qwen")
+    CLIENT_NAMES+=("Qwen Code ($QWEN_VERSION)")
+    echo "  ✅ Qwen Code ($QWEN_VERSION)"
+  fi
+
+  # Check Gemini CLI
+  if command -v gemini &> /dev/null; then
+    GEMINI_VERSION=$(gemini --version 2>/dev/null || echo "installed")
+    CLIENTS+=("gemini")
+    CLIENT_NAMES+=("Gemini CLI ($GEMINI_VERSION)")
+    echo "  ✅ Gemini CLI ($GEMINI_VERSION)"
+  fi
+
+  # Check Aider
+  if command -v aider &> /dev/null; then
+    AIDER_VERSION=$(aider --version 2>/dev/null || echo "installed")
+    CLIENTS+=("aider")
+    CLIENT_NAMES+=("Aider ($AIDER_VERSION)")
+    echo "  ✅ Aider ($AIDER_VERSION)"
+  fi
+
+  # GUI-based clients (no CLI binary — detect via common install paths)
+  if command -v cursor &> /dev/null || [ -d "$HOME/.cursor" ] || [ -d "$HOME/.config/cursor" ]; then
+    CLIENTS+=("cursor")
+    CLIENT_NAMES+=("Cursor (GUI)")
+    echo "  ✅ Cursor (GUI)"
+  fi
+
+  # Cline / RooCode: check command, config dirs, and VS Code extension directory (parity with .ps1)
+  _cline_ext_found=false
+  if [ -d "$HOME/.vscode/extensions" ]; then
+    if find "$HOME/.vscode/extensions" -maxdepth 1 \( -iname "*cline*" -o -iname "*roo*" \) 2>/dev/null | grep -q .; then
+      _cline_ext_found=true
+    fi
+  fi
+  if command -v cline &> /dev/null || [ -d "$HOME/.cline" ] || [ -d "$HOME/.config/cline" ] || [ -d "$HOME/.roocode" ] || [ "$_cline_ext_found" = true ]; then
+    CLIENTS+=("cline")
+    CLIENT_NAMES+=("Cline / RooCode (VS Code extension)")
+    echo "  ✅ Cline / RooCode (VS Code extension)"
+  fi
+
+  if command -v windsurf &> /dev/null || [ -d "$HOME/.windsurf" ] || [ -d "$HOME/.config/windsurf" ]; then
+    CLIENTS+=("windsurf")
+    CLIENT_NAMES+=("Windsurf (GUI)")
+    echo "  ✅ Windsurf (GUI)"
+  fi
+
+  # If no clients found, show message
+  if [ ${#CLIENTS[@]} -eq 0 ]; then
+    echo "  ⚠️  No supported AI clients detected."
+    echo "  Supported: Claude Code, Qwen Code, Gemini CLI, Aider, Cursor, Cline, Windsurf"
+    echo "  Install one first, then re-run this setup."
+    echo "  Or set primary_client in .ai-toolbox/config.json to bypass autodetection."
+    echo ""
+    echo "  Continuing with bootstrap only..."
+    PRIMARY_CLIENT=""
   else
-    # Let user select
-    echo "  Select PRIMARY client (used for hooks + MCP config):"
-    for i in "${!CLIENTS[@]}"; do
-      echo "  $((i+1)). ${CLIENT_NAMES[$i]}"
-    done
+    echo ""
+    echo "  Found ${#CLIENTS[@]} client(s)."
     echo ""
 
-    while true; do
-      read -r -p "  > " selection
-      if [[ "$selection" =~ ^[0-9]+$ ]] && [ "$selection" -ge 1 ] && [ "$selection" -le "${#CLIENTS[@]}" ]; then
-        PRIMARY_CLIENT="${CLIENTS[$((selection-1))]}"
-        break
-      fi
-      echo "  Invalid selection. Enter a number between 1 and ${#CLIENTS[@]}."
-    done
-  fi
-fi
+    # If only one client, auto-select
+    if [ ${#CLIENTS[@]} -eq 1 ]; then
+      PRIMARY_CLIENT="${CLIENTS[0]}"
+      echo "  Auto-selected: ${CLIENT_NAMES[0]}"
+    else
+      # --- Priority 3: Interactive selection ---
+      echo "  Select PRIMARY client (used for hooks + MCP config):"
+      for i in "${!CLIENTS[@]}"; do
+        echo "  $((i+1)). ${CLIENT_NAMES[$i]}"
+      done
+      echo ""
 
-echo ""
-echo "✅ Primary client: $PRIMARY_CLIENT"
-echo "   → All router files will be created for ALL clients"
-echo "   → Hooks + MCP will be configured for $PRIMARY_CLIENT"
+      while true; do
+        read -r -p "  > " selection
+        if [[ "$selection" =~ ^[0-9]+$ ]] && [ "$selection" -ge 1 ] && [ "$selection" -le "${#CLIENTS[@]}" ]; then
+          PRIMARY_CLIENT="${CLIENTS[$((selection-1))]}"
+          break
+        fi
+        echo "  Invalid selection. Enter a number between 1 and ${#CLIENTS[@]}."
+      done
+    fi
+  fi
+
+  # --- Priority 4: Persist choice back to config (so next run uses Priority 1) ---
+  if [ -n "$PRIMARY_CLIENT" ] && [ -f ".ai-toolbox/config.json" ] && command -v python3 &>/dev/null; then
+    python3 -c "
+import json
+try:
+    with open('.ai-toolbox/config.json') as f:
+        data = json.load(f)
+    data['primary_client'] = '$PRIMARY_CLIENT'
+    with open('.ai-toolbox/config.json', 'w') as f:
+        json.dump(data, f, indent=2)
+    print('  💾 Saved primary_client=$PRIMARY_CLIENT to .ai-toolbox/config.json')
+except Exception as e:
+    print('  Note: Could not persist primary client to config: ' + str(e))
+" 2>/dev/null || true
+  fi
+
+  echo ""
+  echo "✅ Primary client: $PRIMARY_CLIENT"
+  echo "   → All router files will be created for ALL clients"
+  echo "   → Hooks + MCP will be configured for $PRIMARY_CLIENT"
+fi
 
 # ---------------------------------------------------------------
 # Step 2: Run bootstrap
