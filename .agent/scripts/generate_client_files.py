@@ -18,6 +18,43 @@ SCRIPT_DIR = Path(__file__).resolve().parent
 REPO_ROOT = SCRIPT_DIR.parent.parent          # scripts/ -> .agent/ -> repo root
 CONFIG_PATH = REPO_ROOT / ".ai-toolbox" / "config.json"
 
+_VALID_TIERS = {"basic", "standard", "full"}
+
+
+def validate_config(config: dict) -> list[str]:
+    """Validate .ai-toolbox/config.json structure. Return list of error messages."""
+    errors: list[str] = []
+
+    for key in ("_meta", "clients", "tiers"):
+        if key not in config:
+            errors.append(f"Missing required top-level key: {key!r}")
+
+    if "clients" not in config:
+        return errors
+
+    known_clients: set[str] = set(config["clients"])
+
+    primary = config.get("primary_client")
+    if primary is not None:
+        if not isinstance(primary, str):
+            errors.append("primary_client must be a string or null")
+        elif primary not in known_clients:
+            errors.append(
+                f"primary_client {primary!r} is not a known client "
+                f"(known: {sorted(known_clients)})"
+            )
+
+    for name, client in config["clients"].items():
+        if "tier" not in client:
+            errors.append(f"client {name!r} missing required key: 'tier'")
+        elif client["tier"] not in _VALID_TIERS:
+            errors.append(
+                f"client {name!r} has invalid tier {client['tier']!r} "
+                f"(must be one of: {sorted(_VALID_TIERS)})"
+            )
+
+    return errors
+
 
 def load_config() -> dict:
     if not CONFIG_PATH.exists():
@@ -104,6 +141,11 @@ def main() -> None:
         sys.exit(2)
 
     config = load_config()
+    config_errors = validate_config(config)
+    if config_errors:
+        for e in config_errors:
+            print(f"  CONFIG ERROR: {e}", file=sys.stderr)
+        sys.exit(2)
     mappings = collect_mappings(config)
 
     if "--check" in args:

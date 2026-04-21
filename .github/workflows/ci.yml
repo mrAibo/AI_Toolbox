@@ -93,6 +93,32 @@ jobs:
           fi
           echo "OK — all JSON valid"
 
+      - name: Validate TOML files
+        run: |
+          python3 -c "
+          import tomllib, sys, os
+          files = []
+          for root, dirs, names in os.walk('.'):
+              dirs[:] = [d for d in dirs if d not in ('.git', 'node_modules')]
+              for name in names:
+                  if name.endswith('.toml'):
+                      files.append(os.path.join(root, name))
+          if not files:
+              print('OK — no TOML files found')
+              sys.exit(0)
+          invalid = 0
+          for f in files:
+              try:
+                  with open(f, 'rb') as fh:
+                      tomllib.load(fh)
+              except Exception as e:
+                  print(f'FAIL Invalid TOML: {f}: {e}')
+                  invalid += 1
+          if invalid:
+              sys.exit(1)
+          print(f'OK — {len(files)} TOML file(s) valid')
+          "
+
       - name: Validate markdown links (core files only)
         run: |
           broken=0
@@ -138,6 +164,14 @@ jobs:
       - name: Validate client-capabilities.json schema
         run: |
           bash .agent/scripts/validate-client-capabilities.sh
+
+      - name: Validate central toolbox config
+        run: |
+          bash .agent/scripts/validate-toolbox-config.sh
+
+      - name: Validate ADR metadata
+        run: |
+          bash .agent/scripts/validate-adr.sh
 
       - name: Script syntax validation
         run: |

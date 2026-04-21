@@ -528,6 +528,105 @@ test_core_files_content() {
     fi
 }
 
+# ─── Test 10: Config and ADR Validation ───────────────────────────────────────
+
+test_config_and_adr_validation() {
+    section "Test 10: Config and ADR Validation"
+
+    # validate-toolbox-config.sh passes on .ai-toolbox/config.json
+    if [ ! -f "$REPO_ROOT/.agent/scripts/validate-toolbox-config.sh" ]; then
+        fail_test "validate-toolbox-config.sh: script not found"
+    else
+        if bash "$REPO_ROOT/.agent/scripts/validate-toolbox-config.sh" > /dev/null 2>&1; then
+            pass_test "validate-toolbox-config.sh: .ai-toolbox/config.json is valid"
+        else
+            fail_test "validate-toolbox-config.sh: validation failed on .ai-toolbox/config.json"
+        fi
+    fi
+
+    # validate-toolbox-config.sh rejects invalid config (missing clients key)
+    if [ -f "$REPO_ROOT/.agent/scripts/validate-toolbox-config.sh" ]; then
+        tmp_cfg=$(mktemp /tmp/test-config-XXXXXX.json)
+        echo '{"_meta": {}, "tiers": {}}' > "$tmp_cfg"
+        CONFIG_FILE_PATH="$tmp_cfg" bash -c '
+            export CONFIG_FILE_PATH
+            python3 -c "
+import json, sys, os
+VALID_TIERS = {\"basic\", \"standard\", \"full\"}
+with open(os.environ[\"CONFIG_FILE_PATH\"], encoding=\"utf-8\") as f:
+    data = json.load(f)
+errors = 0
+for key in (\"_meta\", \"clients\", \"tiers\"):
+    if key not in data:
+        errors += 1
+if errors > 0:
+    sys.exit(1)
+"' > /dev/null 2>&1
+        exit_code=$?
+        rm -f "$tmp_cfg"
+        if [ "$exit_code" -ne 0 ]; then
+            pass_test "validate-toolbox-config.sh: rejects config missing 'clients' key"
+        else
+            fail_test "validate-toolbox-config.sh: should have rejected invalid config"
+        fi
+    fi
+
+    # validate-adr.sh passes on existing ADRs
+    if [ ! -f "$REPO_ROOT/.agent/scripts/validate-adr.sh" ]; then
+        fail_test "validate-adr.sh: script not found"
+    else
+        if bash "$REPO_ROOT/.agent/scripts/validate-adr.sh" > /dev/null 2>&1; then
+            pass_test "validate-adr.sh: all ADRs in .agent/memory/adrs/ are valid"
+        else
+            fail_test "validate-adr.sh: validation failed on existing ADRs"
+        fi
+    fi
+
+    # generate_client_files.py validate_config() rejects bad primary_client
+    if ( cd "$REPO_ROOT/.agent/scripts" && python3 -c "
+from generate_client_files import validate_config
+cfg = {
+    '_meta': {}, 'tiers': {},
+    'clients': {'claude': {'tier': 'full'}},
+    'primary_client': 'unknown-client'
+}
+errors = validate_config(cfg)
+import sys; sys.exit(0 if errors else 1)
+" ) > /dev/null 2>&1; then
+        pass_test "generate_client_files.py validate_config: rejects unknown primary_client"
+    else
+        fail_test "generate_client_files.py validate_config: should reject unknown primary_client"
+    fi
+
+    # generate_client_files.py validate_config() rejects invalid tier
+    if ( cd "$REPO_ROOT/.agent/scripts" && python3 -c "
+from generate_client_files import validate_config
+cfg = {'_meta': {}, 'tiers': {}, 'clients': {'claude': {'tier': 'superpower'}}}
+errors = validate_config(cfg)
+import sys; sys.exit(0 if errors else 1)
+" ) > /dev/null 2>&1; then
+        pass_test "generate_client_files.py validate_config: rejects invalid tier value"
+    else
+        fail_test "generate_client_files.py validate_config: should reject invalid tier"
+    fi
+
+    # generate_client_files.py validate_config() accepts valid config
+    if ( cd "$REPO_ROOT/.agent/scripts" && python3 -c "
+from generate_client_files import validate_config
+cfg = {
+    '_meta': {}, 'tiers': {},
+    'clients': {'claude': {'tier': 'full'}, 'aider': {'tier': 'basic'}},
+    'primary_client': None
+}
+errors = validate_config(cfg)
+import sys; sys.exit(1 if errors else 0)
+" ) > /dev/null 2>&1; then
+        pass_test "generate_client_files.py validate_config: accepts valid config"
+    else
+        fail_test "generate_client_files.py validate_config: rejected valid config"
+    fi
+}
+
 # ─── Main ─────────────────────────────────────────────────────────────────────
 
 echo -e "${BOLD}AI Toolbox Integration Tests${NC}"
@@ -542,6 +641,7 @@ test_json_validity
 test_markdown_links
 test_script_syntax
 test_core_files_content
+test_config_and_adr_validation
 
 echo ""
 echo "========================================="

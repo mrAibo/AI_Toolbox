@@ -20,7 +20,7 @@ ERRORS=0
 
 # Check if staged code changes have corresponding test updates
 STAGED_CODE=$(git diff --cached --name-only 2>/dev/null | grep -E '\.(ts|tsx|js|jsx|py|rs|go|java|kt|rb)$' || true)
-STAGED_TESTS=$(git diff --cached --name-only 2>/dev/null | grep -iE '(^|/)(test|tests|spec|specs)(/|$)|(_test\.|\.test\.|\.spec\.)' || true)
+STAGED_TESTS=$(git diff --cached --name-only 2>/dev/null | grep -iE '(^|/)tests?(/|$|[_-])|(^|/)specs?(/|$|[_-])|(_test\.|\.test\.|\.spec\.)' || true)
 
 if [ -n "$STAGED_CODE" ] && [ -z "$STAGED_TESTS" ]; then
     if [[ $COMMIT_MSG =~ [Tt][Dd][Dd]-[Ss][Kk][Ii][Pp] ]]; then
