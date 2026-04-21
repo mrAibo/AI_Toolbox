@@ -52,7 +52,73 @@ if ((Test-Path $ADRFileResolved) -and ((Get-Item $ADRFileResolved).Length -gt 0)
 }
 
 # ---------------------------------------------------------------
-# Check 3: Broken References in Modified .md Files
+# Check 3: Secret Patterns in Staged Diffs (not entire files)
+# Scans only newly added lines in staged text files for secrets.
+# Blocks the commit if secrets are detected.
+# Bypass: $env:SKIP_SECRET_SCAN = 'true'
+# ---------------------------------------------------------------
+$SkipSecretScan = ($env:SKIP_SECRET_SCAN -eq 'true')
+
+if ($SkipSecretScan) {
+    Write-Host "[INFO] AI Toolbox: Secret scanning skipped via SKIP_SECRET_SCAN."
+} else {
+    $SecretFiles = [System.Collections.Generic.List[string]]::new()
+    $HardBlockedFiles = [System.Collections.Generic.List[string]]::new()
+
+    foreach ($File in $StagedFiles) {
+        $Basename = [System.IO.Path]::GetFileName($File)
+        $FullPath = Join-Path $RepoRoot $File
+        $PathResolved = [System.IO.Path]::GetFullPath($FullPath)
+        if (-not $PathResolved.StartsWith($RepoRootResolved)) { continue }
+
+        # Hard block: sensitive file types regardless of content
+        if ($Basename -match '^\.env$|\.pem$|\.key$|\.p12$|\.pfx$|\.jks$') {
+            $HardBlockedFiles.Add($File) | Out-Null
+            continue
+        }
+
+        # Skip deleted files
+        if (-not (Test-Path $FullPath)) { continue }
+
+        # Scan only newly added lines (lines starting with + in the diff)
+        $DiffLines = git diff --cached $File 2>$null
+        if (-not $DiffLines) { continue }
+        $Additions = $DiffLines | Where-Object { $_ -match '^\+' -and $_ -notmatch '^\+\+\+' }
+        if (-not $Additions) { continue }
+
+        # Filter out common false positives (empty values, placeholders)
+        $RealAdditions = $Additions | Where-Object {
+            $_ -notmatch '[=:]\s*(""|null|undefined|PLACEHOLDER|YOUR_.*_HERE|change.?me|todo)'
+        }
+        if (-not $RealAdditions) { continue }
+
+        $RealText = $RealAdditions -join "`n"
+
+        if ($RealText -match '(?i)(password|passwd|pwd|api[_-]?key|secret|token|auth[_-]?key|connection[_-]?string|database[_-]?url)\s*[=:]\s*["\x27]?\S{8,}') {
+            $SecretFiles.Add($File) | Out-Null
+        } elseif ($RealText -match 'BEGIN\s+(RSA|DSA|EC|OPENSSH)\s+PRIVATE\s+KEY') {
+            $SecretFiles.Add($File) | Out-Null
+        }
+    }
+
+    if ($HardBlockedFiles.Count -gt 0) {
+        Write-Host "[FAIL] AI Toolbox: Sensitive file types must never be committed: $($HardBlockedFiles -join ', ')"
+        Write-Host "       Remove these files and use .env.example or placeholder files instead."
+        $Errors++
+    }
+
+    if ($SecretFiles.Count -gt 0) {
+        Write-Host "[FAIL] AI Toolbox: Potential secrets detected in: $($SecretFiles -join ', ')"
+        Write-Host "       This commit is blocked to prevent accidental secret exposure."
+        Write-Host "       Verify these are not accidental credentials."
+        Write-Host "       If they are intentional test fixtures, bypass with:"
+        Write-Host "         `$env:SKIP_SECRET_SCAN = 'true'; git commit -m 'your message'"
+        $Errors++
+    }
+}
+
+# ---------------------------------------------------------------
+# Check 4: Broken References in Modified .md Files
 # Only check files that are staged for commit.
 # ---------------------------------------------------------------
 $StagedMD = $StagedFiles | Where-Object { $_ -match '\.md$' }

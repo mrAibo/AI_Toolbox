@@ -721,6 +721,43 @@ else
     echo -e "  ${YELLOW}SKIP${NC} All 6 pwsh tests (pwsh not available)"
 fi
 
+# ─── 16. PR7: Command Normalization Bypass Tests ─────────────────────────────
+# Verify that leading whitespace, env prefix, and VAR=val prefix do not allow
+# heavy commands to slip past the pre-command hook.
+
+echo ""
+echo "=== PR7: Command Normalization Bypass Tests (hook-pre-command-qwen.sh) ==="
+
+# Leading whitespace should still trigger "ask"
+run_test "Leading-space '  python' still detected as heavy" 0 \
+    '{"tool_name":"Bash","tool_input":{"command":"  python script.py"}}' \
+    "$SCRIPT_DIR/hook-pre-command-qwen.sh" \
+    'echo "$output" | python3 -c "import sys,json; d=json.load(sys.stdin); assert d[\"decision\"]==\"ask\", f\"expected ask, got {d[\"decision\"]}\""'
+
+# env prefix should still trigger "ask"
+run_test "Env-prefix 'env python' still detected as heavy" 0 \
+    '{"tool_name":"Bash","tool_input":{"command":"env python script.py"}}' \
+    "$SCRIPT_DIR/hook-pre-command-qwen.sh" \
+    'echo "$output" | python3 -c "import sys,json; d=json.load(sys.stdin); assert d[\"decision\"]==\"ask\", f\"expected ask, got {d[\"decision\"]}\""'
+
+# VAR=val prefix should still trigger "ask"
+run_test "VAR=val prefix 'VAR=1 python' still detected as heavy" 0 \
+    '{"tool_name":"Bash","tool_input":{"command":"VAR=1 python script.py"}}' \
+    "$SCRIPT_DIR/hook-pre-command-qwen.sh" \
+    'echo "$output" | python3 -c "import sys,json; d=json.load(sys.stdin); assert d[\"decision\"]==\"ask\", f\"expected ask, got {d[\"decision\"]}\""'
+
+# rtk with leading space is still allowed (normalization preserves legitimate bypass)
+run_test "Leading-space 'rtk' still allowed" 0 \
+    '{"tool_name":"Bash","tool_input":{"command":"  rtk python script.py"}}' \
+    "$SCRIPT_DIR/hook-pre-command-qwen.sh" \
+    'echo "$output" | python3 -c "import sys,json; d=json.load(sys.stdin); assert d[\"decision\"]==\"allow\", f\"expected allow, got {d[\"decision\"]}\""'
+
+# Newly aligned regex: ansible-playbook (was missing from qwen hook before PR7)
+run_test "ansible-playbook now detected as heavy (PR7 regex alignment)" 0 \
+    '{"tool_name":"Bash","tool_input":{"command":"ansible-playbook site.yml"}}' \
+    "$SCRIPT_DIR/hook-pre-command-qwen.sh" \
+    'echo "$output" | python3 -c "import sys,json; d=json.load(sys.stdin); assert d[\"decision\"]==\"ask\", f\"expected ask, got {d[\"decision\"]}\""'
+
 # ─── Summary ──────────────────────────────────────────────────────────────────
 
 echo ""

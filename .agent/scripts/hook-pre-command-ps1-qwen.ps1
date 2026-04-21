@@ -36,7 +36,13 @@ try {
 
     $HeavyCommandRegex = "^(python|python3|mvn|gradle|gradlew|pytest|npm run|npm test|pnpm run|pnpm test|yarn run|yarn test|db2cli|hdbcli|sqlplus|ansible-playbook|javac|java -jar|cargo build|cargo test|cargo run|cargo check|go build|go test|go run|docker build|docker compose build|docker-compose build)"
 
-    if ($ToolInput -match $HeavyCommandRegex -and $ToolInput -notmatch '^rtk ') {
+    # Normalize: strip leading whitespace and env/VAR=val prefixes to prevent trivial bypasses.
+    # Handles: "  python", "env python", "VAR=1 python".
+    $ToolInputCheck = $ToolInput.TrimStart()
+    if ($ToolInputCheck -match '^env\s+') { $ToolInputCheck = $ToolInputCheck -replace '^env\s+', '' }
+    $ToolInputCheck = $ToolInputCheck -replace '^([A-Za-z_][A-Za-z0-9_]*=[^\s]+\s*)*', ''
+
+    if ($ToolInputCheck -match $HeavyCommandRegex -and $ToolInputCheck -notmatch '^rtk ') {
         $Response = @{
             decision = "ask"
             reason = "Heavy command detected - consider using 'rtk' wrapper for token optimization"
@@ -50,7 +56,7 @@ try {
         exit 0
     }
 
-    if ($ToolInput -match '^(cat|less|tail|head) .+\.log' -and $ToolInput -notmatch '^rtk ') {
+    if ($ToolInputCheck -match '^(cat|less|tail|head) .+\.log' -and $ToolInputCheck -notmatch '^rtk ') {
         $Response = @{
             decision = "allow"
             reason = "Log file detected - consider 'rtk read <file>' for efficient reading"

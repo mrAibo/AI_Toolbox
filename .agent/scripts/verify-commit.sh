@@ -77,7 +77,7 @@ else
                     REAL_ADDITIONS=$(echo "$DIFF_ADDITIONS" | grep -viE '[=:]\s*(""|'"'"''"'"'|null|undefined|PLACEHOLDER|YOUR_.*_HERE|change[_-]?me|todo)' || true)
                     if [ -n "$REAL_ADDITIONS" ]; then
                         # Check for secret assignments in added lines (quoted and unquoted)
-                        if echo "$REAL_ADDITIONS" | grep -qiE '(password|passwd|pwd|api[_-]?key|secret|token|auth[_-]?key)\s*[=:]\s*["'"'"']?[^"'"'"'[:space:]]{8,}'; then
+                        if echo "$REAL_ADDITIONS" | grep -qiE '(password|passwd|pwd|api[_-]?key|secret|token|auth[_-]?key|connection[_-]?string|database[_-]?url)\s*[=:]\s*["'"'"']?[^"'"'"'[:space:]]{8,}'; then
                             SECRET_FILES="${SECRET_FILES} $file"
                         fi
                         # Check for private key blocks in added lines

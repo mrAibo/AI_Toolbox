@@ -19,13 +19,19 @@ if ([string]::IsNullOrWhiteSpace($Command)) {
 
 $HeavyCommandRegex = "^(python|python3|mvn|gradle|gradlew|pytest|npm run|pnpm run|yarn run|db2cli|hdbcli|sqlplus|ansible-playbook|javac|java -jar|cargo build|cargo test|cargo run|cargo check|go build|go test|go run|docker build|docker-compose build)"
 
-if ($Command -match $HeavyCommandRegex -and $Command -notmatch '^rtk ') {
+# Normalize: strip leading whitespace and env/VAR=val prefixes to prevent trivial bypasses.
+# Handles: "  python", "env python", "VAR=1 python".
+$CmdCheck = $Command.TrimStart()
+if ($CmdCheck -match '^env\s+') { $CmdCheck = $CmdCheck -replace '^env\s+', '' }
+$CmdCheck = $CmdCheck -replace '^([A-Za-z_][A-Za-z0-9_]*=[^\s]+\s*)*', ''
+
+if ($CmdCheck -match $HeavyCommandRegex -and $CmdCheck -notmatch '^rtk ') {
   Write-Host "[WARN]  AI Toolbox: Heavy command detected — consider using 'rtk' wrapper for token optimization."
   Write-Host "   Example: rtk $Command"
   exit 1
 }
 
-if ($Command -match '^(cat|less|tail|head) .+\.log' -and $Command -notmatch '^rtk ') {
+if ($CmdCheck -match '^(cat|less|tail|head) .+\.log' -and $CmdCheck -notmatch '^rtk ') {
   Write-Host "[WARN]  AI Toolbox: Large log file detected — consider 'rtk read <file>' for efficient reading."
   exit 1
 }

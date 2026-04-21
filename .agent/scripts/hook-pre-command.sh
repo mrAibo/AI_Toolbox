@@ -12,14 +12,18 @@ STATS_FILE="$REPO_ROOT/.agent/memory/.tool-stats.json"
 
 HEAVY_COMMAND_REGEX="^(python|python3|mvn|gradle|gradlew|pytest|npm run|npm test|pnpm run|pnpm test|yarn run|yarn test|db2cli|hdbcli|sqlplus|ansible-playbook|javac|java -jar|cargo build|cargo test|cargo run|cargo check|go build|go test|go run|docker build|docker compose build|docker-compose build)"
 
-if [[ $cmd =~ $HEAVY_COMMAND_REGEX ]] && [[ $cmd != "rtk "* ]]; then
+# Normalize: strip leading whitespace and env/VAR=val prefixes to prevent trivial bypasses.
+# Handles: "  python", "env python", "VAR=1 python".
+_cmd_norm="$(printf '%s' "$cmd" | sed 's/^[[:space:]]*//' | sed 's/^env[[:space:]]*//' | sed 's/^\([A-Za-z_][A-Za-z0-9_]*=[^[:space:]]*[[:space:]]*\)*//')"
+
+if [[ $_cmd_norm =~ $HEAVY_COMMAND_REGEX ]] && [[ $_cmd_norm != "rtk "* ]]; then
   echo "[WARN] AI Toolbox Heavy Command Detected!"
   echo "Please use 'rtk' wrapper for heavy commands to optimize token usage."
   echo "Example: rtk $cmd"
   exit 1
 fi
 
-if [[ $cmd =~ ^(cat|less|tail|head)\ .+\.log$ ]] && [[ $cmd != "rtk "* ]]; then
+if [[ $_cmd_norm =~ ^(cat|less|tail|head)\ .+\.log$ ]] && [[ $_cmd_norm != "rtk "* ]]; then
   echo "[WARN] AI Toolbox: Large log file detected!"
   echo "Please use 'rtk read <file-path>' to read large logs efficiently."
   exit 1

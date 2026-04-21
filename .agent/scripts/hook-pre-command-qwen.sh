@@ -31,9 +31,14 @@ if [ -z "$TOOL_INPUT" ]; then
     exit 0
 fi
 
-HEAVY_REGEX="^(python|python3|mvn|gradle|gradlew|pytest|npm run|npm test|pnpm run|pnpm test|yarn run|yarn test|cargo build|cargo test|cargo run|cargo check|go build|go test|go run|docker build|docker compose build|docker-compose build)"
+# Align with Claude hook: include all heavy command families.
+HEAVY_REGEX="^(python|python3|mvn|gradle|gradlew|pytest|npm run|npm test|pnpm run|pnpm test|yarn run|yarn test|db2cli|hdbcli|sqlplus|ansible-playbook|javac|java -jar|cargo build|cargo test|cargo run|cargo check|go build|go test|go run|docker build|docker compose build|docker-compose build)"
 
-if echo "$TOOL_INPUT" | grep -qE "$HEAVY_REGEX" && ! echo "$TOOL_INPUT" | grep -q "^rtk "; then
+# Normalize: strip leading whitespace and env/VAR=val prefixes to prevent trivial bypasses.
+# Handles: "  python", "env python", "VAR=1 python".
+TOOL_INPUT_CHECK="$(printf '%s' "$TOOL_INPUT" | sed 's/^[[:space:]]*//' | sed 's/^env[[:space:]]*//' | sed 's/^\([A-Za-z_][A-Za-z0-9_]*=[^[:space:]]*[[:space:]]*\)*//')"
+
+if echo "$TOOL_INPUT_CHECK" | grep -qE "$HEAVY_REGEX" && ! echo "$TOOL_INPUT_CHECK" | grep -q "^rtk "; then
     if ! command -v python3 &>/dev/null; then
         echo '{"decision":"ask","reason":"Heavy command detected — consider rtk wrapper","hookSpecificOutput":{"hookEventName":"PreToolUse","permissionDecision":"ask","permissionDecisionReason":"AI Toolbox: Heavy command. Prefix with rtk."}}'
         exit 0
@@ -52,7 +57,7 @@ print(json.dumps({
     }
 }))
 "
-elif echo "$TOOL_INPUT" | grep -qE "^(cat|less|tail|head) .+\.log" && ! echo "$TOOL_INPUT" | grep -q "^rtk "; then
+elif echo "$TOOL_INPUT_CHECK" | grep -qE "^(cat|less|tail|head) .+\.log" && ! echo "$TOOL_INPUT_CHECK" | grep -q "^rtk "; then
     if ! command -v python3 &>/dev/null; then
         echo '{"decision":"allow","reason":"Log file detected — consider rtk read","hookSpecificOutput":{"hookEventName":"PreToolUse","additionalContext":"AI Toolbox: Large log file detected. Consider using rtk read <file> for efficient reading."}}'
         exit 0
