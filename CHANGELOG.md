@@ -8,6 +8,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+### Git Hooks Opt-in
+
+#### Changed
+- `setup.sh` / `setup.ps1` — added interactive prompt before bootstrap: "Install Git commit hooks (TDD enforcement + secret scan)? [Y/n]"
+- `bootstrap.sh` / `bootstrap.ps1` — respect `AITB_INSTALL_GIT_HOOKS=false` env var to skip hook installation; direct bootstrap calls remain unaffected (default: install hooks)
+
+---
+
 ### Coding Discipline Rules (adapted from Karpathy guidelines)
 
 #### Added

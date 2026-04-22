@@ -173,6 +173,16 @@ fi
 # Step 2: Run bootstrap
 # ---------------------------------------------------------------
 echo ""
+read -r -p "  Install Git commit hooks (TDD enforcement + secret scan)? [Y/n] " install_hooks
+install_hooks=${install_hooks:-y}
+if [[ "$install_hooks" =~ ^[Nn]$ ]]; then
+  export AITB_INSTALL_GIT_HOOKS=false
+  echo "  ⏭️  Git hooks skipped (run bootstrap.sh manually to install later)"
+else
+  export AITB_INSTALL_GIT_HOOKS=true
+fi
+
+echo ""
 echo "🔧 Running bootstrap..."
 
 if [ -f ".agent/scripts/bootstrap.sh" ]; then

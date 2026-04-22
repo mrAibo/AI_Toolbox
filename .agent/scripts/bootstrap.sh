@@ -850,7 +850,7 @@ if [ -f ".agent/templates/clients/.aider.conf.yml" ] && [ ! -s .aider.conf.yml ]
     echo "[bootstrap] Installed .aider.conf.yml"
 fi
 
-if [ -d ".git" ]; then
+if [ -d ".git" ] && [ "${AITB_INSTALL_GIT_HOOKS:-true}" != "false" ]; then
     echo "[bootstrap] Updating Git pre-commit safeguards..."
     NEEDS_UPDATE=0
     if [ ! -f .git/hooks/pre-commit ]; then

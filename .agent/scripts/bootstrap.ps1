@@ -814,7 +814,7 @@ if (-not (Test-Path ".claude.json") -or (Get-Item ".claude.json").Length -eq 0) 
     Set-Content -Path ".claude.json" -Value $ClaudeHooks -Encoding utf8
 }
 
-if (Test-Path ".git") {
+if ((Test-Path ".git") -and ($env:AITB_INSTALL_GIT_HOOKS -ne "false")) {
     Write-Host "[bootstrap] Updating Git pre-commit safeguards..."
 
     # 1. Bash wrapper (for Git Bash / Linux / macOS)

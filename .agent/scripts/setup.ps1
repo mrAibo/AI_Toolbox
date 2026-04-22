@@ -1,6 +1,6 @@
-ï»¿# AI Toolbox Setup Script — One-command setup with client selection
+ï»¿# AI Toolbox Setup Script ï¿½ One-command setup with client selection
 # Usage: powershell -ExecutionPolicy Bypass -File .agent/scripts/setup.ps1
-# No $ErrorActionPreference = "Stop" — must be resilient.
+# No $ErrorActionPreference = "Stop" ï¿½ must be resilient.
 
 $RepoRoot = git rev-parse --show-toplevel 2>$null
 if (-not $RepoRoot) { $RepoRoot = (Get-Location).Path }
@@ -173,6 +173,15 @@ if ($ConfigPrimary) {
 # Step 2: Run bootstrap
 # ---------------------------------------------------------------
 Write-Host ""
+$InstallHooks = Read-Host "  Install Git commit hooks (TDD enforcement + secret scan)? [Y/n]"
+if ($InstallHooks -match '^[Nn]') {
+  $env:AITB_INSTALL_GIT_HOOKS = "false"
+  Write-Host "  Git hooks skipped (run bootstrap.ps1 manually to install later)" -ForegroundColor Yellow
+} else {
+  $env:AITB_INSTALL_GIT_HOOKS = "true"
+}
+
+Write-Host ""
 Write-Host "[TOOLS] Running bootstrap..." -ForegroundColor Yellow
 
 if (Test-Path ".agent/scripts/bootstrap.ps1") {
@@ -324,7 +333,7 @@ if ($PrimaryClient) {
       if ([string]::IsNullOrWhiteSpace($copyMcp)) { $copyMcp = "y" }
       if ($copyMcp -match '^[Yy]$') {
         Copy-Item ".agent/templates/mcp/$McpFile" "./$McpFile"
-        Write-Host "  ? Copied to ./$McpFile — add this to your $PrimaryClient MCP settings" -ForegroundColor Green
+        Write-Host "  ? Copied to ./$McpFile ï¿½ add this to your $PrimaryClient MCP settings" -ForegroundColor Green
       }
     } elseif ($McpFile) {
       Write-Host "  [WARN]  Config file not found." -ForegroundColor Yellow
@@ -390,8 +399,8 @@ if ($env:QWEN_HOOK_TYPE -eq "pre-command") {
 '@ | Set-Content ".windsurf/hooks.json" -Encoding utf8
       Write-Host "    ? .windsurf/hooks.json created" -ForegroundColor Green
     }
-    "gemini" { Write-Host "    ??  Basic Tier — hooks not supported (soft reminders only)" -ForegroundColor Gray }
-    "aider" { Write-Host "    ??  Basic Tier — hooks not supported (soft reminders only)" -ForegroundColor Gray }
+    "gemini" { Write-Host "    ??  Basic Tier ï¿½ hooks not supported (soft reminders only)" -ForegroundColor Gray }
+    "aider" { Write-Host "    ??  Basic Tier ï¿½ hooks not supported (soft reminders only)" -ForegroundColor Gray }
   }
 }
 
