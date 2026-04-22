@@ -79,6 +79,15 @@ if (Get-Command bd -ErrorAction SilentlyContinue) {
     Write-Warn "Beads not installed - task tracking will use manual mode"
 }
 
+# flock is a Unix-only tool; on Windows atomic rename is the fallback
+if ($IsLinux -or $IsMacOS) {
+    if (Get-Command flock -ErrorAction SilentlyContinue) {
+        Write-Pass "flock available - concurrent hook writes are fully serialized"
+    } else {
+        Write-Warn "flock not available - concurrent hook writes use atomic rename only (weaker guarantee on parallel agents)"
+    }
+}
+
 # 6. Check memory files
 Write-Host ""
 Write-Host "Memory Files"

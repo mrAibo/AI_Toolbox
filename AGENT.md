@@ -62,6 +62,8 @@ This is the **Definitive Boot Sequence**. All agents must follow this procedure 
     - **[.agent/rules/testing-anti-patterns.md](.agent/rules/testing-anti-patterns.md)** — Common testing mistakes to avoid
     - **[.agent/rules/diff-editing.md](.agent/rules/diff-editing.md)** — Token-efficient editing: NEVER output full files, use sed/Python patches
     - **[.agent/rules/coding-discipline.md](.agent/rules/coding-discipline.md)** — Simplicity First and Surgical Changes: no speculative code, no opportunistic refactoring
+    - **[.agent/rules/security-policy.md](.agent/rules/security-policy.md)** — Security rules, secret-scan bypass procedures (SKIP_SECRET_SCAN), hook security constraints
+    - **[.agent/rules/client-detection.md](.agent/rules/client-detection.md)** — Client selection priority: config → autodetect → interactive → persist
 10. **Summarization:** Briefly summarize the recovered context, current state, available tools, and the next planned task before continuing.
 
 Purpose:

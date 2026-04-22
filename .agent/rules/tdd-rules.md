@@ -63,6 +63,8 @@ Now that all tests pass, improve the code quality:
 
 **Rule:** Tests must remain green after every refactoring step.
 
+**Scope:** Refactoring in this step is limited to code touched by the current test cycle. It does not authorize changes to unrelated code. For unrelated improvements, open a separate task. (See `safety-rules.md` — Scope control and `coding-discipline.md` — Surgical Changes.)
+
 ### Step 6: COMMIT — Save the change
 
 ```bash

@@ -766,6 +766,30 @@ Details in [AGENT.md](AGENT.md).
 EOF
 fi
 
+# Full-Tier: Antigravity router (SKILL.md) — guard: preserve manual edits
+if [ ! -s SKILL.md ]; then
+cat << 'EOF' > SKILL.md
+---
+name: AI Toolbox
+description: A strict, memory-backed agentic development framework for terminal-based AIs. (Antigravity Manifest)
+---
+
+# AI Toolbox Skill (Antigravity Manifest) -- Tier: Full
+
+> This file is the manifest for the **Antigravity** agentic framework.
+> For Claude Code, Cursor, or other agents refer to their router files or AGENT.md.
+
+Adhere to these **Critical 3 Session Rules**:
+
+1. **BOOT:** Detect `.agent/`? Read `AGENT.md` section 2 (Boot Sequence) and run the sync-task script before starting any task.
+2. **SAFETY:** All heavy terminal commands MUST be run via `rtk`.
+3. **HANDOVER:** Maintain project history in `.agent/memory/session-handover.md` at the end of every task or session.
+
+Refer to [AGENT.md](AGENT.md) for the full operational contract.
+EOF
+    echo "[bootstrap] Created SKILL.md (Antigravity Full-Tier router)"
+fi
+
 # Full-Tier: Qwen Code CLI router (guard: preserve manual edits)
 if [ -f ".agent/templates/clients/QWEN.md" ] && [ ! -s QWEN.md ]; then
     cp .agent/templates/clients/QWEN.md QWEN.md

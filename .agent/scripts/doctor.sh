@@ -90,6 +90,12 @@ else
     check_warn "shellcheck not installed — shell script linting unavailable"
 fi
 
+if command -v flock &>/dev/null; then
+    check_pass "flock available — concurrent hook writes are fully serialized"
+else
+    check_warn "flock not available — concurrent hook writes use atomic rename only (weaker guarantee on parallel agents)"
+fi
+
 # 6. Check memory files
 echo ""
 echo "🧠 Memory Files"

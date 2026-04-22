@@ -8,6 +8,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+### Project Review Fixes
+
+#### Fixed
+- `AGENT.md` Step 9 — added `security-policy.md` and `client-detection.md` to on-demand rules list (were orphaned since PR5/PR7)
+- `tdd-rules.md` Step 5 — added scope clarification: TDD refactoring is limited to code touched by the current test cycle; unrelated code requires a separate task
+- `bootstrap.sh` / `bootstrap.ps1` — create `SKILL.md` (Antigravity Full-Tier router) when missing; previously config.json listed Antigravity as Full-Tier but bootstrap never created its router file
+- `doctor.sh` / `doctor.ps1` — added `flock` availability check; warns when absent (atomic rename fallback active, weaker guarantee under parallel agents)
+
+---
+
 ### Git Hooks Opt-in
 
 #### Changed
