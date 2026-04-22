@@ -33,7 +33,7 @@ cleanup() { rm -rf "$1"; }
 echo "=== lib-audit.sh: basic write ==="
 TMP=$(setup_tmp_repo)
 (
-  cd "$TMP"
+  cd "$TMP" || exit 1
   # shellcheck source=lib-audit.sh
   . "$TMP/.agent/scripts/lib-audit.sh"
   audit_event "test_event" "k=v"
@@ -76,7 +76,7 @@ echo 'atomic_json_increment() { :; }' > "$TMP/.agent/scripts/lib-atomic-write.sh
 cp "$SCRIPT_DIR/hook-pre-command.sh" "$TMP/.agent/scripts/hook-pre-command.sh"
 
 (
-  cd "$TMP"
+  cd "$TMP" || exit 1
   bash "$TMP/.agent/scripts/hook-pre-command.sh" "python script.py" >/dev/null 2>&1
 ) || true  # expected exit 1
 
@@ -103,7 +103,7 @@ echo 'atomic_json_increment() { :; }' > "$TMP/.agent/scripts/lib-atomic-write.sh
 cp "$SCRIPT_DIR/hook-pre-command.sh" "$TMP/.agent/scripts/hook-pre-command.sh"
 
 (
-  cd "$TMP"
+  cd "$TMP" || exit 1
   bash "$TMP/.agent/scripts/hook-pre-command.sh" "rtk cargo test" >/dev/null 2>&1
 ) || true
 
@@ -123,7 +123,7 @@ TMP=$(setup_tmp_repo)
 cp "$SCRIPT_DIR/verify-commit.sh" "$TMP/.agent/scripts/verify-commit.sh"
 
 (
-  cd "$TMP"
+  cd "$TMP" || exit 1
   SKIP_SECRET_SCAN=true bash "$TMP/.agent/scripts/verify-commit.sh" >/dev/null 2>&1
 ) || true
 
@@ -143,7 +143,7 @@ TMP=$(setup_tmp_repo)
 cp "$SCRIPT_DIR/verify-commit.sh" "$TMP/.agent/scripts/verify-commit.sh"
 
 (
-  cd "$TMP"
+  cd "$TMP" || exit 1
   unset SKIP_SECRET_SCAN
   bash "$TMP/.agent/scripts/verify-commit.sh" >/dev/null 2>&1
 ) || true
