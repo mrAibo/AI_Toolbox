@@ -398,49 +398,49 @@ When bootstrap detects Qwen Code, it automatically creates `.qwen/settings.json`
 
 | Hook | Trigger | Script | Purpose |
 |---|---|---|---|
-| `SessionStart` | Session beginnt | `sync-task.sh` | Task-State laden |
-| `PreToolUse` | Vor Bash-Befehl | `hook-pre-command-qwen.sh` | Heavy-Command-Erkennung, empfiehlt `rtk` |
-| `PostToolUse` | Nach write/edit | `hook-post-tool-qwen.sh` | Secret-Scanner in geschriebenen Dateien |
-| `Stop` | Vor Antwort-Ende | `hook-stop-qwen.sh` | Memory-Dateien aktualisieren |
-| `SessionEnd` | Session endet | `hook-session-end-qwen.sh` | Full Memory Consolidation + bd prime |
-| `PreCompact` | Vor Kontext-Komprimierung | `hook-pre-compact-qwen.sh` | Architect-Kontext injizieren (überlebt Kompaktierung) |
+| `SessionStart` | Session starts | `sync-task.sh` | Load task state |
+| `PreToolUse` | Before shell command | `hook-pre-command-qwen.sh` | Heavy-command detection, recommends `rtk` |
+| `PostToolUse` | After write/edit | `hook-post-tool-qwen.sh` | Secret scanner for written files |
+| `Stop` | Before response end | `hook-stop-qwen.sh` | Update memory files |
+| `SessionEnd` | Session ends | `hook-session-end-qwen.sh` | Full memory consolidation + bd prime |
+| `PreCompact` | Before context compaction | `hook-pre-compact-qwen.sh` | Inject architect context (survives compaction) |
 
-**Kein Flag nötig:** Hooks sind standardmäßig aktiviert, sobald `.qwen/settings.json` die Hook-Konfiguration enthält.
+**No flag needed:** Hooks are active as soon as `.qwen/settings.json` contains the hook configuration.
 
-### 8 Sub-Agenten (Automatische Delegation)
-Qwen Code's natives Sub-Agent-System ermöglicht automatische Parallelverarbeitung. Die folgenden Agenten liegen in `.qwen/agents/` und werden bei passenden Tasks automatisch delegiert:
+### 8 Sub-Agents (Automatic Delegation)
+Qwen Code's native sub-agent system enables automatic parallelization. The following agents live in `.qwen/agents/` and are automatically delegated for matching tasks:
 
-| Agent | Zweck | Parallel zu |
+| Agent | Purpose | Runs parallel with |
 |---|---|---|
-| `ai-toolbox-reviewer` | Code Review (Sicherheit, TDD, Qualität) | Tester, Performance |
-| `ai-toolbox-tester` | TDD & Testing (RED-GREEN-REFACTOR) | Implementation, Documenter |
-| `ai-toolbox-frontend` | UI/Components/CSS/Templates | Backend, Security |
-| `ai-toolbox-backend` | API/Server/DB/Infrastruktur | Frontend, Tester |
-| `ai-toolbox-security` | Secrets/Vulnerabilities/Permissions | Reviewer, Performance |
-| `ai-toolbox-performance` | Bottlenecks/Memory/Optimierung | Tester, Security |
-| `ai-toolbox-documenter` | Docs/Runbook/ADRs/Handover | Implementation, Testing |
-| `ai-toolbox-handover` | Session-End Memory Konsolidierung | — |
+| `ai-toolbox-reviewer` | Code review (security, TDD, quality) | Tester, Performance |
+| `ai-toolbox-tester` | TDD & testing (RED-GREEN-REFACTOR) | Implementation, Documenter |
+| `ai-toolbox-frontend` | UI/components/CSS/templates | Backend, Security |
+| `ai-toolbox-backend` | API/server/DB/infrastructure | Frontend, Tester |
+| `ai-toolbox-security` | Secrets/vulnerabilities/permissions | Reviewer, Performance |
+| `ai-toolbox-performance` | Bottlenecks/memory/optimization | Tester, Security |
+| `ai-toolbox-documenter` | Docs/runbook/ADRs/handover | Implementation, Testing |
+| `ai-toolbox-handover` | Session-end memory consolidation | — |
 
-**Parallele Szenarien:**
+**Parallel scenarios:**
 ```
-Feature-Entwicklung:  Frontend + Backend + Tester (3 parallel)
-Bug-Fix:              Tester + Implementation + Security + Performance (4 parallel)
-CI-Check vor Push:    Tester + Security + Documenter + Performance (4 parallel)
+Feature development:  Frontend + Backend + Tester (3 parallel)
+Bug fix:              Tester + Implementation + Security + Performance (4 parallel)
+Pre-push CI check:    Tester + Security + Documenter + Performance (4 parallel)
 ```
 
-Agenten werden automatisch delegiert basierend auf der `description` — Phrasen wie `"use PROACTIVELY"` erhöhen die Delegationswahrscheinlichkeit. Expliziter Aufruf: `@ai-toolbox-reviewer review the recent changes`.
+Agents are delegated automatically based on their `description` — phrases like `"use PROACTIVELY"` increase delegation likelihood. Explicit call: `@ai-toolbox-reviewer review the recent changes`.
 
-### Manuelles Setup (falls Bootstrap nicht lief)
+### Manual Setup (if bootstrap did not run)
 ```bash
 # Linux/macOS
-# Hooks werden automatisch von bootstrap.sh erstellt wenn qwen erkannt wird
-# Oder manuell:
+# Hooks are created automatically by bootstrap.sh when Qwen Code is detected
+# Or manually:
 cp .agent/templates/clients/qwen-hooks-unix.jsonc ~/.qwen/settings.json
-# Pfade in der JSONC-Datei anpassen
+# Adjust paths in the JSONC file as needed
 
 # Windows
-# Hooks werden automatisch von bootstrap.ps1 erstellt
-# Konfiguration liegt bereits in C:\Users\crown\.qwen\settings.json
+# Hooks are created automatically by bootstrap.ps1
+# Config is written to %USERPROFILE%\.qwen\settings.json
 ```
 
 ---
