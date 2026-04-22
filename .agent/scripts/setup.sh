@@ -177,6 +177,9 @@ except Exception as e:
   echo "   → Hooks + MCP will be configured for $PRIMARY_CLIENT"
 fi
 
+# Collects manual steps the user must complete after setup
+NEXT_STEPS=()
+
 # ---------------------------------------------------------------
 # Step 2: Run bootstrap
 # ---------------------------------------------------------------
@@ -270,25 +273,64 @@ fi
 # ---------------------------------------------------------------
 # Step 5: Offer to install Beads
 # ---------------------------------------------------------------
-if ! command -v bd &> /dev/null; then
+
+# Ensure GOPATH/bin is in PATH for this session (needed right after go install)
+_ensure_gopath_bin() {
+  local gopath
+  gopath=$(go env GOPATH 2>/dev/null || true)
+  if [ -n "$gopath" ] && [ -d "$gopath/bin" ]; then
+    case ":$PATH:" in
+      *":$gopath/bin:"*) ;;
+      *) export PATH="$PATH:$gopath/bin" ;;
+    esac
+  fi
+}
+
+# Find bd binary including GOPATH/bin even if not yet in PATH
+_find_bd() {
+  command -v bd 2>/dev/null && return
+  command -v bd.exe 2>/dev/null && return
+  local gopath
+  gopath=$(go env GOPATH 2>/dev/null || true)
+  [ -n "$gopath" ] && [ -x "$gopath/bin/bd" ]   && echo "$gopath/bin/bd"   && return
+  [ -n "$gopath" ] && [ -x "$gopath/bin/bd.exe" ] && echo "$gopath/bin/bd.exe" && return
+}
+
+BD_CMD=$(_find_bd)
+if [ -z "$BD_CMD" ]; then
   echo ""
   read -r -p "  Install Beads (task tracking)? [Y/n] " install_beads
   install_beads=${install_beads:-y}
 
   if [[ "$install_beads" =~ ^[Yy]$ ]]; then
     if command -v go &> /dev/null; then
-      echo "  ✅ Installing: go install github.com/steveyegge/beads@v0.63.3"
-      go install github.com/steveyegge/beads@v0.63.3
-      echo "  ✅ Beads installed"
-
-      echo "  ✅ Initializing: bd init"
-      bd init
+      echo "  ✅ Installing: go install github.com/steveyegge/beads/cmd/bd@v0.63.3"
+      go install github.com/steveyegge/beads/cmd/bd@v0.63.3
+      if [ $? -eq 0 ]; then
+        echo "  ✅ Beads installed"
+        _ensure_gopath_bin
+        BD_CMD=$(_find_bd)
+        if [ -n "$BD_CMD" ]; then
+          echo "  ✅ Initializing: bd init"
+          "$BD_CMD" init 2>&1 || {
+            echo "  ⚠️  bd init failed — run manually: bd init"
+            NEXT_STEPS+=("Run in this directory: bd init")
+          }
+        else
+          echo "  ⚠️  bd not found after install — open a new terminal and run: bd init"
+          NEXT_STEPS+=("Open a new terminal and run: bd init")
+        fi
+      else
+        echo "  ❌ Beads installation failed"
+        NEXT_STEPS+=("Retry: go install github.com/steveyegge/beads/cmd/bd@v0.63.3")
+      fi
     else
       echo "  ⚠️  go not found. Install Go first: https://go.dev/dl/"
+      NEXT_STEPS+=("Install Go (https://go.dev/dl/), then: go install github.com/steveyegge/beads/cmd/bd@v0.63.3 && bd init")
     fi
   fi
 else
-  echo "  ✅ Beads already installed ($(bd version 2>/dev/null || echo "installed"))"
+  echo "  ✅ Beads already installed ($("$BD_CMD" version 2>/dev/null || echo "installed"))"
 fi
 
 # ---------------------------------------------------------------
@@ -411,23 +453,50 @@ echo "==================================="
 echo "✅ Setup complete!"
 echo "==================================="
 echo ""
-echo "  Primary client: ${PRIMARY_CLIENT:-none detected}"
-echo "  Router files:   7 created"
+
+if [ -n "$PRIMARY_CLIENT" ]; then
+  echo "  Primary client: $PRIMARY_CLIENT  ✅"
+else
+  echo "  Primary client: none detected  ⚠️"
+fi
+echo "  Router files:   8 created"
 if [ -n "$STACK" ]; then
-  echo "  Project stack:  $STACK"
-fi
-if command -v rtk &> /dev/null; then
-  echo "  rtk:            installed + hooks configured"
-else
-  echo "  rtk:            not installed (run 'cargo install rtk --version 0.35.0' later)"
-fi
-if command -v bd &> /dev/null; then
-  echo "  Beads:          installed + initialized"
-else
-  echo "  Beads:          not installed (run 'go install .../beads@latest' later)"
+  echo "  Project stack:  $STACK  ✅"
 fi
 
-echo ""
-echo "  🚀 Next: Open your AI client in this directory and start working!"
+if command -v rtk &>/dev/null; then
+  echo "  rtk:            ✅ installed"
+else
+  echo "  rtk:            ⚠️  not installed"
+  NEXT_STEPS+=("Install rtk: cargo install rtk --version 0.35.0  (needs Rust: https://rustup.rs/)")
+fi
+
+BD_CMD=$(_find_bd)
+if [ -n "$BD_CMD" ]; then
+  echo "  Beads:          ✅ installed + initialized"
+else
+  echo "  Beads:          ⚠️  not installed"
+  if ! printf '%s\n' "${NEXT_STEPS[@]}" | grep -q "beads"; then
+    NEXT_STEPS+=("Install Beads: go install github.com/steveyegge/beads/cmd/bd@v0.63.3  (needs Go: https://go.dev/dl/)")
+  fi
+fi
+
+# ---------------------------------------------------------------
+# Next Steps (only shown if something requires manual action)
+# ---------------------------------------------------------------
+if [ ${#NEXT_STEPS[@]} -gt 0 ]; then
+  echo ""
+  echo "  *** ACTION REQUIRED — complete these steps manually: ***"
+  n=1
+  for step in "${NEXT_STEPS[@]}"; do
+    echo "  $n. $step"
+    n=$((n+1))
+  done
+  echo ""
+  echo "  After completing the steps above, re-run setup.sh to verify."
+else
+  echo ""
+  echo "  🚀 Next: Open your AI client in this directory and start working!"
+fi
 echo ""
 

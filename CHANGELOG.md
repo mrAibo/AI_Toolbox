@@ -8,6 +8,18 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+### Setup Automation & Post-Setup Diagnostics
+
+#### Fixed
+- `setup.ps1` / `setup.sh` — corrected `go install` path from `beads@v0.63.3` to `beads/cmd/bd@v0.63.3` (main package)
+- `setup.ps1` — after `go install`, GOPATH/bin is now added to current session PATH and persisted to user PATH automatically
+- `setup.ps1` — `bd init` now auto-falls back to `--server` mode when embedded CGO is unavailable (Windows); if dolt is not yet in PATH, searches `C:\Program Files\Dolt\bin` and similar paths and adds them automatically
+- `setup.ps1` — detects and removes stale npm `bd` shim (Node.js wrapper pointing to missing `bd.js`)
+- `setup.ps1` / `setup.sh` — added `$NextSteps` / `NEXT_STEPS` array: any step that fails or requires manual action is appended and printed as a numbered checklist at the end of setup
+- `setup.ps1` / `setup.sh` — Summary section now shows ✅/⚠️ per component; "Next Steps" block only appears when manual action is needed; suppressed when everything succeeded
+
+---
+
 ### Claude Code & OpenCode Implementation Review
 
 #### Added

@@ -180,6 +180,10 @@ if ($ConfigPrimary) {
   Write-Host "   -> Hooks + MCP will be configured for $PrimaryClient"
 }
 
+# Collects manual steps the user must complete after setup
+$NextSteps = @()
+
+# ---------------------------------------------------------------
 # Step 2: Run bootstrap
 # ---------------------------------------------------------------
 Write-Host ""
@@ -284,35 +288,131 @@ if (-not (Get-Command rtk -ErrorAction SilentlyContinue)) {
 # ---------------------------------------------------------------
 # Step 5: Offer to install Beads
 # ---------------------------------------------------------------
-if (-not (Get-Command bd.exe -ErrorAction SilentlyContinue)) {
+
+# Find bd.exe including GOPATH/bin even if not yet in session PATH
+function Find-BdExe {
+  $cmd = Get-Command bd.exe -ErrorAction SilentlyContinue
+  if ($cmd) { return $cmd.Source }
+  try {
+    $gopath = (go env GOPATH 2>$null).Trim()
+    if ($gopath) {
+      $candidate = Join-Path $gopath "bin\bd.exe"
+      if (Test-Path $candidate) { return $candidate }
+    }
+  } catch { }
+  return $null
+}
+
+# Add a directory to the current session PATH and permanently to user PATH
+function Add-ToPath {
+  param([string]$Dir)
+  if (-not $Dir -or -not (Test-Path $Dir)) { return }
+  if ($env:PATH -notmatch [regex]::Escape($Dir)) {
+    $env:PATH += ";$Dir"
+  }
+  $userPath = [System.Environment]::GetEnvironmentVariable("PATH", "User")
+  if ($userPath -notmatch [regex]::Escape($Dir)) {
+    [System.Environment]::SetEnvironmentVariable("PATH", $userPath + ";" + $Dir, "User")
+    Write-Host "  [FIX] Added $Dir to user PATH (restart terminal to take effect)" -ForegroundColor Cyan
+  }
+}
+
+# Ensure dolt.exe is reachable — check common Windows install paths
+function Ensure-DoltInPath {
+  if (Get-Command dolt -ErrorAction SilentlyContinue) { return $true }
+  $candidates = @(
+    "C:\Program Files\Dolt\bin",
+    "C:\Program Files (x86)\Dolt\bin",
+    "$env:LOCALAPPDATA\Programs\Dolt\bin"
+  )
+  foreach ($dir in $candidates) {
+    if (Test-Path (Join-Path $dir "dolt.exe")) {
+      Add-ToPath -Dir $dir
+      Write-Host "  [FIX] dolt found at $dir — added to PATH" -ForegroundColor Cyan
+      return $true
+    }
+  }
+  return $false
+}
+
+# Run bd init — try embedded first, fall back to --server mode
+function Invoke-BdInit {
+  param([string]$BdPath)
+  $out = & $BdPath init 2>&1
+  if ($LASTEXITCODE -eq 0) {
+    Write-Host "  [OK] Beads initialized" -ForegroundColor Green
+    return $true
+  }
+  # CGO/embedded not available — try server mode
+  if (Ensure-DoltInPath) {
+    $out2 = & $BdPath init --server 2>&1
+    if ($LASTEXITCODE -eq 0) {
+      Write-Host "  [OK] Beads initialized (server mode)" -ForegroundColor Green
+      return $true
+    }
+    Write-Host "  [ERROR] bd init --server failed: $out2" -ForegroundColor Red
+    $script:NextSteps += "Run manually in this directory: bd init --server"
+    return $false
+  }
+  Write-Host "  [WARN] dolt not found — install dolt then run: bd init --server" -ForegroundColor Yellow
+  $script:NextSteps += "Install dolt (winget install DoltHub.Dolt), open a new terminal, then run: bd init --server"
+  return $false
+}
+
+# Remove stale npm bd shim if present (points to missing node_modules)
+$NpmBdShim = Join-Path $env:APPDATA "npm\bd"
+if (Test-Path $NpmBdShim) {
+  $shimContent = Get-Content $NpmBdShim -Raw -ErrorAction SilentlyContinue
+  if ($shimContent -match "bd\.js") {
+    Remove-Item "$env:APPDATA\npm\bd" -Force -ErrorAction SilentlyContinue
+    Remove-Item "$env:APPDATA\npm\bd.cmd" -Force -ErrorAction SilentlyContinue
+    Remove-Item "$env:APPDATA\npm\bd.exe" -Force -ErrorAction SilentlyContinue
+    Write-Host "  [FIX] Removed stale npm bd shim" -ForegroundColor Cyan
+  }
+}
+
+$BdPath = Find-BdExe
+if (-not $BdPath) {
   Write-Host ""
   $installBeads = Read-Host "  Install Beads (task tracking)? [Y/n] "
   if ([string]::IsNullOrWhiteSpace($installBeads)) { $installBeads = "y" }
 
   if ($installBeads -match '^[Yy]$') {
     if (Get-Command go -ErrorAction SilentlyContinue) {
-      Write-Host "  [INFO] Installing: go install github.com/steveyegge/beads@v0.63.3"
-      go install github.com/steveyegge/beads@v0.63.3
+      Write-Host "  [INFO] Installing: go install github.com/steveyegge/beads/cmd/bd@v0.63.3"
+      go install github.com/steveyegge/beads/cmd/bd@v0.63.3
       if ($LASTEXITCODE -eq 0) {
         Write-Host "  [OK] Beads installed" -ForegroundColor Green
+        # Ensure GOPATH/bin is reachable in this session and permanently
+        try {
+          $GoBin = Join-Path (go env GOPATH).Trim() "bin"
+          Add-ToPath -Dir $GoBin
+        } catch { }
+        $BdPath = Find-BdExe
+        if ($BdPath) {
+          Write-Host "  [INFO] Initializing Beads..."
+          Invoke-BdInit -BdPath $BdPath | Out-Null
+        } else {
+          Write-Host "  [WARN] bd.exe not found after install — PATH may need a terminal restart" -ForegroundColor Yellow
+          $NextSteps += "Open a new terminal and run: bd init --server"
+        }
       } else {
         Write-Host "  [ERROR] Beads installation failed" -ForegroundColor Red
+        $NextSteps += "Retry: go install github.com/steveyegge/beads/cmd/bd@v0.63.3"
       }
-
-      Write-Host "  [INFO] Initializing: bd init"
-      bd.exe init
     } else {
       Write-Host "  [WARN]  go not found. Install Go first: https://go.dev/dl/" -ForegroundColor Yellow
+      $NextSteps += "Install Go (https://go.dev/dl/), then: go install github.com/steveyegge/beads/cmd/bd@v0.63.3 && bd init --server"
     }
   }
 } else {
-  try { $ver = (bd.exe version 2>$null) } catch { $ver = "installed" }
+  try { $ver = (& $BdPath --version 2>$null).Trim() } catch { $ver = "installed" }
   Write-Host "  [INFO] Beads already installed ($ver)" -ForegroundColor Green
   $initBd = Read-Host "  Initialize Beads task tracker for this project? [Y/n] "
   if ([string]::IsNullOrWhiteSpace($initBd)) { $initBd = "y" }
   if ($initBd -match '^[Yy]$') {
-    Write-Host "  [INFO] Initializing: bd init"
-    bd.exe init
+    Write-Host "  [INFO] Initializing Beads..."
+    Invoke-BdInit -BdPath $BdPath | Out-Null
   }
 }
 
@@ -429,34 +529,55 @@ if ($env:QWEN_HOOK_TYPE -eq "pre-command") {
 # ---------------------------------------------------------------
 Write-Host ""
 Write-Host "===================================" -ForegroundColor Green
-Write-Host "? Setup complete!" -ForegroundColor Green
+Write-Host "[OK] Setup complete!" -ForegroundColor Green
 Write-Host "===================================" -ForegroundColor Green
 Write-Host ""
 
 if ($PrimaryClient) {
-  Write-Host "  Primary client: $PrimaryClient"
+  Write-Host "  Primary client: $PrimaryClient" -ForegroundColor Green
 } else {
-  Write-Host "  Primary client: none detected"
+  Write-Host "  Primary client: none detected" -ForegroundColor Yellow
 }
-Write-Host "  Router files:   7 created"
+Write-Host "  Router files:   8 created"
 
 if ($Stack) {
-  Write-Host "  Project stack:  $Stack"
+  Write-Host "  Project stack:  $Stack" -ForegroundColor Green
 }
 
-if (Get-Command rtk -ErrorAction SilentlyContinue) {
-  Write-Host "  rtk:            installed + hooks configured" -ForegroundColor Green
+$RtkOk = Get-Command rtk -ErrorAction SilentlyContinue
+if ($RtkOk) {
+  Write-Host "  rtk:            [OK] installed" -ForegroundColor Green
 } else {
-  Write-Host "  rtk:            not installed (run 'cargo install rtk --version 0.35.0' later)" -ForegroundColor Yellow
+  Write-Host "  rtk:            [--] not installed" -ForegroundColor Yellow
+  $NextSteps += "Install rtk: cargo install rtk --version 0.35.0  (needs Rust: https://rustup.rs/)"
 }
 
-if (Get-Command bd.exe -ErrorAction SilentlyContinue) {
-  Write-Host "  Beads:          installed + initialized" -ForegroundColor Green
+$BdOk = Find-BdExe
+if ($BdOk) {
+  Write-Host "  Beads:          [OK] installed + initialized" -ForegroundColor Green
 } else {
-  Write-Host "  Beads:          not installed (run 'go install .../beads@latest' later)" -ForegroundColor Yellow
+  Write-Host "  Beads:          [--] not installed" -ForegroundColor Yellow
+  if (-not ($NextSteps -match "beads")) {
+    $NextSteps += "Install Beads: go install github.com/steveyegge/beads/cmd/bd@v0.63.3  (needs Go: https://go.dev/dl/)"
+  }
 }
 
-Write-Host ""
-Write-Host "  [NEXT] Next: Open your AI client in this directory and start working!" -ForegroundColor Cyan
+# ---------------------------------------------------------------
+# Next Steps (only shown if something requires manual action)
+# ---------------------------------------------------------------
+if ($NextSteps.Count -gt 0) {
+  Write-Host ""
+  Write-Host "  *** ACTION REQUIRED — complete these steps manually: ***" -ForegroundColor Yellow
+  $n = 1
+  foreach ($step in $NextSteps) {
+    Write-Host "  $n. $step" -ForegroundColor Yellow
+    $n++
+  }
+  Write-Host ""
+  Write-Host "  After completing the steps above, re-run setup.ps1 to verify." -ForegroundColor Cyan
+} else {
+  Write-Host ""
+  Write-Host "  [NEXT] Open your AI client in this directory and start working!" -ForegroundColor Cyan
+}
 Write-Host ""
 
