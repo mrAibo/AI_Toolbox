@@ -979,7 +979,45 @@ if command -v qwen &> /dev/null || [ -d ".qwen" ]; then
 QWENEOF
         echo "[bootstrap] Created $QWEN_SETTINGS with AI Toolbox hooks"
     else
-        echo "[bootstrap] $QWEN_SETTINGS already exists — skipping hook creation"
+        # Merge: add missing AI Toolbox hooks without overwriting existing Qwen config
+        if command -v python3 &>/dev/null; then
+            python3 - "$QWEN_SETTINGS" << 'PYEOF'
+import json, sys
+settings_path = sys.argv[1]
+toolbox_hooks = {
+    "SessionStart": [{"hooks": [{"type": "command", "command": "bash .agent/scripts/sync-task.sh", "name": "ai-toolbox-sync", "description": "Sync task state from tracker", "timeout": 15000}]}],
+    "PreToolUse": [{"matcher": "^bash$", "hooks": [{"type": "command", "command": "bash .agent/scripts/hook-pre-command-qwen.sh", "name": "ai-toolbox-pre-command", "description": "Validate heavy commands", "timeout": 10000}]}],
+    "PostToolUse": [
+        {"matcher": "^write$", "hooks": [{"type": "command", "command": "bash .agent/scripts/hook-post-tool-qwen.sh", "name": "ai-toolbox-security-check", "description": "Scan written files for secrets", "timeout": 10000}]},
+        {"matcher": "^edit$", "hooks": [{"type": "command", "command": "bash .agent/scripts/hook-post-tool-qwen.sh", "name": "ai-toolbox-security-check", "description": "Scan edited files for secrets", "timeout": 10000}]}
+    ],
+    "Stop": [{"hooks": [{"type": "command", "command": "bash .agent/scripts/hook-stop-qwen.sh", "name": "ai-toolbox-memory-update", "description": "Update memory before response", "timeout": 15000}]}],
+    "SessionEnd": [{"hooks": [{"type": "command", "command": "bash .agent/scripts/hook-session-end-qwen.sh", "name": "ai-toolbox-session-handover", "description": "Consolidate memory at session end", "timeout": 30000}]}],
+    "PreCompact": [{"hooks": [{"type": "command", "command": "bash .agent/scripts/hook-pre-compact-qwen.sh", "name": "ai-toolbox-architect-context", "description": "Inject architecture context", "timeout": 10000}]}]
+}
+try:
+    with open(settings_path) as f:
+        data = json.load(f)
+    if 'ai-toolbox-sync' in json.dumps(data):
+        print(f"[bootstrap] {settings_path} already has AI Toolbox hooks — no changes")
+        sys.exit(0)
+    if 'hooks' not in data:
+        data['hooks'] = {}
+    added = [k for k in toolbox_hooks if k not in data['hooks']]
+    for k in added:
+        data['hooks'][k] = toolbox_hooks[k]
+    if added:
+        with open(settings_path, 'w') as f:
+            json.dump(data, f, indent=2)
+        print(f"[bootstrap] Merged AI Toolbox hooks into {settings_path}")
+    else:
+        print(f"[bootstrap] {settings_path} already has all AI Toolbox hooks")
+except Exception as e:
+    print(f"[bootstrap] Could not merge hooks: {e}", file=sys.stderr)
+PYEOF
+        else
+            echo "[bootstrap] python3 not available — cannot merge into $QWEN_SETTINGS"
+        fi
     fi
 fi
 
@@ -995,7 +1033,40 @@ if command -v codex &>/dev/null || [ -d "$CODEX_SETTINGS" ]; then
             echo "[bootstrap] Codex detected but .codex-hooks.json template not found"
         fi
     else
-        echo "[bootstrap] .codex/hooks.json already exists — skipping hook creation"
+        # Merge: add missing AI Toolbox hooks without overwriting existing Codex config
+        if command -v python3 &>/dev/null; then
+            python3 - ".codex/hooks.json" << 'PYEOF'
+import json, sys
+hooks_path = sys.argv[1]
+toolbox_hooks = {
+    "SessionStart": [{"matcher": "", "hooks": [{"type": "command", "command": "bash .agent/scripts/sync-task.sh", "statusMessage": "AI Toolbox: Syncing task state...", "timeout": 15}]}],
+    "PreToolUse": [{"matcher": "Bash", "hooks": [{"type": "command", "command": "bash .agent/scripts/hook-pre-command-qwen.sh", "statusMessage": "AI Toolbox: Validating command...", "timeout": 10}]}],
+    "PostToolUse": [{"matcher": "Bash", "hooks": [{"type": "command", "command": "bash .agent/scripts/hook-post-tool-qwen.sh", "statusMessage": "AI Toolbox: Scanning for secrets...", "timeout": 10}]}],
+    "Stop": [{"matcher": "", "hooks": [{"type": "command", "command": "bash .agent/scripts/hook-stop.sh", "statusMessage": "AI Toolbox: Writing session handover...", "timeout": 30}]}]
+}
+try:
+    with open(hooks_path) as f:
+        data = json.load(f)
+    if 'AI Toolbox' in json.dumps(data):
+        print(f"[bootstrap] {hooks_path} already has AI Toolbox hooks — no changes")
+        sys.exit(0)
+    if 'hooks' not in data:
+        data['hooks'] = {}
+    added = [k for k in toolbox_hooks if k not in data['hooks']]
+    for k in added:
+        data['hooks'][k] = toolbox_hooks[k]
+    if added:
+        with open(hooks_path, 'w') as f:
+            json.dump(data, f, indent=2)
+        print(f"[bootstrap] Merged AI Toolbox hooks into {hooks_path}")
+    else:
+        print(f"[bootstrap] {hooks_path} already has all AI Toolbox hooks")
+except Exception as e:
+    print(f"[bootstrap] Could not merge Codex hooks: {e}", file=sys.stderr)
+PYEOF
+        else
+            echo "[bootstrap] python3 not available — cannot merge into .codex/hooks.json"
+        fi
     fi
     if [ ! -f ".codex/config.toml" ]; then
         if [ -f ".agent/templates/clients/.codex-config.toml" ]; then
@@ -1025,7 +1096,38 @@ if command -v opencode &>/dev/null || [ -f "opencode.json" ] || [ -f "opencode.j
             echo "[bootstrap] OpenCode detected but opencode-config.json template not found"
         fi
     else
-        echo "[bootstrap] opencode.json already exists — skipping config creation"
+        # Merge: add missing AI Toolbox top-level keys without overwriting existing OpenCode config
+        OPENCODE_TARGET="opencode.json"
+        [ -f "opencode.jsonc" ] && OPENCODE_TARGET="opencode.jsonc"
+        if command -v python3 &>/dev/null && [ -f ".agent/templates/clients/opencode-config.json" ]; then
+            python3 - "$OPENCODE_TARGET" ".agent/templates/clients/opencode-config.json" << 'PYEOF'
+import json, sys
+target_path, template_path = sys.argv[1], sys.argv[2]
+try:
+    with open(target_path) as f:
+        data = json.load(f)
+    if 'ai-toolbox' in json.dumps(data):
+        print(f"[bootstrap] {target_path} already has AI Toolbox config — no changes")
+        sys.exit(0)
+    with open(template_path) as f:
+        template = json.load(f)
+    added = []
+    for key in ("mcp", "commands", "agents", "system"):
+        if key in template and key not in data:
+            data[key] = template[key]
+            added.append(key)
+    if added:
+        with open(target_path, 'w') as f:
+            json.dump(data, f, indent=2)
+        print(f"[bootstrap] Merged AI Toolbox keys ({', '.join(added)}) into {target_path}")
+    else:
+        print(f"[bootstrap] {target_path} already has all AI Toolbox keys")
+except Exception as e:
+    print(f"[bootstrap] Could not merge OpenCode config: {e}", file=sys.stderr)
+PYEOF
+        else
+            echo "[bootstrap] python3 not available — cannot merge into $OPENCODE_TARGET"
+        fi
     fi
     # Create OPENCODERULES.md if not present
     if [ ! -f "OPENCODERULES.md" ]; then

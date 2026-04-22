@@ -318,7 +318,7 @@ function Add-ToPath {
 }
 
 # Ensure dolt.exe is reachable — check common Windows install paths
-function Ensure-DoltInPath {
+function Test-DoltInPath {
   if (Get-Command dolt -ErrorAction SilentlyContinue) { return $true }
   $candidates = @(
     "C:\Program Files\Dolt\bin",
@@ -344,7 +344,7 @@ function Invoke-BdInit {
     return $true
   }
   # CGO/embedded not available — try server mode
-  if (Ensure-DoltInPath) {
+  if (Test-DoltInPath) {
     $out2 = & $BdPath init --server 2>&1
     if ($LASTEXITCODE -eq 0) {
       Write-Host "  [OK] Beads initialized (server mode)" -ForegroundColor Green

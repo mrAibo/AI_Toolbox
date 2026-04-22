@@ -47,12 +47,12 @@ foreach ($script in @("bootstrap", "sync-task", "hook-pre-command", "hook-stop",
     }
 }
 
-# 4. Check Qwen hooks (if .qwen/settings.json exists)
+# 4. Check Qwen hooks (only when qwen is actually installed)
 $QwenSettings = Join-Path $RepoRoot ".qwen/settings.json"
 if (-not (Test-Path $QwenSettings)) {
     $QwenSettings = Join-Path $env:USERPROFILE ".qwen/settings.json"
 }
-if (Test-Path $QwenSettings) {
+if ((Get-Command qwen -ErrorAction SilentlyContinue) -and (Test-Path $QwenSettings)) {
     Write-Host ""
     Write-Host "Qwen Code Hooks"
     $Content = Get-Content $QwenSettings -Raw

@@ -973,8 +973,7 @@ if (Get-Command rtk -ErrorAction SilentlyContinue) {
 $QwenSettings = ".qwen/settings.json"
 if ((Get-Command qwen -ErrorAction SilentlyContinue) -or (Test-Path ".qwen")) {
     New-Item -ItemType Directory -Force -Path ".qwen" | Out-Null
-    if (-not (Test-Path $QwenSettings)) {
-        @'
+    $QwenHooksJson = @'
 {
   "hooks": {
     "SessionStart": [{"hooks": [{"type": "command", "command": "powershell -ExecutionPolicy Bypass -File .agent/scripts/sync-task.ps1", "name": "ai-toolbox-sync", "description": "Sync task state from tracker", "timeout": 15000}]}],
@@ -988,10 +987,33 @@ if ((Get-Command qwen -ErrorAction SilentlyContinue) -or (Test-Path ".qwen")) {
     "PreCompact": [{"hooks": [{"type": "command", "command": "powershell -ExecutionPolicy Bypass -File .agent/scripts/hook-pre-compact-ps1-qwen.ps1", "name": "ai-toolbox-architect-context", "description": "Inject architecture context", "timeout": 10000}]}]
   }
 }
-'@ | Set-Content -Path $QwenSettings -Encoding utf8
+'@
+    if (-not (Test-Path $QwenSettings)) {
+        $QwenHooksJson | Set-Content -Path $QwenSettings -Encoding utf8
         Write-Host "[bootstrap] Created $QwenSettings with AI Toolbox hooks"
     } else {
-        Write-Host "[bootstrap] $QwenSettings already exists — skipping hook creation"
+        # Merge: add missing AI Toolbox hooks without overwriting existing Qwen config
+        try {
+            $existing = Get-Content $QwenSettings -Raw | ConvertFrom-Json
+            if (($existing | ConvertTo-Json -Depth 10) -match 'ai-toolbox-sync') {
+                Write-Host "[bootstrap] $QwenSettings already has AI Toolbox hooks — no changes"
+            } else {
+                $template = $QwenHooksJson | ConvertFrom-Json
+                if (-not ($existing.PSObject.Properties.Name -contains 'hooks')) {
+                    $existing | Add-Member -MemberType NoteProperty -Name 'hooks' -Value $template.hooks -Force
+                } else {
+                    foreach ($prop in $template.hooks.PSObject.Properties) {
+                        if (-not ($existing.hooks.PSObject.Properties.Name -contains $prop.Name)) {
+                            $existing.hooks | Add-Member -MemberType NoteProperty -Name $prop.Name -Value $prop.Value -Force
+                        }
+                    }
+                }
+                $existing | ConvertTo-Json -Depth 10 | Set-Content -Path $QwenSettings -Encoding utf8
+                Write-Host "[bootstrap] Merged AI Toolbox hooks into $QwenSettings" -ForegroundColor Green
+            }
+        } catch {
+            Write-Host "[bootstrap] Could not merge hooks into $QwenSettings`: $_" -ForegroundColor Yellow
+        }
     }
 }
 
@@ -1007,7 +1029,25 @@ if ((Get-Command codex -ErrorAction SilentlyContinue) -or (Test-Path $CodexSetti
             Write-Host "[bootstrap] Codex detected but .codex-hooks.json template not found"
         }
     } else {
-        Write-Host "[bootstrap] .codex/hooks.json already exists — skipping hook creation"
+        # Merge: add missing AI Toolbox hooks if marker absent
+        try {
+            $codexContent = Get-Content ".codex/hooks.json" -Raw
+            if ($codexContent -match 'ai-toolbox-sync') {
+                Write-Host "[bootstrap] .codex/hooks.json already has AI Toolbox hooks — no changes"
+            } elseif (Test-Path ".agent/templates/clients/.codex-hooks.json") {
+                $ex = $codexContent | ConvertFrom-Json
+                $tpl = Get-Content ".agent/templates/clients/.codex-hooks.json" -Raw | ConvertFrom-Json
+                foreach ($prop in $tpl.PSObject.Properties) {
+                    if (-not ($ex.PSObject.Properties.Name -contains $prop.Name)) {
+                        $ex | Add-Member -MemberType NoteProperty -Name $prop.Name -Value $prop.Value -Force
+                    }
+                }
+                $ex | ConvertTo-Json -Depth 10 | Set-Content ".codex/hooks.json" -Encoding utf8
+                Write-Host "[bootstrap] Merged AI Toolbox hooks into .codex/hooks.json" -ForegroundColor Green
+            }
+        } catch {
+            Write-Host "[bootstrap] Could not merge into .codex/hooks.json: $_" -ForegroundColor Yellow
+        }
     }
     if (-not (Test-Path ".codex/config.toml")) {
         if (Test-Path ".agent/templates/clients/.codex-config.toml") {
@@ -1036,7 +1076,32 @@ if ((Get-Command opencode -ErrorAction SilentlyContinue) -or (Test-Path "opencod
             Write-Host "[bootstrap] OpenCode detected but opencode-config.json template not found"
         }
     } else {
-        Write-Host "[bootstrap] opencode.json already exists — skipping config creation"
+        # Merge: add missing AI Toolbox top-level keys without overwriting existing OpenCode config
+        try {
+            $ocPath = if (Test-Path "opencode.json") { "opencode.json" } else { "opencode.jsonc" }
+            $ocContent = Get-Content $ocPath -Raw
+            if ($ocContent -match 'ai-toolbox') {
+                Write-Host "[bootstrap] $ocPath already has AI Toolbox config — no changes"
+            } elseif (Test-Path ".agent/templates/clients/opencode-config.json") {
+                $ex = $ocContent | ConvertFrom-Json
+                $tpl = Get-Content ".agent/templates/clients/opencode-config.json" -Raw | ConvertFrom-Json
+                $added = @()
+                foreach ($prop in $tpl.PSObject.Properties) {
+                    if (-not ($ex.PSObject.Properties.Name -contains $prop.Name)) {
+                        $ex | Add-Member -MemberType NoteProperty -Name $prop.Name -Value $prop.Value -Force
+                        $added += $prop.Name
+                    }
+                }
+                if ($added.Count -gt 0) {
+                    $ex | ConvertTo-Json -Depth 10 | Set-Content $ocPath -Encoding utf8
+                    Write-Host "[bootstrap] Merged AI Toolbox config into $ocPath ($($added -join ', '))" -ForegroundColor Green
+                } else {
+                    Write-Host "[bootstrap] $ocPath already has all AI Toolbox keys — no changes"
+                }
+            }
+        } catch {
+            Write-Host "[bootstrap] Could not merge into opencode.json: $_" -ForegroundColor Yellow
+        }
     }
     # Create OPENCODERULES.md if not present
     if (-not (Test-Path "OPENCODERULES.md")) {

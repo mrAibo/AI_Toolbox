@@ -54,8 +54,8 @@ for script in bootstrap sync-task hook-pre-command hook-stop verify-commit commi
     done
 done
 
-# 4. Check Qwen hooks (if .qwen/settings.json exists)
-if [ -f "$REPO_ROOT/.qwen/settings.json" ] 2>/dev/null || [ -f "$HOME/.qwen/settings.json" ] 2>/dev/null; then
+# 4. Check Qwen hooks (only when qwen is actually installed)
+if command -v qwen &>/dev/null && { [ -f "$REPO_ROOT/.qwen/settings.json" ] || [ -f "$HOME/.qwen/settings.json" ]; }; then
     echo ""
     echo "🪝 Qwen Code Hooks"
     SETTINGS="${REPO_ROOT}/.qwen/settings.json"
