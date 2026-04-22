@@ -11,7 +11,7 @@ AI Toolbox solves the three hardest problems of working with AI in your terminal
 
 This project introduces a **Memory Layer**, a **Rule Layer**, and an **Automation Layer** that keep terminal AI agents disciplined, persistent, and token-efficient. It works with **10 AI clients** out of the box — Claude Code, Antigravity, Qwen Code, Gemini CLI, Aider, Cursor, Windsurf, RooCode/Cline, Codex CLI, and OpenCode — adapting its instructions to each client's actual capabilities.
 
-**Production-grade:** Comprehensive CI validation (18 steps across 6 test suites: syntax, hooks, integration, git hooks, content, MCP schema), 2 comprehensive security audits with all Critical/High findings resolved, and 11 structured workflows from TDD to multi-agent orchestration.
+**Production-grade:** Comprehensive CI validation (18 steps across 6 test suites: syntax, hooks, integration, git hooks, content, MCP schema), security-hardened hooks with full cross-shell parity, append-only audit trail, central client config with automated generator and schema validation, atomic-safe concurrent writes, and 11 structured workflows from TDD to multi-agent orchestration.
 
 ---
 
@@ -34,6 +34,7 @@ The repository enforces a strict separation between human instructions, AI workf
 ```text
 AI_Toolbox/
 ├── README.md                     # Human-facing overview (You are here)
+├── USE_AS_TEMPLATE.md            # GitHub Template onboarding guide (PR9)
 ├── AGENT.md                      # The AI's primary execution contract
 ├── SKILL.md                      # Antigravity Skill manifest (Antigravity-only)
 ├── GEMINI.md                     # Gemini CLI context file
@@ -49,6 +50,9 @@ AI_Toolbox/
 ├── .aider.conf.yml               # Aider configuration file (bootstrap-generated)
 ├── .gitignore                    # Ignores local output and temporary files
 │
+├── .ai-toolbox/                  # Central configuration (PR4)
+│   └── config.json               # Single source of truth for all 10 clients + 3 tiers
+│
 ├── .agent/                       # The AI's "Brain"
 │   ├── config/                   # Client capability definitions
 │   │   └── client-capabilities.json  # Tier matrix (documentation)
@@ -60,12 +64,15 @@ AI_Toolbox/
 │   │   ├── integration-contracts.md   # APIs, schemas, data expectations
 │   │   ├── runbook.md                 # Recurring operational procedures
 │   │   ├── session-handover.md        # Unfinished work for the next session
-│   │   └── active-session.md          # Live status of current session
+│   │   ├── active-session.md          # Live status of current session
+│   │   └── audit.log                  # Append-only audit trail (runtime, PR8)
 │   │
 │   ├── rules/                    # Hard execution constraints
 │   │   ├── safety-rules.md            # Prevention of destructive commands
 │   │   ├── testing-rules.md           # Verification requirements (Bug Fix Seq)
 │   │   ├── stack-rules.md             # Allowed languages & dependencies
+│   │   ├── security-policy.md         # Security rules and bypass procedures (PR7)
+│   │   ├── client-detection.md        # Client selection priority rules (PR5)
 │   │   ├── antigravity.md             # Antigravity-specific extensions
 │   │   ├── qwen-code.md               # Qwen Code Full-Tier extensions
 │   │   ├── mcp-rules.md               # MCP server usage constraints
@@ -74,7 +81,7 @@ AI_Toolbox/
 │   │   ├── template-usage.md          # When to use 413+ specialist templates
 │   │   ├── status-reporting.md        # When/how the agent reports progress
 │   │   ├── parallel-execution.md      # When and how to parallelize operations
-│   │   ├── receiving-code-review.md   # Anti-sycophancy, verify before implementing
+│   │   ├── receiving-code-review.md   # Anti-sycophancy, verify before implementing (PR2)
 │   │   ├── root-cause-tracing.md      # Backward tracing through call stack
 │   │   ├── defense-in-depth.md        # Multi-layer post-fix validation
 │   │   ├── condition-based-waiting.md # Condition polling instead of timeouts
@@ -83,12 +90,19 @@ AI_Toolbox/
 │   ├── scripts/                  # Automation & Hooks
 │   │   ├── bootstrap.sh / .ps1        # Initial repo setup (silent, idempotent)
 │   │   ├── setup.sh / .ps1            # Interactive setup wizard (client detection, tool install)
-│   │   ├── hook-pre-command.sh / .ps1 # Terminal safety guard (rtk check)
-│   │   ├── hook-stop.sh / .ps1        # Memory consolidation guard
-│   │   ├── verify-commit.sh / .ps1    # Git pre-commit logic (tier badges, broken links)
+│   │   ├── hook-pre-command.sh / .ps1 # Terminal safety guard (rtk check, hardened PR7)
+│   │   ├── hook-stop.sh / .ps1        # Memory consolidation + audit emit
+│   │   ├── verify-commit.sh / .ps1    # Git pre-commit logic (tier badges, secret scan)
 │   │   ├── commit-msg.sh / .ps1       # TDD enforcement for commits
-│   │   ├── doctor.sh / .ps1           # Health check — validates entire setup
+│   │   ├── doctor.sh / .ps1           # Health check — validates entire setup + audit
 │   │   ├── sync-task.sh / .ps1        # Task tracker synchronization
+│   │   ├── lib-atomic-write.sh        # Atomic write helpers (PR1)
+│   │   ├── lib-audit.sh / .ps1        # Audit event emission library (PR8)
+│   │   ├── generate_client_files.py   # Central client file generator (PR4)
+│   │   ├── generate-client-files.sh / .ps1  # Generator wrapper for CI (PR4)
+│   │   ├── validate-toolbox-config.sh # Config structure validation (PR6)
+│   │   ├── validate-adr.sh            # ADR required-field validation (PR6)
+│   │   ├── verify-concurrency.sh      # Concurrent write stress test (PR1)
 │   │   ├── bootstrap-parity-check.sh  # Verifies .sh/.ps1 equivalence
 │   │   ├── check-trailing-newlines.sh # Ensures file formatting consistency
 │   │   ├── validate-client-capabilities.sh # Client capability matrix validation
@@ -97,10 +111,22 @@ AI_Toolbox/
 │   │   ├── test-integration.sh        # End-to-end integration tests
 │   │   ├── test-git-hooks.sh          # Git hook behavior tests
 │   │   ├── test-content.sh            # Markdown content validation tests
-│   │   └── test-mcp-schema.sh         # MCP configuration schema tests
+│   │   ├── test-mcp-schema.sh         # MCP configuration schema tests
+│   │   └── test-audit.sh              # Audit trail functional tests (PR8)
+│   │
+│   ├── skills/                   # Client-agnostic skill library (PR2)
+│   │   ├── brainstorming/             # Structured brainstorming workflow
+│   │   ├── tdd/                       # Test-driven development
+│   │   ├── debugging/                 # Systematic debugging
+│   │   ├── code-review/               # Pre-merge review
+│   │   ├── receiving-code-review/     # Anti-sycophancy + verify before implementing
+│   │   ├── safety/                    # Safety and destructive-action checks
+│   │   ├── testing/                   # Testing patterns and anti-patterns
+│   │   ├── parallel/                  # Parallel agent orchestration
+│   │   └── branch-finish/             # Branch completion checklist
 │   │
 │   ├── templates/                # Standardized formats
-│   │   ├── adr-template.md            # Architecture Decision Record
+│   │   ├── adr-template.md            # Architecture Decision Record (typed fields, PR6)
 │   │   ├── antigravity-plan.md        # Antigravity native plan
 │   │   ├── issue-template.md          # Internal bug/issue report
 │   │   ├── task-template.md           # Task definition
