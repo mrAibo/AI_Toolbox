@@ -74,6 +74,7 @@ AI_Toolbox/
 │   │   ├── security-policy.md         # Security rules and bypass procedures (PR7)
 │   │   ├── client-detection.md        # Client selection priority rules (PR5)
 │   │   ├── antigravity.md             # Antigravity-specific extensions
+│   │   ├── claude-code.md             # Claude Code Full-Tier extensions (hooks, MCP, sub-agents)
 │   │   ├── qwen-code.md               # Qwen Code Full-Tier extensions
 │   │   ├── mcp-rules.md               # MCP server usage constraints
 │   │   ├── tool-integrations.md       # How rtk, Beads, Superpowers work together
@@ -148,6 +149,13 @@ AI_Toolbox/
 │       └── use-template.md            # Template selection & adaptation
 │
 ├── docs/                       # Detailed human guides (Setup, MCP, FAQ)
+│   ├── setup-claude.md            # Claude Code setup (MCP, hooks, sub-agents)
+│   ├── setup-opencode.md          # OpenCode setup
+│   ├── setup-codex.md             # Codex CLI setup
+│   ├── setup-linux.md / setup-windows.md  # OS-specific guides
+│   ├── mcp-guide.md               # MCP configuration for all clients
+│   ├── architecture.md            # Architecture deep-dive
+│   └── faq.md                     # Frequently asked questions
 ├── examples/                   # Sample workflows
 └── prompts/                    # Quick-start prompts for the AI agent
 ```
@@ -309,6 +317,11 @@ The script will:
 - ✅ Detect your project stack (Node.js, Rust, Python, Go, etc.)
 - ✅ Offer to install rtk (token optimization) and Beads (task tracking)
 - ✅ Configure MCP servers for your primary client
+
+**Client-specific setup guides:**
+- [Claude Code](docs/setup-claude.md) — MCP servers, hooks, sub-agent orchestration
+- [OpenCode](docs/setup-opencode.md) — commands, agents, skills
+- [Codex CLI](docs/setup-codex.md) — config-based routing, permissions
 
 ### 2. Manual Initialization (Direct Clone)
 1. **Set up the repo:** Clone this repository as a starting point.

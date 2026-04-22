@@ -64,6 +64,7 @@ This is the **Definitive Boot Sequence**. All agents must follow this procedure 
     - **[.agent/rules/coding-discipline.md](.agent/rules/coding-discipline.md)** — Simplicity First and Surgical Changes: no speculative code, no opportunistic refactoring
     - **[.agent/rules/security-policy.md](.agent/rules/security-policy.md)** — Security rules, secret-scan bypass procedures (SKIP_SECRET_SCAN), hook security constraints
     - **[.agent/rules/client-detection.md](.agent/rules/client-detection.md)** — Client selection priority: config → autodetect → interactive → persist
+    - **[.agent/rules/claude-code.md](.agent/rules/claude-code.md)** — Claude Code specifics: hook events, MCP servers, sub-agent orchestration, plan mode (Claude Code only)
 10. **Summarization:** Briefly summarize the recovered context, current state, available tools, and the next planned task before continuing.
 
 Purpose:
