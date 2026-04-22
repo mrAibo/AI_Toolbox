@@ -39,6 +39,7 @@ Quick reference to rule files:
 | [defense-in-depth.md](../rules/defense-in-depth.md) | Multi-layer post-fix validation |
 | [condition-based-waiting.md](../rules/condition-based-waiting.md) | Condition polling instead of timeouts |
 | [testing-anti-patterns.md](../rules/testing-anti-patterns.md) | Common testing mistakes |
+| [coding-discipline.md](../rules/coding-discipline.md) | Simplicity First + Surgical Changes — no speculative code, no opportunistic refactoring |
 
 ## Workflow Index
 
