@@ -250,6 +250,18 @@ Full config templates, security rules, and troubleshooting: **[docs/mcp-guide.md
 
 ---
 
+### 0. Starting from GitHub Template (New Users)
+
+If you are creating a **new project** from scratch, the fastest starting point is:
+
+1. Click **[Use this template](https://github.com/mrAibo/AI_Toolbox/generate)** on GitHub to generate your own repository
+2. Clone it locally
+3. Run `setup.sh` / `setup.ps1` (see step 1 below)
+
+Full details — including the difference between Template, `setup.sh`, and `bootstrap.sh` — are in **[USE_AS_TEMPLATE.md](USE_AS_TEMPLATE.md)**.
+
+---
+
 ### 1. Quick Setup (Recommended)
 
 Run the one-command setup script — it detects your environment, installs optional tools, and configures everything:

@@ -9,6 +9,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ## [Unreleased]
 
 ### Added
+- `USE_AS_TEMPLATE.md` — GitHub Template usage guide: new-user onboarding flow, difference between Template / `setup.sh` / `bootstrap.sh` / sync, template suitability notes, migration note for existing users
+- README: "Use as GitHub Template" section (step 0) with link to `USE_AS_TEMPLATE.md`
 - Release pipeline (`.github/workflows/release.yml`) — automatic GitHub Releases on version tag push
 - Changelog validation workflow (`.github/workflows/changelog.yml`) — PR check ensuring CHANGELOG.md is updated for code changes
 - `bump-version.sh` helper script — semver tagging with push-to-release automation
