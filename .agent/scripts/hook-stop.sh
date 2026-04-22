@@ -7,6 +7,9 @@ REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || echo "")"
 if [ -z "$REPO_ROOT" ]; then
   REPO_ROOT="$(pwd)"
 fi
+_HOOK_STOP_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# shellcheck source=lib-audit.sh
+. "$_HOOK_STOP_DIR/lib-audit.sh"
 
 if [ -f "$REPO_ROOT/.agent/memory/session-handover.md" ]; then
   echo "[stop] session handover file exists"
@@ -105,6 +108,7 @@ for tool, count in sorted(stats.items(), key=lambda x: -x[1]):
       # No flock: atomic rename in cap still prevents truncated file; rare race accepted
       _update_handover "$HANDOVER_FILE" "$ACTIVE_FILE"
     fi
+    audit_event "session_handover_written" "file=session-handover.md"
   fi
 fi
 

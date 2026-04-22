@@ -4,6 +4,7 @@
 $RepoRoot = git rev-parse --show-toplevel 2>$null
 if (-not $RepoRoot) { $RepoRoot = (Get-Location).Path }
 $RepoRootResolved = [System.IO.Path]::GetFullPath($RepoRoot)
+. "$PSScriptRoot\lib-audit.ps1"
 $Errors = 0
 
 # ---------------------------------------------------------------
@@ -61,6 +62,7 @@ $SkipSecretScan = ($env:SKIP_SECRET_SCAN -eq 'true')
 
 if ($SkipSecretScan) {
     Write-Host "[INFO] AI Toolbox: Secret scanning skipped via SKIP_SECRET_SCAN."
+    Write-AuditEvent "secret_scan_bypassed" "hook=verify-commit"
 } else {
     $SecretFiles = [System.Collections.Generic.List[string]]::new()
     $HardBlockedFiles = [System.Collections.Generic.List[string]]::new()

@@ -142,6 +142,21 @@ for script in bootstrap sync-task hook-pre-command hook-stop verify-commit commi
     fi
 done
 
+# 9. Audit log
+echo ""
+echo "📋 Audit Log"
+AUDIT_LOG="$REPO_ROOT/.agent/memory/audit.log"
+if [ -f "$AUDIT_LOG" ]; then
+    AUDIT_LINES=$(wc -l < "$AUDIT_LOG" 2>/dev/null || echo "0")
+    check_pass "audit.log exists ($AUDIT_LINES entries)"
+    # Warn if audit log is not gitignored (*.log covers it, but be explicit)
+    if ! git -C "$REPO_ROOT" check-ignore -q "$AUDIT_LOG" 2>/dev/null; then
+        check_warn "audit.log may not be gitignored — verify *.log is in .gitignore"
+    fi
+else
+    check_pass "audit.log not yet created (written on first hook event)"
+fi
+
 # Summary
 echo ""
 echo "===================="

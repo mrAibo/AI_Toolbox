@@ -9,6 +9,9 @@
 cmd="$1"
 REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
 STATS_FILE="$REPO_ROOT/.agent/memory/.tool-stats.json"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# shellcheck source=lib-audit.sh
+. "$SCRIPT_DIR/lib-audit.sh"
 
 HEAVY_COMMAND_REGEX="^(python|python3|mvn|gradle|gradlew|pytest|npm run|npm test|pnpm run|pnpm test|yarn run|yarn test|db2cli|hdbcli|sqlplus|ansible-playbook|javac|java -jar|cargo build|cargo test|cargo run|cargo check|go build|go test|go run|docker build|docker compose build|docker-compose build)"
 
@@ -20,6 +23,7 @@ if [[ $_cmd_norm =~ $HEAVY_COMMAND_REGEX ]] && [[ $_cmd_norm != "rtk "* ]]; then
   echo "[WARN] AI Toolbox Heavy Command Detected!"
   echo "Please use 'rtk' wrapper for heavy commands to optimize token usage."
   echo "Example: rtk $cmd"
+  audit_event "heavy_cmd_blocked" "tool=${_cmd_norm%% *}"
   exit 1
 fi
 
@@ -31,7 +35,6 @@ fi
 
 # Track tool usage for session statistics
 # PR1: Uses lib-atomic-write.sh for concurrency-safe JSON updates.
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # shellcheck source=lib-atomic-write.sh
 . "$SCRIPT_DIR/lib-atomic-write.sh"
 

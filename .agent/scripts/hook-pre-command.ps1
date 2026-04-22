@@ -12,6 +12,7 @@ param(
 $RepoRoot = git rev-parse --show-toplevel 2>$null
 if (-not $RepoRoot) { $RepoRoot = (Get-Location).Path }
 $StatsFile = "$RepoRoot\.agent\memory\.tool-stats.json"
+. "$PSScriptRoot\lib-audit.ps1"
 
 if ([string]::IsNullOrWhiteSpace($Command)) {
   exit 0
@@ -28,6 +29,8 @@ $CmdCheck = $CmdCheck -replace '^([A-Za-z_][A-Za-z0-9_]*=[^\s]+\s*)*', ''
 if ($CmdCheck -match $HeavyCommandRegex -and $CmdCheck -notmatch '^rtk ') {
   Write-Host "[WARN]  AI Toolbox: Heavy command detected — consider using 'rtk' wrapper for token optimization."
   Write-Host "   Example: rtk $Command"
+  $BlockedTool = ($CmdCheck -split '\s+')[0]
+  Write-AuditEvent "heavy_cmd_blocked" "tool=$BlockedTool"
   exit 1
 }
 

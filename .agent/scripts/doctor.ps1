@@ -126,6 +126,21 @@ foreach ($script in @("bootstrap", "sync-task", "hook-pre-command", "hook-stop",
     else { Write-Fail "${script}: missing both" }
 }
 
+# 9. Audit log
+Write-Host ""
+Write-Host "Audit Log"
+$AuditLog = Join-Path $RepoRoot ".agent\memory\audit.log"
+if (Test-Path $AuditLog) {
+    $lines = (Get-Content $AuditLog -ErrorAction SilentlyContinue).Count
+    Write-Pass "audit.log exists ($lines entries)"
+    $gitignoreContent = Get-Content (Join-Path $RepoRoot ".gitignore") -Raw -ErrorAction SilentlyContinue
+    if ($gitignoreContent -notmatch '\*\.log') {
+        Write-Warn "audit.log may not be gitignored - verify *.log is in .gitignore"
+    }
+} else {
+    Write-Pass "audit.log not yet created (written on first hook event)"
+}
+
 # Summary
 Write-Host ""
 Write-Host "================================"

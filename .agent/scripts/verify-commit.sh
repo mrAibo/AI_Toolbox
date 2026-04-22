@@ -4,6 +4,9 @@
 # No set -e — must be resilient; individual failures must not block the commit silently.
 
 REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# shellcheck source=lib-audit.sh
+. "$SCRIPT_DIR/lib-audit.sh"
 ERRORS=0
 
 # ---------------------------------------------------------------
@@ -46,6 +49,7 @@ fi
 
 if [ "$SKIP_SECRET_SCAN" = "true" ]; then
     echo "[INFO] AI Toolbox: Secret scanning skipped via SKIP_SECRET_SCAN."
+    audit_event "secret_scan_bypassed" "hook=verify-commit"
 else
     STAGED_FILES=$(git diff --cached --name-only 2>/dev/null || true)
     if [ -n "$STAGED_FILES" ]; then

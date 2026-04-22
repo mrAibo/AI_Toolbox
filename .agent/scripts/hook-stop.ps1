@@ -4,6 +4,7 @@
 
 $RepoRoot = git rev-parse --show-toplevel 2>$null
 if (-not $RepoRoot) { $RepoRoot = (Get-Location).Path }
+. "$PSScriptRoot\lib-audit.ps1"
 
 # 1. Sync task state (resilient - continue even if it fails)
 if (Test-Path "$RepoRoot/.agent/scripts/sync-task.ps1") {
@@ -70,6 +71,7 @@ if (Test-Path $ActiveFile) {
                 "`n## Session Summary - $(Get-Date -Format 'yyyy-MM-dd HH:mm UTC')" |
                     Out-File -FilePath $HandoverFile -Append -Encoding utf8
                 $ActiveContent | Out-File -FilePath $HandoverFile -Append -Encoding utf8
+                Write-AuditEvent "session_handover_written" "file=session-handover.md"
             } finally {
                 if ($mutex) {
                     try { $mutex.ReleaseMutex() } catch {}
