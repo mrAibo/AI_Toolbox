@@ -117,6 +117,16 @@ if ($ConfigPrimary) {
     Write-Host "  [OK] Windsurf (GUI)" -ForegroundColor Green
   }
 
+  # OpenCode
+  $OpenCodeFound = (Get-Command opencode -ErrorAction SilentlyContinue) -or
+      (Test-Path "opencode.json") -or (Test-Path "opencode.jsonc")
+  if ($OpenCodeFound) {
+    try { $ver = (opencode --version 2>$null) } catch { $ver = "installed" }
+    $Clients += "opencode"
+    $ClientNames += "OpenCode ($ver)"
+    Write-Host "  [OK] OpenCode ($ver)" -ForegroundColor Green
+  }
+
   if ($Clients.Count -eq 0) {
     Write-Host "  [WARN]  No supported AI clients detected." -ForegroundColor Yellow
     Write-Host "  Supported: Claude Code, Qwen Code, Gemini CLI, Aider, Cursor, Cline, Windsurf"
@@ -399,7 +409,17 @@ if ($env:QWEN_HOOK_TYPE -eq "pre-command") {
 '@ | Set-Content ".windsurf/hooks.json" -Encoding utf8
       Write-Host "    ? .windsurf/hooks.json created" -ForegroundColor Green
     }
-    "gemini" { Write-Host "    ??  Basic Tier � hooks not supported (soft reminders only)" -ForegroundColor Gray }
+    "opencode" {
+      if ((Test-Path "opencode.json") -or (Test-Path "opencode.jsonc")) {
+        Write-Host "    [OK] opencode.json already configured (created by bootstrap)" -ForegroundColor Green
+      } elseif (Test-Path ".agent/templates/clients/opencode-config.json") {
+        Copy-Item ".agent/templates/clients/opencode-config.json" "opencode.json"
+        Write-Host "    [OK] opencode.json created with AI Toolbox configuration" -ForegroundColor Green
+      } else {
+        Write-Host "    [WARN]  opencode-config.json template not found" -ForegroundColor Yellow
+      }
+    }
+    "gemini" { Write-Host "    ??  Basic Tier� hooks not supported (soft reminders only)" -ForegroundColor Gray }
     "aider" { Write-Host "    ??  Basic Tier � hooks not supported (soft reminders only)" -ForegroundColor Gray }
   }
 }

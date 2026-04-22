@@ -110,6 +110,14 @@ else
     echo "  ✅ Windsurf (GUI)"
   fi
 
+  # Check OpenCode
+  if command -v opencode &> /dev/null || [ -f "opencode.json" ] || [ -f "opencode.jsonc" ]; then
+    OPENCODE_VERSION=$(opencode --version 2>/dev/null || echo "installed")
+    CLIENTS+=("opencode")
+    CLIENT_NAMES+=("OpenCode ($OPENCODE_VERSION)")
+    echo "  ✅ OpenCode ($OPENCODE_VERSION)"
+  fi
+
   # If no clients found, show message
   if [ ${#CLIENTS[@]} -eq 0 ]; then
     echo "  ⚠️  No supported AI clients detected."
@@ -378,6 +386,16 @@ CLINEEOF
 {"pre-command":"bash .agent/scripts/hook-pre-command.sh \"$COMMAND\"","post-command":"bash .agent/scripts/hook-stop.sh","session-start":"bash .agent/scripts/sync-task.sh && cat .agent/memory/current-task.md"}
 WSEOF
       echo "    ✅ .windsurf/hooks.json created"
+      ;;
+    opencode)
+      if [ -f "opencode.json" ] || [ -f "opencode.jsonc" ]; then
+        echo "    ✅ opencode.json already configured (created by bootstrap)"
+      elif [ -f ".agent/templates/clients/opencode-config.json" ]; then
+        cp .agent/templates/clients/opencode-config.json opencode.json
+        echo "    ✅ opencode.json created with AI Toolbox configuration"
+      else
+        echo "    ⚠️  opencode-config.json template not found"
+      fi
       ;;
     gemini|aider)
       echo "    ℹ️  Basic Tier — hooks not supported (soft reminders only)"

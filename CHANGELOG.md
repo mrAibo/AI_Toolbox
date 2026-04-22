@@ -8,6 +8,20 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+### Claude Code & OpenCode Implementation Review
+
+#### Added
+- `.agent/rules/claude-code.md` — Claude Code-specific rule extensions: hook events, MCP integration, sub-agent orchestration, plan mode, session boot
+- `docs/setup-claude.md` — Claude Code setup guide parallel to `docs/setup-opencode.md`; covers prerequisites, MCP servers, slash commands, hooks reference, troubleshooting
+
+#### Fixed
+- `setup.sh` / `setup.ps1` — added OpenCode to client autodetection scan (Step 2)
+- `setup.sh` — added `opencode` case to Step 7 hook registration; copies `opencode-config.json` template if `opencode.json` absent
+- `setup.ps1` — added `opencode` case to Step 7 hook registration (parity with `setup.sh`)
+- `.agent/memory/memory-index.md` — added `claude-code.md` to Rules Index
+
+---
+
 ### Project Review Fixes
 
 #### Fixed

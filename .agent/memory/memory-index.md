@@ -40,6 +40,7 @@ Quick reference to rule files:
 | [condition-based-waiting.md](../rules/condition-based-waiting.md) | Condition polling instead of timeouts |
 | [testing-anti-patterns.md](../rules/testing-anti-patterns.md) | Common testing mistakes |
 | [coding-discipline.md](../rules/coding-discipline.md) | Simplicity First + Surgical Changes — no speculative code, no opportunistic refactoring |
+| [claude-code.md](../rules/claude-code.md) | Claude Code specifics — hooks, MCP, sub-agent orchestration, plan mode |
 
 ## Workflow Index
 
