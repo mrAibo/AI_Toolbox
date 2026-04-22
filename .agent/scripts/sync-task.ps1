@@ -30,7 +30,7 @@ if ($BdPath) {
         $Header + $bdOutput | Out-File -FilePath $TaskPath -Encoding utf8
         Write-Host "[sync-task] Task state exported to $TaskPath"
     } else {
-        Write-Host "[sync-task] bd available but not initialized (run 'bd init --mode server' on Windows)"
+        Write-Host "[sync-task] bd available but not initialized (run 'bd init --server' on Windows)"
     }
 
     # Detect task type from Beads output - scan first 5 lines after header
