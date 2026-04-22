@@ -8,6 +8,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+### Coding Discipline Rules (adapted from Karpathy guidelines)
+
+#### Added
+- `.agent/rules/coding-discipline.md` — two coding principles adapted from Andrej Karpathy's LLM pitfall observations:
+  - **Simplicity First:** no speculative code, no premature abstractions, minimum code that solves the stated problem
+  - **Surgical Changes:** change only the reported lines, no opportunistic refactoring or adjacent cleanup
+- `AGENT.md` — linked `coding-discipline.md` in Boot Sequence step 9 (on-demand rules)
+
+---
+
 ### PR9 — GitHub Template Support
 
 #### Added

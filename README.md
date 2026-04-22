@@ -85,7 +85,8 @@ AI_Toolbox/
 │   │   ├── root-cause-tracing.md      # Backward tracing through call stack
 │   │   ├── defense-in-depth.md        # Multi-layer post-fix validation
 │   │   ├── condition-based-waiting.md # Condition polling instead of timeouts
-│   │   └── testing-anti-patterns.md   # Common testing mistakes
+│   │   ├── testing-anti-patterns.md   # Common testing mistakes
+│   │   └── coding-discipline.md       # Simplicity First + Surgical Changes (no speculative code)
 │   │
 │   ├── scripts/                  # Automation & Hooks
 │   │   ├── bootstrap.sh / .ps1        # Initial repo setup (silent, idempotent)

@@ -61,6 +61,7 @@ This is the **Definitive Boot Sequence**. All agents must follow this procedure 
     - **[.agent/rules/condition-based-waiting.md](.agent/rules/condition-based-waiting.md)** — Poll for conditions instead of using arbitrary timeouts
     - **[.agent/rules/testing-anti-patterns.md](.agent/rules/testing-anti-patterns.md)** — Common testing mistakes to avoid
     - **[.agent/rules/diff-editing.md](.agent/rules/diff-editing.md)** — Token-efficient editing: NEVER output full files, use sed/Python patches
+    - **[.agent/rules/coding-discipline.md](.agent/rules/coding-discipline.md)** — Simplicity First and Surgical Changes: no speculative code, no opportunistic refactoring
 10. **Summarization:** Briefly summarize the recovered context, current state, available tools, and the next planned task before continuing.
 
 Purpose:
