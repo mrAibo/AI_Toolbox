@@ -10,6 +10,21 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ---
 
+## [v1.2.0] — 2026-04-23
+
+### Fixed
+- `release.yml` — replaced invalid pinned SHA `softprops/action-gh-release@4685be8...` with `@v2`; Release workflow now succeeds on tag push
+- `bootstrap.sh` / `bootstrap.ps1` — QWEN fallback template still had 5-file memory list; replaced with 1-line `memory-index.md` reference (consistent with TS2 live-file fix)
+- `docs/setup-claude.md` — added "What's New in v1.1.0" section covering cache stability, doctor script, Next Steps checklist, input context budget
+
+### Added
+- `test-content.sh` — cache-prefix marker check for all router files alongside existing tier-badge check (162/162 tests pass)
+
+### Changed
+- `README.md` — rewritten from 467 → ~150 lines: removed duplicate sections, collapsed architecture tree to key-files list, replaced verbose scenario A/B/C with two copy-paste prompts
+
+---
+
 ## [v1.1.0] — 2026-04-23
 
 ### Token Cost Reduction (TS1 + TS2 + TS3)
@@ -229,6 +244,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ---
 
-[Unreleased]: https://github.com/mrAibo/AI_Toolbox/compare/v1.1.0..HEAD
+[Unreleased]: https://github.com/mrAibo/AI_Toolbox/compare/v1.2.0..HEAD
+[v1.2.0]: https://github.com/mrAibo/AI_Toolbox/compare/v1.1.0..v1.2.0
 [v1.1.0]: https://github.com/mrAibo/AI_Toolbox/compare/v1.0.0..v1.1.0
 [v1.0.0]: https://github.com/mrAibo/AI_Toolbox/releases/tag/v1.0.0
