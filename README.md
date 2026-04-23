@@ -20,7 +20,18 @@ Works with **10 AI clients** out of the box — no vendor lock-in.
 
 ## Quick Start
 
-**New project (GitHub Template — recommended):**
+Choose the installation method that fits your situation:
+
+| Method | Best for |
+|--------|---------|
+| [GitHub Template](#option-1-github-template--recommended) | Starting a brand-new project |
+| [Script](#option-2-script--clone--run-setup) | Adding AI Toolbox to an existing project |
+| [AI-assisted](#option-3-ai-assisted-installation) | Letting your AI agent set everything up |
+
+---
+
+### Option 1: GitHub Template *(recommended)*
+
 1. On the **[repository page](https://github.com/mrAibo/AI_Toolbox)** click **"Use this template" → "Create a new repository"**
 2. Fill in owner, repo name, and visibility — click **"Create repository"**
 3. Clone your new repo locally and run setup:
@@ -39,9 +50,13 @@ cd my-project
 powershell -ExecutionPolicy Bypass -File .agent\scripts\setup.ps1
 ```
 
-> Full onboarding details: [USE_AS_TEMPLATE.md](USE_AS_TEMPLATE.md)
+> Full step-by-step guide: [USE_AS_TEMPLATE.md](USE_AS_TEMPLATE.md)
 
-**Existing project (clone directly):**
+---
+
+### Option 2: Script — Clone + Run Setup
+
+Clone directly and run the interactive setup wizard:
 
 ```bash
 # Linux / macOS
@@ -59,7 +74,35 @@ powershell -ExecutionPolicy Bypass -File .agent\scripts\setup.ps1
 
 Setup detects your AI client, installs optional tools (rtk, Beads), and configures hooks automatically. A numbered checklist is printed for anything that needs manual action.
 
-**Verify installation:**
+For silent/CI use (no prompts), run `bootstrap.sh` / `bootstrap.ps1` directly instead of `setup`.
+
+> Full guide with per-client instructions: [INSTALL.md](INSTALL.md)
+
+---
+
+### Option 3: AI-assisted Installation
+
+Let your AI agent do the setup. Paste this prompt into any supported AI client:
+
+```
+I want to add AI Toolbox to this project.
+Clone https://github.com/mrAibo/AI_Toolbox.git to a temp folder,
+copy the .agent/ folder and AGENT.md into the current directory,
+then run bootstrap.sh (Linux/macOS) or bootstrap.ps1 (Windows).
+Read AGENT.md when done and confirm the setup is complete.
+```
+
+The AI will:
+1. Clone AI Toolbox into a temporary directory
+2. Copy `.agent/`, `AGENT.md`, and the router files for your client
+3. Run `bootstrap.sh` / `bootstrap.ps1` to configure hooks and memory
+4. Read `AGENT.md` and confirm readiness
+
+> Detailed AI-agent instructions: [INSTALL.md — For AI Agents](INSTALL.md#for-ai-agents)
+
+---
+
+**Verify any installation:**
 ```bash
 bash .agent/scripts/doctor.sh       # Linux / macOS
 powershell .agent/scripts/doctor.ps1   # Windows
