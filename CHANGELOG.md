@@ -14,7 +14,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - `.ai-toolbox/config.json` — Pi client entry (tier: basic, no hooks, no autodetect)
 - `bootstrap.sh` / `bootstrap.ps1` — generate `PI.md` when missing (idempotent, matching Gemini pattern)
 - `test-content.sh` — `PI.md` added to router-file check list
-- README client table and documentation table updated to include Pi
+- `USE_AS_TEMPLATE.md` — expanded with full step-by-step GitHub Template flow (7 steps), Template vs Clone vs Fork comparison table, client router-file reference table, per-client setup guide links
+- `INSTALL.md` — added GitHub Template as Option A with `USE_AS_TEMPLATE.md` link, added Pi client section
+- README documentation table expanded: `INSTALL.md` and `QUICKSTART.md` entries added with descriptions
 
 ---
 

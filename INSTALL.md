@@ -1,15 +1,52 @@
 # AI Toolbox Installation
 
+## Which Method Should I Use?
+
+| Situation | Method |
+|-----------|--------|
+| Starting a brand-new project | **[GitHub Template](#option-a-github-template-recommended-for-new-projects)** |
+| Adding AI Toolbox to an existing repo | **[Git Clone + Bootstrap](#option-b-git-clone)** |
+| Just want to try it quickly | **[Release Download](#option-c-release-download)** |
+| Contributing to AI Toolbox | **Fork** the repository |
+
+> Full GitHub Template walkthrough: [USE_AS_TEMPLATE.md](USE_AS_TEMPLATE.md)
+
+---
+
 ## TL;DR — One-Command Setup
 
-### Option A: Git Clone (Recommended for contributors)
+### Option A: GitHub Template (Recommended for new projects)
+
+1. On the AI Toolbox repository page click **"Use this template" → "Create a new repository"**
+2. Fill in your repo name and click **"Create repository"**
+3. Clone and run setup:
+
+```bash
+# Linux / macOS
+git clone https://github.com/YOUR-ORG/YOUR-REPO.git my-project
+cd my-project
+bash .agent/scripts/setup.sh
+```
+
+```powershell
+# Windows
+git clone https://github.com/YOUR-ORG/YOUR-REPO.git my-project
+cd my-project
+powershell -ExecutionPolicy Bypass -File .agent\scripts\setup.ps1
+```
+
+Full step-by-step guide: **[USE_AS_TEMPLATE.md](USE_AS_TEMPLATE.md)**
+
+---
+
+### Option B: Git Clone
 ```bash
 git clone https://github.com/mrAibo/AI_Toolbox.git my-project
 cd my-project
 bash .agent/scripts/bootstrap.sh
 ```
 
-### Option B: Release Download (Recommended for users)
+### Option C: Release Download (Recommended for users)
 Download the latest release from https://github.com/mrAibo/AI_Toolbox/releases, then extract and run bootstrap.
 
 ```bash
@@ -141,6 +178,15 @@ Full guide: **[docs/setup-opencode.md](docs/setup-opencode.md)**
 1. **Clone + Bootstrap** — creates `CONVENTIONS.md` and `.aider.conf.yml`.
 2. **No hooks** — safety rules are soft reminders.
 3. **Start:** `aider`.
+
+### Pi — Inflection AI (Basic Tier)
+
+1. **Clone + Bootstrap** — creates `PI.md` automatically.
+2. **No CLI** — Pi is a web-only client at [pi.ai](https://pi.ai). No local installation needed.
+3. **Manual context:** Paste `PI.md` (and relevant memory files) into the Pi chat at the start of each session.
+4. **No hooks** — safety rules are soft reminders.
+
+Full guide: **[docs/setup-pi.md](docs/setup-pi.md)**
 
 ### Antigravity (Full Tier)
 

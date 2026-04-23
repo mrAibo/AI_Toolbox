@@ -249,11 +249,13 @@ Both are installed automatically by `setup.sh` / `setup.ps1` if you confirm the 
 | Guide | What's in it |
 |-------|-------------|
 | [AGENT.md](AGENT.md) | Master execution contract — all rules, boot sequence, 9-step workflow |
-| [USE_AS_TEMPLATE.md](USE_AS_TEMPLATE.md) | GitHub Template onboarding, setup vs bootstrap vs template |
+| [INSTALL.md](INSTALL.md) | Full installation guide — Template, clone, and per-client manual setup |
+| [QUICKSTART.md](QUICKSTART.md) | 5-minute quick start — bootstrap, rtk, first session |
+| [USE_AS_TEMPLATE.md](USE_AS_TEMPLATE.md) | GitHub Template step-by-step: create repo, clone, setup, first session |
 | [docs/setup-claude.md](docs/setup-claude.md) | Claude Code: hooks, MCP, sub-agents, v1.2.0 features |
 | [docs/setup-opencode.md](docs/setup-opencode.md) | OpenCode: commands, agents, skills |
 | [docs/setup-codex.md](docs/setup-codex.md) | Codex CLI: config, permissions |
-| [docs/setup-pi.md](docs/setup-pi.md) | Pi (Inflection AI): manual context workflow |
+| [docs/setup-pi.md](docs/setup-pi.md) | Pi (Inflection AI): manual context workflow, limitations |
 | [docs/mcp-guide.md](docs/mcp-guide.md) | MCP server setup for all clients |
 | [docs/faq.md](docs/faq.md) | Frequently asked questions |
 | [CHANGELOG.md](CHANGELOG.md) | Release history |
