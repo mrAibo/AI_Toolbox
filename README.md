@@ -21,7 +21,7 @@ Works with **10 AI clients** out of the box — no vendor lock-in.
 ## Quick Start
 
 **New project (GitHub Template — recommended):**
-1. On the repository page click **"Use this template" → "Create a new repository"**
+1. On the **[repository page](https://github.com/mrAibo/AI_Toolbox)** click **"Use this template" → "Create a new repository"**
 2. Fill in owner, repo name, and visibility — click **"Create repository"**
 3. Clone your new repo locally and run setup:
 
