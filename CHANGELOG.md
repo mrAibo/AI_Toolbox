@@ -8,6 +8,34 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+---
+
+## [v1.1.0] — 2026-04-23
+
+### Token Cost Reduction (TS1 + TS2 + TS3)
+
+#### Added
+- `<!-- cache-prefix -->` marker on line 2 of all 8 router files (CLAUDE.md, QWEN.md, GEMINI.md, CONVENTIONS.md, CODERULES.md, OPENCODERULES.md, SKILL.md, .cursorrules/.clinerules/.windsurfrules) — signals stable prefix boundary for prompt-cache hits
+- `Cache Policy` section in `AGENT.md` — explains why the Critical Session Rules block must stay unmodified across sessions
+- `doctor.sh` / `doctor.ps1` — now verifies `cache-prefix` presence in router files; warns if missing after manual edit
+- `diff-editing.md` — new **Input Context Budget** section: decision table for diff/symbol/outline vs. full-file reads, with explicit escape-hatch rule
+- `hook-pre-command.sh` / `hook-pre-command.ps1` — advisory warning (non-blocking, exit 0) when `cat`-ing source files >200 lines; recommends `git diff` or symbol context
+
+#### Changed
+- `bootstrap.sh` / `bootstrap.ps1` — all router file templates now include the `cache-prefix` marker so newly bootstrapped repos inherit it automatically
+- `QWEN.md`, `CODERULES.md`, `OPENCODERULES.md`, `CONVENTIONS.md` — replaced verbatim 4–6 file memory-load list with single-line reference to `memory-index.md` (~30 lines of duplication removed)
+- `AGENT.md` §4 Execution Rules — added `Context discipline` reference to `diff-editing.md`
+
+---
+
+### Bootstrap Client-Config Merge
+
+#### Fixed
+- `bootstrap.sh` — Codex (`.codex/hooks.json`) and OpenCode (`opencode.json`) now merge AI Toolbox hooks/keys into existing configs instead of silently skipping them (marker-check + Python3 merge, matching `.ps1` behavior)
+- `bootstrap.ps1` — Qwen, Codex, OpenCode merges already in place; all three clients now idempotent
+
+---
+
 ### Setup Automation & Post-Setup Diagnostics
 
 #### Fixed
@@ -201,5 +229,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ---
 
-[Unreleased]: https://github.com/mrAibo/AI_Toolbox/compare/v1.0.0..HEAD
+[Unreleased]: https://github.com/mrAibo/AI_Toolbox/compare/v1.1.0..HEAD
+[v1.1.0]: https://github.com/mrAibo/AI_Toolbox/compare/v1.0.0..v1.1.0
 [v1.0.0]: https://github.com/mrAibo/AI_Toolbox/releases/tag/v1.0.0
