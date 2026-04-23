@@ -20,11 +20,28 @@ Works with **10 AI clients** out of the box — no vendor lock-in.
 
 ## Quick Start
 
-**New project (from GitHub Template):**
-1. Click **[Use this template](https://github.com/mrAibo/AI_Toolbox/generate)** → clone locally
-2. Run setup → done
+**New project (GitHub Template — recommended):**
+1. On the repository page click **"Use this template" → "Create a new repository"**
+2. Fill in owner, repo name, and visibility — click **"Create repository"**
+3. Clone your new repo locally and run setup:
 
-**Existing project:**
+```bash
+# Linux / macOS
+git clone https://github.com/YOUR-ORG/YOUR-REPO.git my-project
+cd my-project
+bash .agent/scripts/setup.sh
+```
+
+```powershell
+# Windows
+git clone https://github.com/YOUR-ORG/YOUR-REPO.git my-project
+cd my-project
+powershell -ExecutionPolicy Bypass -File .agent\scripts\setup.ps1
+```
+
+> Full onboarding details: [USE_AS_TEMPLATE.md](USE_AS_TEMPLATE.md)
+
+**Existing project (clone directly):**
 
 ```bash
 # Linux / macOS
