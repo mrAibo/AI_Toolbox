@@ -1,5 +1,14 @@
 # Claude Code Setup
 
+## What's New in v1.1.0
+
+- **Cache stability:** Each router file has a `<!-- cache-prefix -->` marker on line 2. Do not reorder the BOOT/SAFETY/HANDOVER rules — stable wording maximizes prompt-cache hits across sessions. Run `bootstrap` to restore the marker if it goes missing.
+- **Doctor script:** Run `bash .agent/scripts/doctor.sh` (or `.ps1` on Windows) to verify all components — cache-prefix markers, hook scripts, audit log, and bootstrap parity.
+- **Setup transparency:** `setup.sh` / `setup.ps1` now print a numbered "Next Steps" checklist at the end — only when something failed or requires manual action.
+- **Input context discipline:** See `.agent/rules/diff-editing.md` §Input Context Budget for guidance on using `git diff` and symbol context instead of full-file reads.
+
+---
+
 ## Prerequisites
 - [Claude Code CLI](https://claude.ai/code) installed (`npm install -g @anthropic-ai/claude-code`)
 - Git installed

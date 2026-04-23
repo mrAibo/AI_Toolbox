@@ -821,12 +821,7 @@ This project uses the **AI Toolbox** workflow framework. As a **Full-Tier** clie
 
 ## Memory Layer
 
-Read these files at session start (in order):
-1. `.agent/memory/architecture-decisions.md` -- ADR log
-2. `.agent/memory/integration-contracts.md` -- API/schema contracts
-3. `.agent/memory/session-handover.md` -- Unfinished work from last session
-4. `.agent/memory/current-task.md` -- Active todo list
-5. `.agent/memory/runbook.md` -- Operational procedures (if present)
+> Boot order: see [memory-index.md](.agent/memory/memory-index.md) — it lists all memory files in priority order.
 
 Refer to [AGENT.md](AGENT.md) for the full operational contract.
 EOF

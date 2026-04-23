@@ -141,6 +141,13 @@ test_router_files() {
             fail_test "$rf: missing tier badge (-- Tier:)"
         fi
 
+        # Test: Contains cache-prefix marker (TS1 — cache stability)
+        if grep -q 'cache-prefix:' "$full_path" 2>/dev/null; then
+            pass_test "$rf: contains cache-prefix marker"
+        else
+            fail_test "$rf: missing cache-prefix marker (run bootstrap to add)"
+        fi
+
         # Test: References AGENT.md
         if grep -qi 'AGENT\.md' "$full_path" 2>/dev/null; then
             pass_test "$rf: references AGENT.md"
