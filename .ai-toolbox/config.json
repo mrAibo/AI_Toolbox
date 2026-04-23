@@ -152,6 +152,19 @@
       "autodetect_cmd": "aider",
       "managed_by": "template"
     },
+    "pi": {
+      "tier": "basic",
+      "router_file": "PI.md",
+      "template_router": null,
+      "config_file": null,
+      "template_config": null,
+      "hooks": false,
+      "multi_agent": false,
+      "file_rules": true,
+      "autodetect_cmd": null,
+      "managed_by": "bootstrap-inline",
+      "notes": "Web-only client (pi.ai). No CLI, no hooks. User pastes PI.md content into chat manually. Soft reminders only."
+    },
     "codex": {
       "tier": "full",
       "router_file": null,

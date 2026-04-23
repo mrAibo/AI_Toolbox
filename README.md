@@ -176,6 +176,7 @@ AI Toolbox is built to minimize token cost at every layer:
 | Windsurf | Standard | manual | — | `.windsurfrules` |
 | Gemini CLI | Basic | — | — | `GEMINI.md` |
 | Aider | Basic | — | — | `CONVENTIONS.md` |
+| Pi (Inflection) | Basic | — | — | `PI.md` |
 
 **Full** = hooks auto-enforce every rule, multi-agent parallelization available.  
 **Standard** = hooks work but require manual invocation.  
@@ -252,6 +253,7 @@ Both are installed automatically by `setup.sh` / `setup.ps1` if you confirm the 
 | [docs/setup-claude.md](docs/setup-claude.md) | Claude Code: hooks, MCP, sub-agents, v1.2.0 features |
 | [docs/setup-opencode.md](docs/setup-opencode.md) | OpenCode: commands, agents, skills |
 | [docs/setup-codex.md](docs/setup-codex.md) | Codex CLI: config, permissions |
+| [docs/setup-pi.md](docs/setup-pi.md) | Pi (Inflection AI): manual context workflow |
 | [docs/mcp-guide.md](docs/mcp-guide.md) | MCP server setup for all clients |
 | [docs/faq.md](docs/faq.md) | Frequently asked questions |
 | [CHANGELOG.md](CHANGELOG.md) | Release history |

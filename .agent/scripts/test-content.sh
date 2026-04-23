@@ -128,7 +128,7 @@ test_router_files() {
     section "Router Files"
 
     # Router files to check
-    local router_files="CLAUDE.md QWEN.md GEMINI.md CONVENTIONS.md .cursorrules .clinerules .windsurfrules SKILL.md"
+    local router_files="CLAUDE.md QWEN.md GEMINI.md PI.md CONVENTIONS.md .cursorrules .clinerules .windsurfrules SKILL.md"
 
     for rf in $router_files; do
         local full_path="$REPO_ROOT/$rf"

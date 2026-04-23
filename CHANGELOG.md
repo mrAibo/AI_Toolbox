@@ -8,6 +8,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+### Added
+- `PI.md` — Basic-Tier router file for Pi (Inflection AI, pi.ai); web-only client, soft reminders, manual context paste workflow
+- `docs/setup-pi.md` — Pi setup guide: session start/end flow, manual context workflow, limitations table
+- `.ai-toolbox/config.json` — Pi client entry (tier: basic, no hooks, no autodetect)
+- `bootstrap.sh` / `bootstrap.ps1` — generate `PI.md` when missing (idempotent, matching Gemini pattern)
+- `test-content.sh` — `PI.md` added to router-file check list
+- README client table and documentation table updated to include Pi
+
 ---
 
 ## [v1.2.0] — 2026-04-23
