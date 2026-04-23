@@ -33,6 +33,15 @@ if [[ $_cmd_norm =~ ^(cat|less|tail|head)\ .+\.log$ ]] && [[ $_cmd_norm != "rtk 
   exit 1
 fi
 
+# Warn (advisory, non-blocking) when cat-ing large source files
+if [[ $_cmd_norm =~ ^cat\ .+\.(ts|tsx|py|rs|go|js|jsx|java|cs|cpp|c)$ ]]; then
+  _src_file="${_cmd_norm#cat }"
+  if [ -f "$_src_file" ] && [ "$(wc -l < "$_src_file" 2>/dev/null)" -gt 200 ]; then
+    echo "[WARN] AI Toolbox: Large source file (>200 lines) — consider 'git diff' or symbol context instead of full read."
+    echo "  See .agent/rules/diff-editing.md — Input Context Budget"
+  fi
+fi
+
 # Track tool usage for session statistics
 # PR1: Uses lib-atomic-write.sh for concurrency-safe JSON updates.
 # shellcheck source=lib-atomic-write.sh

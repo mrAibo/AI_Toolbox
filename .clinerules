@@ -1,4 +1,5 @@
 # AI Toolbox Protocol (RooCode / Cline) -- Tier: Standard
+<!-- cache-prefix: tier badge + 3 critical rules must remain first and unmodified -->
 
 ## Hook Execution
 RooCode/Cline does not support native hooks. You MUST run these scripts manually:

@@ -1,4 +1,5 @@
 # AI Toolbox Protocol (Aider) -- Tier: Basic
+<!-- cache-prefix: tier badge + 3 critical rules must remain first and unmodified -->
 
 This project uses the **AI Toolbox** workflow framework. As a **Basic-Tier** client, you have access to the Memory Layer and Rules Layer. Hooks are not available -- all safety rules are soft reminders.
 
@@ -12,11 +13,7 @@ This project uses the **AI Toolbox** workflow framework. As a **Basic-Tier** cli
 
 ## Memory Layer
 
-Please read these files at the start of your session:
-- `.agent/memory/architecture-decisions.md` -- Architectural decisions log
-- `.agent/memory/integration-contracts.md` -- API/schema contracts
-- `.agent/memory/session-handover.md` -- Unfinished work from the last session
-- `.agent/memory/current-task.md` -- Active todo list (Beads tracker)
+> Boot order: see [memory-index.md](.agent/memory/memory-index.md) — it lists all memory files in priority order.
 
 ## Rules Layer
 

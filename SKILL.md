@@ -4,6 +4,7 @@ description: A strict, memory-backed agentic development framework for terminal-
 ---
 
 # AI Toolbox Skill (Antigravity Manifest) -- Tier: Full
+<!-- cache-prefix: tier badge + 3 critical rules must remain first and unmodified -->
 
 > [!NOTE]
 > This file is a specific manifest for the **Antigravity** agentic framework. If you are using Claude Code, Cursor, or other agents, please refer to the router files (CLAUDE.md, .cursorrules) or the master protocol in AGENT.md.

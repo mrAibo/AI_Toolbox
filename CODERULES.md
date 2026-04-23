@@ -1,4 +1,5 @@
 # AI Toolbox Protocol (OpenAI Codex CLI) -- Tier: Full
+<!-- cache-prefix: tier badge + 3 critical rules must remain first and unmodified -->
 
 This project uses the **AI Toolbox** workflow framework. Codex CLI reads this file via `AGENTS.md` references.
 
@@ -23,13 +24,7 @@ AI Toolbox provides 9 skills in `.agent/skills/` (compatible with Codex `.codex/
 
 ## Memory Layer
 
-Read these files at session start (in order):
-1. `.agent/memory/memory-index.md` -- Overview of all memory files (READ FIRST)
-2. `.agent/memory/architecture-decisions.md` -- ADR index
-3. `.agent/memory/integration-contracts.md` -- API/schema contracts
-4. `.agent/memory/session-handover.md` -- Unfinished work from last session
-5. `.agent/memory/current-task.md` -- Active todo list
-6. `.agent/memory/runbook.md` -- Operational procedures
+> Boot order: see [memory-index.md](.agent/memory/memory-index.md) — it lists all memory files in priority order.
 
 ## MCP Servers
 

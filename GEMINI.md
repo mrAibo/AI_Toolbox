@@ -1,4 +1,5 @@
 # AI Toolbox Protocol (Gemini CLI) -- Tier: Basic
+<!-- cache-prefix: tier badge + 3 critical rules must remain first and unmodified -->
 
 > **Tier Note:** Gemini CLI is a Basic-Tier client. Hooks are not available.
 > All safety rules below are **soft reminders**, not enforced guardrails.

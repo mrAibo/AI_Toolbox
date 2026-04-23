@@ -1,4 +1,5 @@
 # AI Toolbox Protocol (Cursor) -- Tier: Standard
+<!-- cache-prefix: tier badge + 3 critical rules must remain first and unmodified -->
 
 ## Hook Execution
 Cursor does not support native hooks. You MUST run these scripts manually:

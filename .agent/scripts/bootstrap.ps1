@@ -598,6 +598,7 @@ Write-Host "[bootstrap] creating AI auto-discovery router files..."
 
 $ClaudeContent = @'
 # AI Toolbox Protocol (Claude Code) -- Tier: Full
+<!-- cache-prefix: tier badge + 3 critical rules must remain first and unmodified -->
 
 This project uses the **AI Toolbox** workflow. As a **Full-Tier** client you have access to hooks, multi-agent orchestration, and plan mode.
 
@@ -612,6 +613,7 @@ Refer to [AGENT.md](AGENT.md) for the full operational contract.
 
 $CursorContent = @'
 # AI Toolbox Protocol (Cursor) -- Tier: Standard
+<!-- cache-prefix: tier badge + 3 critical rules must remain first and unmodified -->
 
 1. **BOOT:** Run the sync-task script (`.sh` on Unix, `.ps1` on Windows) and read `.agent/memory/current-task.md` before starting.
 2. **SAFETY:** Use `rtk` for all heavy executions (tests, builds).
@@ -622,6 +624,7 @@ Details in [AGENT.md](AGENT.md).
 
 $ClineContent = @'
 # AI Toolbox Protocol (RooCode / Cline) -- Tier: Standard
+<!-- cache-prefix: tier badge + 3 critical rules must remain first and unmodified -->
 
 1. **BOOT:** Run the sync-task script (`.sh` on Unix, `.ps1` on Windows) and read `.agent/memory/current-task.md` before starting.
 2. **SAFETY:** Use `rtk` for all heavy executions (tests, builds).
@@ -632,6 +635,7 @@ Details in [AGENT.md](AGENT.md).
 
 $WindsurfContent = @'
 # AI Toolbox Protocol (Windsurf) -- Tier: Standard
+<!-- cache-prefix: tier badge + 3 critical rules must remain first and unmodified -->
 
 1. **BOOT:** Run the sync-task script (`.sh` on Unix, `.ps1` on Windows) and read `.agent/memory/current-task.md` before starting.
 2. **SAFETY:** Use `rtk` for all heavy executions (tests, builds).
@@ -642,6 +646,7 @@ Details in [AGENT.md](AGENT.md).
 
 $GeminiContent = @'
 # AI Toolbox Protocol (Gemini CLI) -- Tier: Basic
+<!-- cache-prefix: tier badge + 3 critical rules must remain first and unmodified -->
 
 > **Tier Note:** Gemini CLI is a Basic-Tier client. Hooks are not available.
 > All safety rules below are **soft reminders**, not enforced guardrails.
@@ -717,6 +722,7 @@ description: A strict, memory-backed agentic development framework for terminal-
 ---
 
 # AI Toolbox Skill (Antigravity Manifest) -- Tier: Full
+<!-- cache-prefix: tier badge + 3 critical rules must remain first and unmodified -->
 
 > This file is the manifest for the **Antigravity** agentic framework.
 > For Claude Code, Cursor, or other agents refer to their router files or AGENT.md.
@@ -737,6 +743,7 @@ Refer to [AGENT.md](AGENT.md) for the full operational contract.
 if (-not (Test-Path "QWEN.md") -or (Get-Item "QWEN.md").Length -eq 0) {
     $QwenFull = @'
 # AI Toolbox Protocol (Qwen Code) -- Tier: Full
+<!-- cache-prefix: tier badge + 3 critical rules must remain first and unmodified -->
 
 This project uses the **AI Toolbox** workflow framework. As a **Full-Tier** client, you have access to all features: hooks, multi-agent orchestration, plan mode, and sync automation.
 
@@ -771,6 +778,7 @@ Refer to [AGENT.md](AGENT.md) for the full operational contract.
 if (-not (Test-Path "CONVENTIONS.md") -or (Get-Item "CONVENTIONS.md").Length -eq 0) {
     $AiderFull = @'
 # AI Toolbox Protocol (Aider) -- Tier: Basic
+<!-- cache-prefix: tier badge + 3 critical rules must remain first and unmodified -->
 
 This project uses the **AI Toolbox** workflow framework. As a **Basic-Tier** client, you have access to the Memory Layer and Rules Layer. Hooks are not available -- all safety rules are soft reminders.
 

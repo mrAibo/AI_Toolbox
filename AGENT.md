@@ -4,6 +4,10 @@ This file defines the workflow contract for the AI agent working inside this rep
 
 The agent must treat this file as the primary execution standard for project work.
 
+## Cache Policy
+
+The **Critical Session Rules** block (BOOT / SAFETY / HANDOVER) in each router file is intentionally static. Do not reorder or rephrase those rules without regenerating all router files via `bootstrap`. Stable wording maximizes prompt-cache hits across sessions.
+
 ---
 
 ## 1. General behavior
@@ -101,6 +105,7 @@ For the complete 9-step process (TASK → BRAINSTORM → PLAN → ISOLATE → IM
 - Update memory when the project state changes
 - Do not silently introduce new frameworks, libraries, or major architecture changes without recording them
 - **Parallelize independent operations** — see [.agent/rules/parallel-execution.md](.agent/rules/parallel-execution.md). Never sequentially fetch URLs or read files that don't depend on each other.
+- **Context discipline:** read the diff or the symbol, not the file — see [.agent/rules/diff-editing.md](.agent/rules/diff-editing.md) for both output and input context budget rules.
 - **Test obligation:** All code changes MUST pass the test suite. Write tests before or alongside implementation (see [.agent/rules/tdd-rules.md](.agent/rules/tdd-rules.md)). If the project has an existing test suite, run it before claiming completion. If no tests exist, create at least one test that validates the core behavior.
 
 ---

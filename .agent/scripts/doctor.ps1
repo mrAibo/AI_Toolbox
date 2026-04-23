@@ -31,8 +31,10 @@ foreach ($f in @("CLAUDE.md", "QWEN.md", "GEMINI.md", "CONVENTIONS.md", ".cursor
     $path = Join-Path $RepoRoot $f
     if (Test-Path $path) {
         $content = Get-Content $path -Raw
-        if ($content -match "\-\- Tier:") { Write-Pass "$f exists with tier badge" }
-        else { Write-Warn "$f exists but missing tier badge" }
+        if ($content -match "\-\- Tier:") {
+            if ($content -match "cache-prefix:") { Write-Pass "$f exists with tier badge and cache-prefix" }
+            else { Write-Warn "$f exists with tier badge but missing cache-prefix comment (run bootstrap to add)" }
+        } else { Write-Warn "$f exists but missing tier badge" }
     }
 }
 

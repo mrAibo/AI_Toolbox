@@ -34,7 +34,11 @@ echo "🔌 Router Files"
 for f in CLAUDE.md QWEN.md GEMINI.md CONVENTIONS.md .cursorrules .clinerules .windsurfrules SKILL.md; do
     if [ -f "$REPO_ROOT/$f" ]; then
         if grep -q "\-\- Tier:" "$REPO_ROOT/$f" 2>/dev/null; then
-            check_pass "$f exists with tier badge"
+            if grep -q "cache-prefix:" "$REPO_ROOT/$f" 2>/dev/null; then
+                check_pass "$f exists with tier badge and cache-prefix"
+            else
+                check_warn "$f exists with tier badge but missing cache-prefix comment (run bootstrap to add)"
+            fi
         else
             check_warn "$f exists but missing tier badge"
         fi

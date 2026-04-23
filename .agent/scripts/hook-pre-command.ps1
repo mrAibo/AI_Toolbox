@@ -39,6 +39,18 @@ if ($CmdCheck -match '^(cat|less|tail|head) .+\.log' -and $CmdCheck -notmatch '^
   exit 1
 }
 
+# Warn (advisory, non-blocking) when cat-ing large source files
+if ($CmdCheck -match '^cat .+\.(ts|tsx|py|rs|go|js|jsx|java|cs|cpp|c)$') {
+  $SrcFile = ($CmdCheck -replace '^cat\s+', '').Trim()
+  if (Test-Path $SrcFile) {
+    $LineCount = (Get-Content $SrcFile -ErrorAction SilentlyContinue).Count
+    if ($LineCount -gt 200) {
+      Write-Host "[WARN]  AI Toolbox: Large source file ($LineCount lines) — consider 'git diff' or symbol context instead of full read."
+      Write-Host "   See .agent/rules/diff-editing.md - Input Context Budget"
+    }
+  }
+}
+
 # Track tool usage for session statistics
 # PR1: Uses Named Mutex for serialization + temp file for atomic write to prevent JSON corruption.
 # Named Update-ToolStat (not Update-ToolStat) to satisfy PSUseApprovedVerbs.

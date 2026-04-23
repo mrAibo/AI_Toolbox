@@ -1,4 +1,5 @@
 # AI Toolbox Protocol (Claude Code) -- Tier: Full
+<!-- cache-prefix: tier badge + 3 critical rules must remain first and unmodified -->
 
 This project uses the **AI Toolbox** workflow. As a **Full-Tier** client you have access to hooks, multi-agent orchestration, and plan mode.
 

@@ -47,3 +47,21 @@
 - Creating brand new files from scratch (acceptable)
 - Files under 50 lines where the full output is shorter than a patch
 - When explicitly asked by the user to output the full file
+
+---
+
+## Input Context Budget
+
+Input tokens cost less than output tokens, but at agent scale they dominate total cost. Default to the minimum sufficient slice when gathering context:
+
+| Situation | Preferred approach |
+|-----------|-------------------|
+| Bug in a known function | `git diff HEAD~1 -- <file>` + function body only |
+| Understanding a module | File outline (signatures only), not full source |
+| Log analysis | `rtk log <file>` (deduped) instead of `cat` |
+| Large refactor | Full file read is acceptable — state why explicitly |
+| API contract check | Read only the relevant type/interface definition |
+
+**Default rule:** read the diff or the symbol, not the file.
+
+**Escape hatch:** when the full file genuinely matters, say so explicitly before reading it — e.g. "Reading full file: needed to understand module-level side effects." This keeps full reads intentional rather than reflexive.
