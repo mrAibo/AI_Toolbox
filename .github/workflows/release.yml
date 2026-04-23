@@ -48,7 +48,7 @@ jobs:
           cp "dist/ai-toolbox-${{ steps.changelog.outputs.tag }}.tar.gz" "dist/ai-toolbox-${{ steps.changelog.outputs.tag }}.zip"
 
       - name: Create GitHub Release
-        uses: softprops/action-gh-release@4685be87ee6bb695dfe38e896bd173c1d9f43d6a
+        uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ steps.changelog.outputs.tag }}
           name: AI Toolbox ${{ steps.changelog.outputs.tag }}
