@@ -34,7 +34,7 @@ the remote repository. You still need to run `setup.sh` or `bootstrap.sh` locall
 
 ### Step 1 — Create your repository from the template
 
-1. Open the AI Toolbox repository on GitHub
+1. Open **[github.com/mrAibo/AI_Toolbox](https://github.com/mrAibo/AI_Toolbox)** on GitHub
 2. Click the green **"Use this template"** button (top right, next to the star button)
 3. Select **"Create a new repository"** from the dropdown
 

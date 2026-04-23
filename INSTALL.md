@@ -17,7 +17,7 @@
 
 ### Option A: GitHub Template (Recommended for new projects)
 
-1. On the AI Toolbox repository page click **"Use this template" → "Create a new repository"**
+1. Open **[github.com/mrAibo/AI_Toolbox](https://github.com/mrAibo/AI_Toolbox)** and click **"Use this template" → "Create a new repository"**
 2. Fill in your repo name and click **"Create repository"**
 3. Clone and run setup:
 
