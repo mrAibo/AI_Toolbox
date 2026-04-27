@@ -173,10 +173,25 @@ else
 fi
 
 if command -v shellcheck &>/dev/null; then
-    ok "tooling" "shellcheck" "shellcheck installed"
+    ok "tooling" "shellcheck" "shellcheck installed ($(shellcheck --version 2>/dev/null | sed -n 's/^version: //p'))"
 else
-    warn "tooling" "shellcheck" "shellcheck not installed — shell script linting unavailable" \
-         "Install: apt install shellcheck (Linux) | brew install shellcheck (macOS)"
+    warn "tooling" "shellcheck" "shellcheck not installed — same warnings will hit you in CI" \
+         "Linux: apt install shellcheck | macOS: brew install shellcheck | Windows: scoop install shellcheck (or choco install shellcheck)"
+fi
+
+# PSScriptAnalyzer is the PowerShell counterpart. Required by CI for any
+# script under .agent/scripts/*.ps1. Detects unapproved verbs, parameter
+# binding issues, etc.
+if command -v pwsh &>/dev/null; then
+    if pwsh -NoProfile -Command "Get-Module -ListAvailable -Name PSScriptAnalyzer" 2>/dev/null | grep -q PSScriptAnalyzer; then
+        ok "tooling" "psscriptanalyzer" "PSScriptAnalyzer installed (pwsh module)"
+    else
+        warn "tooling" "psscriptanalyzer" "PSScriptAnalyzer not installed — same warnings will hit you in CI" \
+             "Run: pwsh -NoProfile -Command 'Install-Module -Name PSScriptAnalyzer -Force -Scope CurrentUser'"
+    fi
+else
+    warn "tooling" "psscriptanalyzer" "pwsh not installed — cannot lint PowerShell scripts locally" \
+         "Linux: apt install powershell | macOS: brew install --cask powershell | Windows: ships with the OS"
 fi
 
 if command -v flock &>/dev/null; then

@@ -36,11 +36,20 @@ When proposing a feature:
 2. **Create a branch** for your change (`git checkout -b feature/my-feature`)
 3. **Make your changes** — keep them focused and minimal
 4. **Test your changes**:
-   - Run `bash .agent/scripts/bootstrap.sh` — must complete without errors
-   - Run `pwsh .agent/scripts/bootstrap.ps1` — must complete without errors
+   - Run `./ai-toolbox doctor` — flags missing local linters (shellcheck,
+     PSScriptAnalyzer) so you catch the same warnings CI would
+   - Run `./ai-toolbox bootstrap --dry-run` — verify no unintended writes
+   - Run `bash .agent/scripts/bootstrap.sh` and `pwsh .agent/scripts/bootstrap.ps1`
+     — both must complete without errors
+   - Run `pytest tests/` — Python tests
    - Verify all markdown links are valid
 5. **Commit** with a clear message (see below)
 6. **Open a Pull Request** — explain what you changed and why
+
+> **Tip:** if `./ai-toolbox doctor` reports `🟡 shellcheck not installed` or
+> `🟡 PSScriptAnalyzer not installed`, install the missing tool *before*
+> pushing. CI will fail on the same warnings, and the local fix is one
+> command (the `--explain` flag prints it).
 
 ---
 

@@ -171,7 +171,15 @@ if (Get-Command bd -ErrorAction SilentlyContinue) {
 if (Get-Command shellcheck -ErrorAction SilentlyContinue) {
     Ok 'tooling' 'shellcheck' 'shellcheck installed'
 } else {
-    Warn 'tooling' 'shellcheck' 'shellcheck not installed - shell script linting unavailable' 'Install via choco/scoop on Windows'
+    Warn 'tooling' 'shellcheck' 'shellcheck not installed - same warnings will hit you in CI' 'Windows: scoop install shellcheck (or choco install shellcheck) | Linux: apt install shellcheck | macOS: brew install shellcheck'
+}
+
+# PSScriptAnalyzer is the PowerShell counterpart. Required by CI for any
+# script under .agent/scripts/*.ps1.
+if (Get-Module -ListAvailable -Name PSScriptAnalyzer -ErrorAction SilentlyContinue) {
+    Ok 'tooling' 'psscriptanalyzer' 'PSScriptAnalyzer installed (pwsh module)'
+} else {
+    Warn 'tooling' 'psscriptanalyzer' 'PSScriptAnalyzer not installed - same warnings will hit you in CI' "Run: Install-Module -Name PSScriptAnalyzer -Force -Scope CurrentUser"
 }
 
 # 6. Memory files
