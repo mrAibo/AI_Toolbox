@@ -1,18 +1,23 @@
 # AI Toolbox Configuration for OpenAI Codex CLI
 # Place this file at <repo>/.codex/config.toml
+#
+# This template only contributes AI-Toolbox–specific settings (hooks,
+# approval policy, MCP servers). The agent model itself (`model`,
+# `model_reasoning_effort`, `model_provider`) is read from your
+# user-global ~/.codex/config.toml — leave it there so your preferred
+# model stays consistent across projects.
+#
+# IMPORTANT: top-level keys like `approval_policy` and `sandbox_mode`
+# MUST appear before any `[section]` headers, otherwise TOML parses
+# them as members of the previous section.
+
+# Sandbox & Approval — opinionated defaults; edit to taste.
+approval_policy = "on-request"
+sandbox_mode = "workspace-write"
 
 [features]
 codex_hooks = true
 skills = true
-
-# Model Configuration
-[model]
-provider = "openai"
-model = "o3"
-
-# Sandbox & Approval
-approval_policy = "on-request"
-sandbox_mode = "workspace-write"
 
 # MCP Servers (using AI Toolbox recommended servers)
 [mcp_servers.context7]
