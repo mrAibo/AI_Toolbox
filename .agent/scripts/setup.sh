@@ -1,11 +1,71 @@
 #!/bin/bash
 # AI Toolbox Setup Script — One-command setup with client selection
-# Usage: bash .agent/scripts/setup.sh
+#
+# Usage:
+#   bash .agent/scripts/setup.sh [--silent|-s] [--help|-h]
+#
+#   --silent, -s    Non-interactive. Pick the first detected client without
+#                   prompting; abort with code 65 if none is detected.
+#   --help, -h      Show this message.
 
 set -e
 
+# ---- Argument parsing ----
+SILENT=0
+for _arg in "$@"; do
+    case "$_arg" in
+        --silent|-s) SILENT=1 ;;
+        --help|-h)
+            awk '
+                NR == 1 { next }
+                /^# / || /^#$/ { sub(/^# ?/, ""); print; next }
+                { exit }
+            ' "$0"
+            exit 0
+            ;;
+    esac
+done
+
+# ---- Detect interactive stdin once. We use this to bail out of read loops
+#      cleanly instead of spinning forever on a closed stdin (e.g. when
+#      ai-toolbox is invoked from a non-TTY parent). ----
+if [ -t 0 ]; then
+    INTERACTIVE=1
+else
+    INTERACTIVE=0
+    if [ "$SILENT" -eq 0 ]; then
+        echo "ℹ️  No TTY detected on stdin — running in --silent mode." >&2
+        echo "   Hooks, rtk, Beads, and MCP install prompts will use defaults (yes)." >&2
+        SILENT=1
+    fi
+fi
+
 REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
 cd "$REPO_ROOT"
+
+# ---- Prompt helper. In SILENT mode, returns the default without reading.
+#      Otherwise tries to read; on EOF, falls back to the default.
+#
+# Usage: _prompt VAR "Question text? [Y/n]" "Y"
+_prompt() {
+    local _varname="$1"; shift
+    local _question="$1"; shift
+    local _default="$1"; shift
+    if [ "$SILENT" -eq 1 ]; then
+        printf -v "$_varname" '%s' "$_default"
+        echo "  ${_question} ${_default} (auto)"
+        return 0
+    fi
+    local _answer
+    if ! read -r -p "  ${_question} " _answer; then
+        printf -v "$_varname" '%s' "$_default"
+        return 0
+    fi
+    if [ -z "$_answer" ]; then
+        _answer="$_default"
+    fi
+    printf -v "$_varname" '%s' "$_answer"
+}
 
 echo ""
 echo "🤖 AI Toolbox Setup"
@@ -136,6 +196,17 @@ else
     if [ ${#CLIENTS[@]} -eq 1 ]; then
       PRIMARY_CLIENT="${CLIENTS[0]}"
       echo "  Auto-selected: ${CLIENT_NAMES[0]}"
+    elif [ "$SILENT" -eq 1 ] || [ "$INTERACTIVE" -eq 0 ]; then
+      # Non-interactive: pick the first detected client. The choice is
+      # persisted to config below, so a re-run can adjust if needed.
+      PRIMARY_CLIENT="${CLIENTS[0]}"
+      if [ "$SILENT" -eq 1 ]; then
+        echo "  --silent — auto-selected first client: ${CLIENT_NAMES[0]}"
+      else
+        echo "  Non-interactive (no TTY) — auto-selected first client: ${CLIENT_NAMES[0]}"
+        echo "  To choose a different one, edit primary_client in .ai-toolbox/config.json"
+        echo "  or re-run interactively."
+      fi
     else
       # --- Priority 3: Interactive selection ---
       echo "  Select PRIMARY client (used for hooks + MCP config):"
@@ -144,28 +215,43 @@ else
       done
       echo ""
 
-      while true; do
-        read -r -p "  > " selection
+      # Bounded retry loop. Each iteration MUST either succeed or break out
+      # — never silently spin if stdin is closed or the user keeps entering
+      # garbage. Fail closed after 5 invalid attempts.
+      attempts=0
+      while [ "$attempts" -lt 5 ]; do
+        if ! read -r -p "  > " selection; then
+          echo "  ⚠️  stdin closed before a selection was made." >&2
+          echo "     Set primary_client in .ai-toolbox/config.json or re-run with --silent." >&2
+          exit 65
+        fi
         if [[ "$selection" =~ ^[0-9]+$ ]] && [ "$selection" -ge 1 ] && [ "$selection" -le "${#CLIENTS[@]}" ]; then
           PRIMARY_CLIENT="${CLIENTS[$((selection-1))]}"
           break
         fi
-        echo "  Invalid selection. Enter a number between 1 and ${#CLIENTS[@]}."
+        attempts=$((attempts+1))
+        echo "  Invalid selection. Enter a number between 1 and ${#CLIENTS[@]}. ($((5-attempts)) attempt(s) left)"
       done
+      if [ -z "${PRIMARY_CLIENT:-}" ]; then
+        echo "  ⚠️  Too many invalid attempts. Aborting." >&2
+        echo "     Set primary_client in .ai-toolbox/config.json or re-run with --silent." >&2
+        exit 65
+      fi
     fi
   fi
 
   # --- Priority 4: Persist choice back to config (so next run uses Priority 1) ---
   if [ -n "$PRIMARY_CLIENT" ] && [ -f ".ai-toolbox/config.json" ] && command -v python3 &>/dev/null; then
-    python3 -c "
+    PYTHONIOENCODING=utf-8 python3 -c "
 import json
 try:
-    with open('.ai-toolbox/config.json') as f:
+    with open('.ai-toolbox/config.json', encoding='utf-8') as f:
         data = json.load(f)
     data['primary_client'] = '$PRIMARY_CLIENT'
-    with open('.ai-toolbox/config.json', 'w') as f:
+    with open('.ai-toolbox/config.json', 'w', encoding='utf-8') as f:
         json.dump(data, f, indent=2)
-    print('  💾 Saved primary_client=$PRIMARY_CLIENT to .ai-toolbox/config.json')
+        f.write('\n')
+    print('  Saved primary_client=$PRIMARY_CLIENT to .ai-toolbox/config.json')
 except Exception as e:
     print('  Note: Could not persist primary client to config: ' + str(e))
 " 2>/dev/null || true
@@ -184,7 +270,7 @@ NEXT_STEPS=()
 # Step 2: Run bootstrap
 # ---------------------------------------------------------------
 echo ""
-read -r -p "  Install Git commit hooks (TDD enforcement + secret scan)? [Y/n] " install_hooks
+_prompt install_hooks "Install Git commit hooks (TDD enforcement + secret scan)? [Y/n]" "Y"
 install_hooks=${install_hooks:-y}
 if [[ "$install_hooks" =~ ^[Nn]$ ]]; then
   export AITB_INSTALL_GIT_HOOKS=false
@@ -241,7 +327,7 @@ echo "📦 Optional tools:"
 echo ""
 
 if ! command -v rtk &> /dev/null; then
-  read -r -p "  Install rtk (token optimization, 60-90% less tokens)? [Y/n] " install_rtk
+  _prompt install_rtk "Install rtk (token optimization, 60-90% less tokens)? [Y/n]" "Y"
   install_rtk=${install_rtk:-y}
 
   if [[ "$install_rtk" =~ ^[Yy]$ ]]; then
@@ -250,7 +336,7 @@ if ! command -v rtk &> /dev/null; then
       cargo install rtk --version 0.35.0 --locked
       echo "  ✅ rtk installed"
 
-      read -r -p "  Configure rtk hooks for $PRIMARY_CLIENT? [Y/n] " init_rtk
+      _prompt init_rtk "Configure rtk hooks for $PRIMARY_CLIENT? [Y/n]" "Y"
       init_rtk=${init_rtk:-y}
       if [[ "$init_rtk" =~ ^[Yy]$ ]]; then
         echo "  ✅ Configuring hooks: rtk init -g"
@@ -262,7 +348,7 @@ if ! command -v rtk &> /dev/null; then
   fi
 else
   echo "  ✅ rtk already installed ($(rtk --version 2>/dev/null || echo "installed"))"
-  read -r -p "  Configure rtk hooks for $PRIMARY_CLIENT? [Y/n] " init_rtk
+  _prompt init_rtk "Configure rtk hooks for $PRIMARY_CLIENT? [Y/n]" "Y"
   init_rtk=${init_rtk:-y}
   if [[ "$init_rtk" =~ ^[Yy]$ ]]; then
     echo "  ✅ Configuring hooks: rtk init -g"
@@ -299,7 +385,7 @@ _find_bd() {
 BD_CMD=$(_find_bd)
 if [ -z "$BD_CMD" ]; then
   echo ""
-  read -r -p "  Install Beads (task tracking)? [Y/n] " install_beads
+  _prompt install_beads "Install Beads (task tracking)? [Y/n]" "Y"
   install_beads=${install_beads:-y}
 
   if [[ "$install_beads" =~ ^[Yy]$ ]]; then
@@ -338,7 +424,7 @@ fi
 # ---------------------------------------------------------------
 if [ -n "$PRIMARY_CLIENT" ]; then
   echo ""
-  read -r -p "🌐 Configure MCP servers for $PRIMARY_CLIENT? [Y/n] " install_mcp
+  _prompt install_mcp "🌐 Configure MCP servers for $PRIMARY_CLIENT? [Y/n]" "Y"
   install_mcp=${install_mcp:-y}
 
   if [[ "$install_mcp" =~ ^[Yy]$ ]]; then
@@ -360,7 +446,7 @@ if [ -n "$PRIMARY_CLIENT" ]; then
         esac
 
         if [ -f ".agent/templates/mcp/$MCP_FILE" ]; then
-          read -r -p "  Copy config file to root for easy access? [Y/n] " copy_mcp
+          _prompt copy_mcp "Copy config file to root for easy access? [Y/n]" "Y"
           copy_mcp=${copy_mcp:-y}
           if [[ "$copy_mcp" =~ ^[Yy]$ ]]; then
             cp ".agent/templates/mcp/$MCP_FILE" "./$MCP_FILE"

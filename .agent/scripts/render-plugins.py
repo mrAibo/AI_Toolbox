@@ -132,18 +132,34 @@ def render_block(manifests: list[dict[str, Any]]) -> str:
 
 
 def update_agent_md(agent_md: Path, new_block: str, *, dry_run: bool, check: bool) -> bool:
-    """Replace the content between START and END markers. Returns True if changed."""
+    """Replace the content between START and END markers. Returns True if changed.
+
+    If markers are missing — common on a fresh / pre-v1.5 AGENT.md — emit
+    a warning and skip silently. A non-fatal exit keeps bootstrap working
+    on upgrade paths and in fresh sandboxes.
+    """
     if not agent_md.is_file():
         print(f"render-plugins: IO_ERROR — {agent_md} not found", file=sys.stderr)
         sys.exit(60)
 
     text = agent_md.read_text(encoding="utf-8")
     if START not in text or END not in text:
+        # Non-fatal: an old AGENT.md may not have the v1.5 plugin block.
+        # Tell the user how to opt in, but don't break bootstrap.
+        if check:
+            # In CI drift mode, missing markers ARE a problem worth flagging.
+            print(
+                f"render-plugins: PLUGIN_ERROR — markers {START} / {END} "
+                f"not found in {agent_md}. Add them to enable plugin "
+                f"enumeration (see .agent/plugins/README.md).",
+                file=sys.stderr,
+            )
+            sys.exit(50)
         print(
-            f"render-plugins: IO_ERROR — markers {START} / {END} not found in {agent_md}",
-            file=sys.stderr,
+            f"[render-plugins] {agent_md.name} has no plugin markers — "
+            f"skipping. Add `{START}` / `{END}` to enable enumeration."
         )
-        sys.exit(60)
+        return False
 
     pre, _, rest = text.partition(START)
     _, _, post = rest.partition(END)

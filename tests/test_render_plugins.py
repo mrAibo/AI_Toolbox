@@ -162,6 +162,31 @@ class RenderPluginsTest(unittest.TestCase):
             agent_md = (tmp / "AGENT.md").read_text(encoding="utf-8")
             self.assertIn("No plugins installed", agent_md)
 
+    def test_missing_markers_skips_gracefully(self) -> None:
+        """A pre-v1.5 AGENT.md (no markers) must not crash bootstrap."""
+        with TemporaryDirectory() as td:
+            tmp = Path(td)
+            _make_repo(tmp, {"only": {"rules": ["rules.md"]}})
+            # Replace the AGENT.md from _make_repo with a marker-less one,
+            # mimicking an old AGENT.md from a pre-v1.5 install.
+            (tmp / "AGENT.md").write_text("# Existing AGENT.md\nNo markers here.\n", encoding="utf-8")
+            text_before = (tmp / "AGENT.md").read_text(encoding="utf-8")
+            result = _run(tmp)
+            # Graceful skip: exit 0, no modification, friendly hint
+            self.assertEqual(result.returncode, 0, result.stderr)
+            self.assertEqual(text_before, (tmp / "AGENT.md").read_text(encoding="utf-8"))
+            self.assertIn("no plugin markers", result.stdout.lower())
+
+    def test_missing_markers_in_check_mode_is_an_error(self) -> None:
+        """CI --check mode must still flag missing markers as a drift."""
+        with TemporaryDirectory() as td:
+            tmp = Path(td)
+            _make_repo(tmp, {"only": {"rules": ["rules.md"]}})
+            (tmp / "AGENT.md").write_text("# No markers\n", encoding="utf-8")
+            result = _run(tmp, "--check")
+            self.assertEqual(result.returncode, 50)
+            self.assertIn("PLUGIN_ERROR", result.stderr)
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -1,6 +1,45 @@
-﻿# AI Toolbox Setup Script � One-command setup with client selection
-# Usage: powershell -ExecutionPolicy Bypass -File .agent/scripts/setup.ps1
-# No $ErrorActionPreference = "Stop" � must be resilient.
+﻿# AI Toolbox Setup Script - One-command setup with client selection
+# Usage: powershell -ExecutionPolicy Bypass -File .agent/scripts/setup.ps1 [-Silent]
+# No $ErrorActionPreference = "Stop" - must be resilient.
+
+[CmdletBinding()]
+param(
+    [switch]$Silent,
+    [switch]$Help
+)
+
+if ($Help) {
+    Write-Host @"
+AI Toolbox Setup Script
+
+Usage: pwsh .agent/scripts/setup.ps1 [-Silent] [-Help]
+
+  -Silent  Non-interactive. Pick the first detected client without prompting.
+  -Help    Show this message.
+"@
+    exit 0
+}
+
+# Detect interactive console. If stdin is redirected (no TTY), force silent.
+$script:Interactive = -not [Console]::IsInputRedirected
+if (-not $script:Interactive -and -not $Silent) {
+    Write-Host "[INFO] No TTY detected on stdin - running in -Silent mode." -ForegroundColor Cyan
+    Write-Host "       Hooks, rtk, Beads, and MCP install prompts will use defaults (yes)."
+    $Silent = $true
+}
+
+# Read-with-default helper. In -Silent or non-interactive mode, returns the
+# default without prompting. Otherwise tries Read-Host; on null, returns default.
+function script:Get-PromptDefault {
+    param([string]$Question, [string]$Default)
+    if ($Silent) {
+        Write-Host "  $Question $Default (auto)"
+        return $Default
+    }
+    $answer = Read-Host "  $Question"
+    if ([string]::IsNullOrWhiteSpace($answer)) { return $Default }
+    return $answer
+}
 
 $RepoRoot = git rev-parse --show-toplevel 2>$null
 if (-not $RepoRoot) { $RepoRoot = (Get-Location).Path }
@@ -143,6 +182,9 @@ if ($ConfigPrimary) {
     if ($Clients.Count -eq 1) {
       $PrimaryClient = $Clients[0]
       Write-Host "  Auto-selected: $($ClientNames[0])" -ForegroundColor Green
+    } elseif ($Silent) {
+      $PrimaryClient = $Clients[0]
+      Write-Host "  -Silent - auto-selected first client: $($ClientNames[0])" -ForegroundColor Green
     } else {
       # --- Priority 3: Interactive selection ---
       Write-Host "  Select PRIMARY client (used for hooks + MCP config):"
@@ -151,13 +193,27 @@ if ($ConfigPrimary) {
       }
       Write-Host ""
 
-      while ($true) {
+      # Bounded retry. Fail-closed after 5 invalid attempts so we never spin.
+      $attempts = 0
+      $PrimaryClient = $null
+      while ($attempts -lt 5) {
         $selection = Read-Host "  > "
+        if ($null -eq $selection) {
+          Write-Host "  [WARN] stdin closed before a selection was made." -ForegroundColor Yellow
+          Write-Host "         Set primary_client in .ai-toolbox/config.json or re-run with -Silent."
+          exit 65
+        }
         if ($selection -match '^\d+$' -and [int]$selection -ge 1 -and [int]$selection -le $Clients.Count) {
           $PrimaryClient = $Clients[[int]$selection - 1]
           break
         }
-        Write-Host "  Invalid selection. Enter a number between 1 and $($Clients.Count)." -ForegroundColor Red
+        $attempts++
+        Write-Host "  Invalid selection. Enter a number between 1 and $($Clients.Count). ($($5 - $attempts) attempt(s) left)" -ForegroundColor Red
+      }
+      if (-not $PrimaryClient) {
+        Write-Host "  [WARN] Too many invalid attempts. Aborting." -ForegroundColor Yellow
+        Write-Host "         Set primary_client in .ai-toolbox/config.json or re-run with -Silent."
+        exit 65
       }
     }
   }
@@ -187,7 +243,7 @@ $NextSteps = @()
 # Step 2: Run bootstrap
 # ---------------------------------------------------------------
 Write-Host ""
-$InstallHooks = Read-Host "  Install Git commit hooks (TDD enforcement + secret scan)? [Y/n]"
+$InstallHooks = Get-PromptDefault "  Install Git commit hooks (TDD enforcement + secret scan)? [Y/n]" "Y"
 if ($InstallHooks -match '^[Nn]') {
   $env:AITB_INSTALL_GIT_HOOKS = "false"
   Write-Host "  Git hooks skipped (run bootstrap.ps1 manually to install later)" -ForegroundColor Yellow
@@ -246,7 +302,7 @@ Write-Host "?? Optional tools:" -ForegroundColor Yellow
 Write-Host ""
 
 if (-not (Get-Command rtk -ErrorAction SilentlyContinue)) {
-  $installRtk = Read-Host "  Install rtk (token optimization, 60-90% less tokens)? [Y/n] "
+  $installRtk = Get-PromptDefault "  Install rtk (token optimization, 60-90% less tokens)? [Y/n]" "Y"
   if ([string]::IsNullOrWhiteSpace($installRtk)) { $installRtk = "y" }
 
   if ($installRtk -match '^[Yy]$') {
@@ -259,7 +315,7 @@ if (-not (Get-Command rtk -ErrorAction SilentlyContinue)) {
         Write-Host "  [ERROR] rtk installation failed" -ForegroundColor Red
       }
 
-      $initRtk = Read-Host "  Configure rtk hooks for $PrimaryClient? [Y/n] "
+      $initRtk = Get-PromptDefault "  Configure rtk hooks for $PrimaryClient? [Y/n]" "Y"
       if ([string]::IsNullOrWhiteSpace($initRtk)) { $initRtk = "y" }
       if ($initRtk -match '^[Yy]$') {
         Write-Host "  ? Configuring hooks: rtk init -g"
@@ -277,7 +333,7 @@ if (-not (Get-Command rtk -ErrorAction SilentlyContinue)) {
 } else {
   try { $ver = (rtk --version 2>$null) } catch { $ver = "installed" }
   Write-Host "  ? rtk already installed ($ver)" -ForegroundColor Green
-  $initRtk = Read-Host "  Configure rtk hooks for $PrimaryClient? [Y/n] "
+  $initRtk = Get-PromptDefault "  Configure rtk hooks for $PrimaryClient? [Y/n]" "Y"
   if ([string]::IsNullOrWhiteSpace($initRtk)) { $initRtk = "y" }
   if ($initRtk -match '^[Yy]$') {
     Write-Host "  ? Configuring hooks: rtk init -g"
@@ -374,7 +430,7 @@ if (Test-Path $NpmBdShim) {
 $BdPath = Find-BdExe
 if (-not $BdPath) {
   Write-Host ""
-  $installBeads = Read-Host "  Install Beads (task tracking)? [Y/n] "
+  $installBeads = Get-PromptDefault "  Install Beads (task tracking)? [Y/n]" "Y"
   if ([string]::IsNullOrWhiteSpace($installBeads)) { $installBeads = "y" }
 
   if ($installBeads -match '^[Yy]$') {
@@ -408,7 +464,7 @@ if (-not $BdPath) {
 } else {
   try { $ver = (& $BdPath --version 2>$null).Trim() } catch { $ver = "installed" }
   Write-Host "  [INFO] Beads already installed ($ver)" -ForegroundColor Green
-  $initBd = Read-Host "  Initialize Beads task tracker for this project? [Y/n] "
+  $initBd = Get-PromptDefault "  Initialize Beads task tracker for this project? [Y/n]" "Y"
   if ([string]::IsNullOrWhiteSpace($initBd)) { $initBd = "y" }
   if ($initBd -match '^[Yy]$') {
     Write-Host "  [INFO] Initializing Beads..."
@@ -421,7 +477,7 @@ if (-not $BdPath) {
 # ---------------------------------------------------------------
 if ($PrimaryClient) {
   Write-Host ""
-  $installMcp = Read-Host "?? Configure MCP servers for $PrimaryClient? [Y/n] "
+  $installMcp = Get-PromptDefault "?? Configure MCP servers for $PrimaryClient? [Y/n]" "Y"
   if ([string]::IsNullOrWhiteSpace($installMcp)) { $installMcp = "y" }
 
   if ($installMcp -match '^[Yy]$') {
@@ -439,7 +495,7 @@ if ($PrimaryClient) {
     }
 
     if ($McpFile -and (Test-Path ".agent/templates/mcp/$McpFile")) {
-      $copyMcp = Read-Host "  Copy config file to root for easy access? [Y/n] "
+      $copyMcp = Get-PromptDefault "  Copy config file to root for easy access? [Y/n]" "Y"
       if ([string]::IsNullOrWhiteSpace($copyMcp)) { $copyMcp = "y" }
       if ($copyMcp -match '^[Yy]$') {
         Copy-Item ".agent/templates/mcp/$McpFile" "./$McpFile"
