@@ -68,7 +68,7 @@ function Fail { param($Cat, $Name, $Detail, $Fix='', $Code='')
 
 function Section { param($Title) if ($Mode -eq 'text') { Write-Host ''; Write-Host $Title } }
 
-function To-CheckName {
+function ConvertTo-CheckName {
     param([string]$s)
     $r = $s.ToLowerInvariant() -replace '/','.' -replace '^\.+',''
     $r -replace '\.+$',''
@@ -96,7 +96,7 @@ if ($Mode -eq 'text') {
 # 1. Core structure
 Section 'Core Structure'
 foreach ($dir in @('.agent/memory', '.agent/rules', '.agent/scripts', '.agent/workflows', '.agent/templates')) {
-    $name = "structure.$(To-CheckName $dir)"
+    $name = "structure.$(ConvertTo-CheckName $dir)"
     if (Test-Path (Join-Path $RepoRoot $dir)) {
         Ok 'structure' $name "$dir exists"
     } else {
@@ -110,7 +110,7 @@ foreach ($f in @('CLAUDE.md', 'QWEN.md', 'GEMINI.md', 'CONVENTIONS.md', '.cursor
     $path = Join-Path $RepoRoot $f
     if (-not (Test-Path $path)) { continue }
     $content = Get-Content $path -Raw
-    $name = "router.$(To-CheckName $f)"
+    $name = "router.$(ConvertTo-CheckName $f)"
     if ($content -match '\-\- Tier:') {
         if ($content -match 'cache-prefix:') {
             Ok 'router' $name "$f exists with tier badge and cache-prefix"
@@ -177,7 +177,7 @@ if (Get-Command shellcheck -ErrorAction SilentlyContinue) {
 # 6. Memory files
 Section 'Memory Files'
 foreach ($f in @('memory-index.md', 'architecture-decisions.md', 'integration-contracts.md', 'session-handover.md', 'runbook.md')) {
-    $name = "memory.$(To-CheckName $f)"
+    $name = "memory.$(ConvertTo-CheckName $f)"
     $path = Join-Path $RepoRoot ".agent/memory/$f"
     if (Test-Path $path) {
         Ok 'memory' $name "$f exists"
@@ -204,7 +204,7 @@ if (Test-Path $SchemaDir) {
     Warn 'schema' 'schema.dir' '.agent/schema/ missing' 'Run: ai-toolbox migrate' 'MIGRATION_VERSION_MISMATCH'
 }
 foreach ($f in @('hook-protocol.json', 'error-codes.json')) {
-    $name = "contract.$(To-CheckName $f)"
+    $name = "contract.$(ConvertTo-CheckName $f)"
     $path = Join-Path $RepoRoot ".agent/contracts/$f"
     if (Test-Path $path) {
         Ok 'schema' $name "$f exists"
@@ -229,7 +229,7 @@ $Gitignore = Join-Path $RepoRoot '.gitignore'
 if (Test-Path $Gitignore) {
     $content = Get-Content $Gitignore -Raw
     foreach ($ignore in @('.beads/', '.agent/memory/session-handover.md', '.agent/memory/current-task.md')) {
-        $name = "gitignore.$(To-CheckName $ignore)"
+        $name = "gitignore.$(ConvertTo-CheckName $ignore)"
         if ($content -match [regex]::Escape($ignore)) {
             Ok 'gitignore' $name "$ignore excluded"
         } else {
