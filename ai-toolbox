@@ -1,0 +1,137 @@
+#!/bin/bash
+# ai-toolbox — unified entry point for AI Toolbox commands (POSIX/bash).
+#
+# This is a thin dispatcher: every subcommand routes to a script under
+# .agent/scripts/. The interface is intentionally stable so a future
+# binary implementation can drop in without breaking call-sites.
+#
+# Subcommands and forwarding map:
+#   doctor    [--json|--explain]      → .agent/scripts/doctor.sh
+#   sync      [--json]                 → .agent/scripts/sync-task.sh
+#   setup     [--silent]               → .agent/scripts/setup.sh
+#   bootstrap [--dry-run]              → .agent/scripts/bootstrap.sh
+#   validate  [--json]                 → .agent/scripts/validate-toolbox-config.sh
+#   migrate   [--target X] [--dry-run] → .agent/scripts/migrate.sh
+#   context   build|show               → (Phase C — not yet implemented)
+#   simulate  --intent X               → (Phase C — not yet implemented)
+#   stats     [--json]                 → (Phase C — not yet implemented)
+#
+# Globals: --help / -h / help shows this message. --version prints toolbox_version.
+#
+# Exit codes: forwarded from the underlying script. The dispatcher itself
+# uses 2 for unknown subcommand, 60 for missing implementation.
+
+set -u
+
+# Resolve the directory of this script — we do NOT assume pwd is the repo root.
+# Follow symlinks so a symlinked entry on PATH still finds the right scripts.
+_resolve_self() {
+    local src="${BASH_SOURCE[0]}"
+    while [ -h "$src" ]; do
+        local dir; dir="$(cd -P "$(dirname "$src")" && pwd)"
+        src="$(readlink "$src")"
+        [[ $src != /* ]] && src="$dir/$src"
+    done
+    cd -P "$(dirname "$src")" && pwd
+}
+SHIM_DIR="$(_resolve_self)"
+SCRIPTS_DIR="${SHIM_DIR}/.agent/scripts"
+CONFIG_FILE="${SHIM_DIR}/.ai-toolbox/config.json"
+
+_print_help() {
+    # Print the first comment block only (everything up to the first blank
+    # line after the comments), so adding code below doesn't leak into help.
+    awk '
+        NR == 1 { next }                # skip shebang
+        /^# / || /^#$/ { sub(/^# ?/, ""); print; next }
+        { exit }
+    ' "${BASH_SOURCE[0]}"
+}
+
+_print_version() {
+    if [ -f "$CONFIG_FILE" ]; then
+        PYTHONIOENCODING=utf-8 CONFIG="$CONFIG_FILE" python3 -c "
+import json, os
+with open(os.environ['CONFIG'], encoding='utf-8') as f:
+    print('ai-toolbox', json.load(f).get('toolbox_version', 'unknown'))
+" 2>/dev/null || echo "ai-toolbox (config unreadable)"
+    else
+        echo "ai-toolbox (no config)"
+    fi
+}
+
+_exec_script() {
+    local script="$1"; shift
+    if [ ! -f "$script" ]; then
+        echo "ai-toolbox: missing implementation: $script" >&2
+        exit 60
+    fi
+    exec bash "$script" "$@"
+}
+
+_phase_c_stub() {
+    local cmd="$1"
+    cat >&2 <<MSG
+ai-toolbox: '$cmd' is reserved for Phase C and not yet implemented.
+
+The interface is stable; the implementation lands in a future milestone:
+  - context  build|show     (heuristic file selector + bundle viewer)
+  - simulate --intent X     (dry-run pipeline showing what would be done)
+  - stats    [--json]       (audit-log analyzer)
+
+Use --help to see the commands available today.
+MSG
+    exit 60
+}
+
+# ---- Dispatch --------------------------------------------------------------
+if [ $# -eq 0 ]; then
+    _print_help
+    exit 0
+fi
+
+CMD="$1"; shift || true
+
+case "$CMD" in
+    -h|--help|help)
+        _print_help
+        ;;
+
+    -V|--version|version)
+        _print_version
+        ;;
+
+    doctor)
+        _exec_script "${SCRIPTS_DIR}/doctor.sh" "$@"
+        ;;
+
+    sync)
+        _exec_script "${SCRIPTS_DIR}/sync-task.sh" "$@"
+        ;;
+
+    setup)
+        _exec_script "${SCRIPTS_DIR}/setup.sh" "$@"
+        ;;
+
+    bootstrap)
+        _exec_script "${SCRIPTS_DIR}/bootstrap.sh" "$@"
+        ;;
+
+    validate)
+        _exec_script "${SCRIPTS_DIR}/validate-toolbox-config.sh" "$@"
+        ;;
+
+    migrate)
+        _exec_script "${SCRIPTS_DIR}/migrate.sh" "$@"
+        ;;
+
+    context|simulate|stats)
+        _phase_c_stub "$CMD"
+        ;;
+
+    *)
+        echo "ai-toolbox: unknown subcommand: $CMD" >&2
+        echo "Run 'ai-toolbox --help' for available commands." >&2
+        exit 2
+        ;;
+esac

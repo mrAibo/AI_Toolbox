@@ -1,0 +1,70 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/mrAibo/AI_Toolbox/.agent/schema/plugin-manifest.schema.json",
+  "title": "AI Toolbox Plugin Manifest",
+  "description": "Schema for .agent/plugins/<name>/manifest.json. Plugins are file-based extensions that contribute rules and context hints to the toolbox without runtime code.",
+  "type": "object",
+  "required": ["name", "version"],
+  "additionalProperties": false,
+  "properties": {
+    "$schema": {
+      "type": "string"
+    },
+    "name": {
+      "description": "Plugin identifier. Lowercase, hyphen-separated. Must match the directory name under .agent/plugins/.",
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9-]*$",
+      "minLength": 2,
+      "maxLength": 40
+    },
+    "version": {
+      "description": "Plugin version. Recorded in .ai-toolbox/lock.json for reproducibility.",
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+(\\.[0-9]+)?$"
+    },
+    "description": {
+      "description": "One-line summary of what the plugin contributes.",
+      "type": "string",
+      "maxLength": 200
+    },
+    "rules": {
+      "description": "Markdown files (relative to plugin directory) that should be referenced from AGENT.md when the plugin is active.",
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "\\.md$"
+      },
+      "uniqueItems": true
+    },
+    "context_hints": {
+      "description": "Glob patterns marking files that the context-build heuristic should weight up when this plugin is active.",
+      "type": "array",
+      "items": { "type": "string" },
+      "uniqueItems": true
+    },
+    "priority": {
+      "description": "Used to order plugin rule references in AGENT.md and to break ties during conflict resolution. Higher = applied later (overrides earlier).",
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 1000,
+      "default": 100
+    },
+    "conflict_resolution": {
+      "description": "How this plugin behaves if another plugin contributes overlapping rules. override = this plugin wins; merge = both rule files are referenced; fail = bootstrap aborts with PLUGIN_ERROR.",
+      "type": "string",
+      "enum": ["override", "merge", "fail"],
+      "default": "merge"
+    },
+    "requires_toolbox_version": {
+      "description": "Minimum AI Toolbox version required. Bootstrap refuses to install if local toolbox is older.",
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+(\\.[0-9]+)?$"
+    },
+    "tags": {
+      "description": "Free-form tags for searchability (e.g. 'frontend', 'testing', 'language:python').",
+      "type": "array",
+      "items": { "type": "string" },
+      "uniqueItems": true
+    }
+  }
+}

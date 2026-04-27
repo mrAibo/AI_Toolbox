@@ -1,0 +1,116 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/mrAibo/AI_Toolbox/.agent/schema/config.schema.json",
+  "title": "AI Toolbox Central Config",
+  "description": "Schema for .ai-toolbox/config.json — the canonical client registry and toolbox configuration.",
+  "type": "object",
+  "required": ["_meta", "clients", "tiers"],
+  "additionalProperties": false,
+  "properties": {
+    "$schema": {
+      "description": "Schema reference for IDE autocomplete. Should point to ../.agent/schema/config.schema.json.",
+      "type": "string"
+    },
+    "toolbox_version": {
+      "description": "AI Toolbox version this config was last migrated to. Required as of v1.5. Drives ai-toolbox migrate.",
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+(\\.[0-9]+)?$"
+    },
+    "_meta": {
+      "description": "Documentation block — describes config purpose, source-of-truth rules, and detection priority. Not consumed by runtime logic.",
+      "type": "object",
+      "properties": {
+        "version": { "type": "string" },
+        "description": { "type": "string" },
+        "source_of_truth_rules": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "detection_priority": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "primary_client_values": { "type": "string" },
+        "generator": {
+          "type": "object",
+          "additionalProperties": { "type": "string" }
+        }
+      }
+    },
+    "primary_client": {
+      "description": "Client to use without autodetection. null = autodetect via setup.sh/ps1. Must reference a key in clients.",
+      "type": ["string", "null"]
+    },
+    "tiers": {
+      "description": "Tier capability definitions. The three keys (basic/standard/full) are required.",
+      "type": "object",
+      "required": ["basic", "standard", "full"],
+      "additionalProperties": false,
+      "properties": {
+        "basic":    { "$ref": "#/$defs/tier" },
+        "standard": { "$ref": "#/$defs/tier" },
+        "full":     { "$ref": "#/$defs/tier" }
+      }
+    },
+    "clients": {
+      "description": "Client registry. Keys are short identifiers (claude-code, qwen-code, codex, ...). Values follow client.schema.json.",
+      "type": "object",
+      "minProperties": 1,
+      "additionalProperties": {
+        "$ref": "client.schema.json"
+      }
+    },
+    "context": {
+      "description": "Hard budgets for ai-toolbox context build (added in v1.5). Enforced by context-build.sh.",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "max_files": {
+          "description": "Maximum number of files included in a context bundle.",
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100
+        },
+        "max_lines_per_file": {
+          "description": "Maximum lines read from any single file. Files exceeding this are truncated with a marker.",
+          "type": "integer",
+          "minimum": 10,
+          "maximum": 5000
+        },
+        "max_total_lines": {
+          "description": "Hard ceiling on total lines across all included files.",
+          "type": "integer",
+          "minimum": 50,
+          "maximum": 50000
+        },
+        "priorities": {
+          "description": "Ordered list controlling which file categories are dropped first when budget is exceeded. Categories: changed, test, imports, same-dir, memory, plugin-hints, recently-modified.",
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": ["changed", "test", "imports", "same-dir", "memory", "plugin-hints", "recently-modified"]
+          },
+          "uniqueItems": true
+        }
+      }
+    }
+  },
+  "$defs": {
+    "tier": {
+      "type": "object",
+      "required": ["description", "capabilities"],
+      "additionalProperties": false,
+      "properties": {
+        "description": { "type": "string" },
+        "capabilities": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": ["hooks", "multi_agent", "file_rules", "plan_mode", "sync"]
+          },
+          "uniqueItems": true
+        }
+      }
+    }
+  }
+}

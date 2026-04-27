@@ -1,0 +1,105 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/mrAibo/AI_Toolbox/.agent/schema/client.schema.json",
+  "title": "AI Toolbox Client Entry",
+  "description": "Schema for a single client entry in the .ai-toolbox/config.json clients registry.",
+  "type": "object",
+  "required": ["tier"],
+  "additionalProperties": false,
+  "properties": {
+    "tier": {
+      "description": "Capability tier. full = hooks + multi-agent + plan_mode, standard = hooks + sync, basic = file rules only.",
+      "type": "string",
+      "enum": ["basic", "standard", "full"]
+    },
+    "router_file": {
+      "description": "Repo-root file the client uses as its primary instruction entry point (e.g. CLAUDE.md, QWEN.md). null if the client has no router file.",
+      "type": ["string", "null"]
+    },
+    "template_router": {
+      "description": "Path to template under .agent/templates/clients/ that generates the router_file. null when bootstrap creates it inline.",
+      "type": ["string", "null"]
+    },
+    "config_file": {
+      "description": "Repo-root configuration file for the client (e.g. .claude.json, .aider.conf.yml). null if not applicable.",
+      "type": ["string", "null"]
+    },
+    "template_config": {
+      "description": "Path to template under .agent/templates/clients/ that generates the config_file. null when not template-managed.",
+      "type": ["string", "null"]
+    },
+    "hooks": {
+      "description": "Whether the client supports automated hook execution. Hooks may be auto-installed or require manual setup depending on managed_by.",
+      "type": "boolean"
+    },
+    "multi_agent": {
+      "description": "Whether the client supports parallel sub-agent orchestration.",
+      "type": "boolean"
+    },
+    "file_rules": {
+      "description": "Whether the client honors file-based rule references (always true for any supported client).",
+      "type": "boolean"
+    },
+    "plan_mode": {
+      "description": "Whether the client supports a dedicated planning mode that suspends execution until approval.",
+      "type": "boolean"
+    },
+    "slash_commands": {
+      "description": "Whether the client supports /slash command syntax for skills or workflows.",
+      "type": "boolean"
+    },
+    "autodetect_cmd": {
+      "description": "Shell command (typically the CLI binary name) used by setup.sh autodetection. null disables autodetection.",
+      "type": ["string", "null"]
+    },
+    "managed_by": {
+      "description": "How files for this client are produced: bootstrap-inline = generated as heredoc in bootstrap.sh; template = copied from .agent/templates/clients/; bootstrap-inline+template = mixed; manual = user installs themselves.",
+      "type": "string",
+      "enum": ["bootstrap-inline", "template", "bootstrap-inline+template", "manual"]
+    },
+    "notes": {
+      "description": "Free-form notes about client-specific quirks, limitations, or setup steps.",
+      "type": "string"
+    },
+    "extra_files": {
+      "description": "Additional files this client expects beyond router_file/config_file (e.g. .codex/hooks.json, .qwen/settings.json).",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["target"],
+        "additionalProperties": false,
+        "properties": {
+          "source": {
+            "description": "Source template path under .agent/templates/clients/ or null when generated inline.",
+            "type": ["string", "null"]
+          },
+          "target": {
+            "description": "Destination path relative to repo root.",
+            "type": "string"
+          },
+          "condition": {
+            "description": "When this file should be installed: always = unconditional; autodetect = only when client autodetect succeeds.",
+            "type": "string",
+            "enum": ["always", "autodetect"]
+          },
+          "managed_by": {
+            "description": "Override managed_by for this specific file (defaults to client-level managed_by).",
+            "type": "string",
+            "enum": ["bootstrap-inline", "template"]
+          },
+          "note": {
+            "description": "File-specific notes.",
+            "type": "string"
+          }
+        }
+      }
+    }
+  },
+  "allOf": [
+    {
+      "description": "If tier is 'full', plan_mode and multi_agent should both be present and true. Soft constraint — not enforced.",
+      "if": { "properties": { "tier": { "const": "full" } } },
+      "then": { "required": ["hooks", "multi_agent", "file_rules"] }
+    }
+  ]
+}

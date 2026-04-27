@@ -1,0 +1,76 @@
+{
+  "$schema": "../schema/error-codes.schema.json",
+  "version": "1.0",
+  "codes": {
+    "CONFIG_ERROR": {
+      "exit_code": 10,
+      "category": "config",
+      "description": "Configuration file is missing, malformed, or violates the schema in .agent/schema/.",
+      "fix_template": "Run: ai-toolbox validate --json — and apply the fix from each reported error.",
+      "since": "1.5"
+    },
+    "CONFIG_MISSING_FIELD": {
+      "exit_code": 11,
+      "category": "config",
+      "description": "A required config field is absent.",
+      "fix_template": "Add field $1 to $2 (see .agent/schema/config.schema.json for the required shape).",
+      "since": "1.5"
+    },
+    "CONTRACT_VIOLATION": {
+      "exit_code": 20,
+      "category": "contract",
+      "description": "A hook produced output that does not conform to .agent/contracts/hook-protocol.json for its client.",
+      "fix_template": "Inspect the hook output for client $1; align with the contract and re-run test-hook-contract.sh.",
+      "since": "1.5"
+    },
+    "DETERMINISM_ERROR": {
+      "exit_code": 30,
+      "category": "determinism",
+      "description": "Two runs of the same command with identical inputs produced different outputs. Indicates an unsorted iteration, time leakage, or side-effect.",
+      "fix_template": "Inspect the diff in $1; ensure all list-producing steps pipe through `sort -u` and avoid embedding timestamps.",
+      "since": "1.5"
+    },
+    "MIGRATION_ERROR": {
+      "exit_code": 40,
+      "category": "migration",
+      "description": "ai-toolbox migrate could not advance the toolbox_version, either because no migration script exists for the version pair or a migration script failed.",
+      "fix_template": "Check .agent/migrations/ for a script matching $1-to-$2. If absent, file an issue or pin toolbox_version.",
+      "since": "1.5"
+    },
+    "MIGRATION_VERSION_MISMATCH": {
+      "exit_code": 41,
+      "category": "migration",
+      "description": "The toolbox_version recorded in config does not match the version expected by the bootstrap.",
+      "fix_template": "Run: ai-toolbox migrate",
+      "since": "1.5"
+    },
+    "PLUGIN_ERROR": {
+      "exit_code": 50,
+      "category": "plugin",
+      "description": "Plugin manifest is invalid, missing, or its requires_toolbox_version is incompatible.",
+      "fix_template": "Validate $1 against .agent/schema/plugin-manifest.schema.json.",
+      "since": "1.5"
+    },
+    "PLUGIN_CONFLICT": {
+      "exit_code": 51,
+      "category": "plugin",
+      "description": "Two plugins contribute conflicting rules and at least one declares conflict_resolution: fail.",
+      "fix_template": "Adjust priority or conflict_resolution in one of the conflicting manifests; or remove one of the plugins.",
+      "since": "1.5"
+    },
+    "IO_ERROR": {
+      "exit_code": 60,
+      "category": "io",
+      "description": "A required filesystem operation failed (read, write, or directory creation).",
+      "fix_template": "Check filesystem permissions on $1.",
+      "since": "1.5"
+    },
+    "INTERNAL_ERROR": {
+      "exit_code": 90,
+      "category": "internal",
+      "description": "An unexpected condition that should never occur. Indicates a bug in the toolbox itself.",
+      "fix_template": "File an issue at https://github.com/mrAibo/AI_Toolbox/issues with the audit log entry.",
+      "since": "1.5"
+    }
+  }
+}

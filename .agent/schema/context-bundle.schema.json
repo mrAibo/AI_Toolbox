@@ -1,0 +1,111 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/mrAibo/AI_Toolbox/.agent/schema/context-bundle.schema.json",
+  "title": "AI Toolbox Context Bundle",
+  "description": "Schema for the .json sibling of .agent/memory/.context-bundle.md produced by `ai-toolbox context build`. Consumed by `context show` and the simulate command.",
+  "type": "object",
+  "required": ["version", "intent", "budget", "files"],
+  "additionalProperties": false,
+  "properties": {
+    "version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+$",
+      "const": "1.0"
+    },
+    "generated_at": {
+      "description": "ISO-8601 timestamp of bundle creation.",
+      "type": "string",
+      "format": "date-time"
+    },
+    "intent": {
+      "description": "Intent tag passed to context build (refactor, bug-fix, feature, ...).",
+      "type": "string"
+    },
+    "task_type": {
+      "description": "Optional task type detected by sync-task.sh (BUG/REFACTOR/FEATURE).",
+      "type": "string",
+      "enum": ["BUG", "REFACTOR", "FEATURE", "CHORE", "UNKNOWN"]
+    },
+    "budget": {
+      "description": "Effective budget applied to this bundle.",
+      "type": "object",
+      "required": ["max_files", "max_lines_per_file", "max_total_lines", "used_files", "used_lines"],
+      "additionalProperties": false,
+      "properties": {
+        "max_files":          { "type": "integer", "minimum": 1 },
+        "max_lines_per_file": { "type": "integer", "minimum": 1 },
+        "max_total_lines":    { "type": "integer", "minimum": 1 },
+        "used_files":         { "type": "integer", "minimum": 0 },
+        "used_lines":         { "type": "integer", "minimum": 0 },
+        "exceeded":           { "type": "boolean" }
+      }
+    },
+    "files": {
+      "description": "Files included in the bundle, in priority order.",
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/bundleFile"
+      }
+    },
+    "excluded": {
+      "description": "Files considered but dropped due to budget. Useful for `context show` to explain decisions.",
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/excludedFile"
+      }
+    },
+    "active_rules": {
+      "description": "Rule files referenced by AGENT.md and active plugin manifests for this intent.",
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "active_plugins": {
+      "description": "Plugin names that contributed rules or context_hints.",
+      "type": "array",
+      "items": { "type": "string" }
+    }
+  },
+  "$defs": {
+    "bundleFile": {
+      "type": "object",
+      "required": ["path", "reason", "lines"],
+      "additionalProperties": false,
+      "properties": {
+        "path": { "type": "string" },
+        "reason": {
+          "description": "Why this file was selected. Single-tag value used by `context show` for human-readable output.",
+          "type": "string",
+          "enum": [
+            "changed",
+            "test-of-changed",
+            "source-of-changed-test",
+            "imported-by-changed",
+            "same-directory-sibling",
+            "memory-file",
+            "plugin-hint",
+            "recently-modified"
+          ]
+        },
+        "lines":       { "type": "integer", "minimum": 0 },
+        "truncated":   { "type": "boolean" },
+        "sha256":      { "type": "string", "pattern": "^[a-f0-9]{64}$" }
+      }
+    },
+    "excludedFile": {
+      "type": "object",
+      "required": ["path", "reason"],
+      "additionalProperties": false,
+      "properties": {
+        "path":   { "type": "string" },
+        "reason": {
+          "type": "string",
+          "enum": ["over-budget", "lower-priority", "exceeds-line-limit", "duplicate"]
+        },
+        "would_have_been": {
+          "description": "Selection reason this file would have had, if budget allowed.",
+          "type": "string"
+        }
+      }
+    }
+  }
+}

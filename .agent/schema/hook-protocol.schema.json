@@ -1,0 +1,109 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/mrAibo/AI_Toolbox/.agent/schema/hook-protocol.schema.json",
+  "title": "AI Toolbox Hook Protocol",
+  "description": "Schema for .agent/contracts/hook-protocol.json — defines per-client what hooks may receive, return, and modify. The 'guarantees' block makes implicit assumptions explicit so adapters can be reasoned about formally.",
+  "type": "object",
+  "required": ["version", "clients"],
+  "additionalProperties": false,
+  "properties": {
+    "$schema": {
+      "description": "Schema reference for IDE autocomplete.",
+      "type": "string"
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+$"
+    },
+    "clients": {
+      "description": "Map of client identifier to its hook protocol definition. Identifiers must match keys in .ai-toolbox/config.json clients{}.",
+      "type": "object",
+      "minProperties": 1,
+      "additionalProperties": {
+        "$ref": "#/$defs/clientHookSpec"
+      }
+    }
+  },
+  "$defs": {
+    "clientHookSpec": {
+      "type": "object",
+      "required": ["guarantees", "events"],
+      "additionalProperties": false,
+      "properties": {
+        "guarantees": {
+          "description": "What the hook system can and cannot do for this client. False here is a hard system limit, not a current implementation gap.",
+          "type": "object",
+          "required": ["can_block", "can_modify_input", "can_modify_output", "can_inject_context"],
+          "additionalProperties": false,
+          "properties": {
+            "can_block": {
+              "description": "Hook can prevent the tool call from running by returning non-zero or a structured deny.",
+              "type": "boolean"
+            },
+            "can_modify_input": {
+              "description": "Hook can rewrite the tool input before execution.",
+              "type": "boolean"
+            },
+            "can_modify_output": {
+              "description": "Hook can rewrite the tool output after execution.",
+              "type": "boolean"
+            },
+            "can_inject_context": {
+              "description": "Hook can add additional context (system prompts, files, prefixes) into the model's window.",
+              "type": "boolean"
+            }
+          }
+        },
+        "events": {
+          "description": "Hook event names supported by this client. Each event entry documents stdin format and exit-code semantics.",
+          "type": "object",
+          "minProperties": 1,
+          "additionalProperties": {
+            "$ref": "#/$defs/eventSpec"
+          }
+        },
+        "settings_path": {
+          "description": "Where the client expects hook configuration to live (e.g. .qwen/settings.json, .codex/hooks.json).",
+          "type": "string"
+        },
+        "notes": {
+          "type": "string"
+        }
+      }
+    },
+    "eventSpec": {
+      "type": "object",
+      "required": ["stdin_format", "exit_codes"],
+      "additionalProperties": false,
+      "properties": {
+        "stdin_format": {
+          "description": "Description of the JSON shape (or 'none') the client passes on stdin.",
+          "type": "string"
+        },
+        "stdout_format": {
+          "description": "Expected stdout shape. Use 'plain text' or 'ignored' for clients that do not consume stdout.",
+          "type": "string"
+        },
+        "exit_codes": {
+          "description": "Map of exit code (as string) to its semantic meaning for this event.",
+          "type": "object",
+          "minProperties": 1,
+          "patternProperties": {
+            "^[0-9]+$": { "type": "string" }
+          },
+          "additionalProperties": false
+        },
+        "env_vars": {
+          "description": "Environment variables the client sets when invoking the hook. Useful for non-stdin metadata.",
+          "type": "array",
+          "items": { "type": "string" },
+          "uniqueItems": true
+        },
+        "implementation": {
+          "description": "Path to the script implementing this event in the toolbox.",
+          "type": "string"
+        }
+      }
+    }
+  }
+}

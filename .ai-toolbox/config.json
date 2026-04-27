@@ -1,4 +1,6 @@
 {
+  "$schema": "../.agent/schema/config.schema.json",
+  "toolbox_version": "1.5",
   "_meta": {
     "version": "1.1",
     "description": "Central source of truth for AI Toolbox client configuration.",

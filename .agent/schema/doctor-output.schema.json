@@ -1,0 +1,96 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/mrAibo/AI_Toolbox/.agent/schema/doctor-output.schema.json",
+  "title": "AI Toolbox Doctor JSON Output",
+  "description": "Schema for the JSON shape emitted by `ai-toolbox doctor --json`. Used by CI integrations and external dashboards.",
+  "type": "object",
+  "required": ["version", "status", "checks"],
+  "additionalProperties": false,
+  "properties": {
+    "version": {
+      "description": "Output schema version. Bump when the structure changes so consumers can pin compatibility.",
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+$",
+      "const": "1.0"
+    },
+    "toolbox_version": {
+      "description": "Version of the toolbox that produced this output, copied from .ai-toolbox/config.json toolbox_version.",
+      "type": "string"
+    },
+    "status": {
+      "description": "Aggregate status: ok = all checks green; warning = no errors but at least one warning; error = at least one critical failure.",
+      "type": "string",
+      "enum": ["ok", "warning", "error"]
+    },
+    "summary": {
+      "description": "Counts of check results by status. Sums must equal checks.length.",
+      "type": "object",
+      "required": ["ok", "warning", "error"],
+      "additionalProperties": false,
+      "properties": {
+        "ok":      { "type": "integer", "minimum": 0 },
+        "warning": { "type": "integer", "minimum": 0 },
+        "error":   { "type": "integer", "minimum": 0 }
+      }
+    },
+    "checks": {
+      "description": "Individual check results in execution order.",
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/check"
+      }
+    },
+    "errors": {
+      "description": "Top-level errors emitted by the doctor itself (e.g. failed to read config). Distinct from per-check errors.",
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/structuredError"
+      }
+    }
+  },
+  "$defs": {
+    "check": {
+      "type": "object",
+      "required": ["name", "status"],
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "description": "Stable identifier for the check. Used by external tools — do not rename casually.",
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_.-]*$"
+        },
+        "category": {
+          "description": "Logical group this check belongs to (structure, hooks, memory, tooling, gitignore, parity, audit, plugins).",
+          "type": "string"
+        },
+        "status": {
+          "type": "string",
+          "enum": ["ok", "warning", "error"]
+        },
+        "detail": {
+          "description": "Human-readable description of the result.",
+          "type": "string"
+        },
+        "fix": {
+          "description": "Concrete shell command or instruction to remediate. Populated on warning/error status when --explain is set or by default.",
+          "type": "string"
+        },
+        "error_code": {
+          "description": "Reference to .agent/contracts/error-codes.json key, if the check failed with a known structured error.",
+          "type": "string",
+          "pattern": "^[A-Z][A-Z0-9_]*$"
+        }
+      }
+    },
+    "structuredError": {
+      "type": "object",
+      "required": ["error", "message"],
+      "additionalProperties": false,
+      "properties": {
+        "error":   { "type": "string", "pattern": "^[A-Z][A-Z0-9_]*$" },
+        "message": { "type": "string" },
+        "fix":     { "type": "string" }
+      }
+    }
+  }
+}

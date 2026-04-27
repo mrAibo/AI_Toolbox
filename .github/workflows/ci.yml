@@ -93,6 +93,89 @@ jobs:
           fi
           echo "OK — all JSON valid"
 
+      - name: Install jsonschema for schema validation
+        run: |
+          python3 -m pip install --quiet --user jsonschema referencing
+
+      - name: Validate JSON Schema files (meta-schema)
+        run: |
+          # Each *.schema.json under .agent/schema/ must itself be a valid JSON Schema.
+          python3 - <<'PY'
+          import json, sys
+          from pathlib import Path
+          from jsonschema import Draft202012Validator
+          schema_dir = Path('.agent/schema')
+          if not schema_dir.exists():
+              print('OK — no .agent/schema/ directory yet')
+              sys.exit(0)
+          fails = 0
+          for f in sorted(schema_dir.glob('*.schema.json')):
+              try:
+                  with f.open(encoding='utf-8') as fh:
+                      schema = json.load(fh)
+                  Draft202012Validator.check_schema(schema)
+                  print(f"OK   {f}")
+              except Exception as e:
+                  print(f"FAIL {f}: {e}")
+                  fails += 1
+          if fails:
+              sys.exit(1)
+          PY
+
+      - name: Validate instances against schemas
+        run: |
+          # .ai-toolbox/config.json against config.schema.json (sibling refs resolved).
+          bash .agent/scripts/validate-toolbox-config.sh
+          # Hook protocol contract, error codes, and any future contract docs.
+          python3 - <<'PY'
+          import json, sys
+          from pathlib import Path
+          try:
+              from jsonschema import Draft202012Validator
+              from referencing import Registry, Resource
+              from referencing.jsonschema import DRAFT202012
+          except ImportError as e:
+              print(f"SKIP — jsonschema/referencing not installed: {e}")
+              sys.exit(0)
+          schema_dir = Path('.agent/schema').resolve()
+          if not schema_dir.exists():
+              print('SKIP — no schemas yet')
+              sys.exit(0)
+          # Build a registry of all known schemas for cross-references.
+          resources = []
+          for sib in schema_dir.glob('*.schema.json'):
+              with sib.open(encoding='utf-8') as fh:
+                  body = json.load(fh)
+              resources.append((sib.name, Resource(contents=body, specification=DRAFT202012)))
+              resources.append((sib.as_uri(), Resource(contents=body, specification=DRAFT202012)))
+          registry = Registry().with_resources(resources)
+          pairs = [
+              (Path('.agent/contracts/hook-protocol.json'),  schema_dir / 'hook-protocol.schema.json'),
+              (Path('.agent/contracts/error-codes.json'),    schema_dir / 'error-codes.schema.json'),
+          ]
+          fails = 0
+          for instance_path, schema_path in pairs:
+              if not instance_path.exists() or not schema_path.exists():
+                  print(f"SKIP {instance_path} (instance or schema missing)")
+                  continue
+              with schema_path.open(encoding='utf-8') as fh:
+                  schema = json.load(fh)
+              with instance_path.open(encoding='utf-8') as fh:
+                  data = json.load(fh)
+              validator = Draft202012Validator(schema, registry=registry)
+              errors = sorted(validator.iter_errors(data), key=lambda e: list(e.absolute_path))
+              if errors:
+                  print(f"FAIL {instance_path}:")
+                  for err in errors:
+                      path = '/'.join(str(p) for p in err.absolute_path) or '<root>'
+                      print(f"  - {path}: {err.message}")
+                  fails += 1
+              else:
+                  print(f"OK   {instance_path}")
+          if fails:
+              sys.exit(1)
+          PY
+
       - name: Validate TOML files
         run: |
           python3 -c "
@@ -244,3 +327,54 @@ jobs:
             exit 1
           }
           Write-Host 'OK — PSScriptAnalyzer passed'
+
+  # Per-client hook contract verification (B4 — Compatibility Matrix).
+  # Runs test-hook-contract.sh against each client declared in
+  # .agent/contracts/hook-protocol.json. Fails fast on any drift between
+  # the contract and the actual hook implementations.
+  hook-contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    needs: validate
+    strategy:
+      fail-fast: false
+      matrix:
+        client: [claude-code, qwen-code, codex, opencode]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Install jsonschema + referencing
+        run: |
+          python3 -m pip install --quiet --user jsonschema referencing
+
+      - name: Run contract test for ${{ matrix.client }}
+        run: |
+          bash .agent/scripts/test-hook-contract.sh ${{ matrix.client }} --json > result.json
+          cat result.json
+
+      - name: Assert all checks passed
+        run: |
+          status=$(python3 -c "import json; print(json.load(open('result.json'))['status'])")
+          fail=$(python3 -c "import json; print(json.load(open('result.json'))['summary']['fail'])")
+          if [ "$status" != "ok" ] || [ "$fail" != "0" ]; then
+            echo "FAIL — ${{ matrix.client }} contract violations:"
+            python3 -c "
+          import json
+          d = json.load(open('result.json'))
+          for c in d['checks']:
+              if c['status'] != 'pass':
+                  print(f\"  {c['client']}.{c['event']}: {c['detail']}\")
+          "
+            exit 1
+          fi
+          echo "OK — ${{ matrix.client }} all checks passed"
+
+      - name: Upload contract result
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: hook-contract-${{ matrix.client }}
+          path: result.json
+          retention-days: 7

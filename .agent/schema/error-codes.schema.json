@@ -1,0 +1,65 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/mrAibo/AI_Toolbox/.agent/schema/error-codes.schema.json",
+  "title": "AI Toolbox Error Codes",
+  "description": "Schema for .agent/contracts/error-codes.json — the canonical error class registry. Every script that emits structured errors must use a code defined here.",
+  "type": "object",
+  "required": ["version", "codes"],
+  "additionalProperties": false,
+  "properties": {
+    "$schema": {
+      "description": "Schema reference for IDE autocomplete.",
+      "type": "string"
+    },
+    "version": {
+      "description": "Schema version of the error registry itself. Bump when the structure changes.",
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+$"
+    },
+    "codes": {
+      "description": "Map of error code identifiers to their definitions.",
+      "type": "object",
+      "minProperties": 1,
+      "patternProperties": {
+        "^[A-Z][A-Z0-9_]*$": {
+          "$ref": "#/$defs/errorDefinition"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "$defs": {
+    "errorDefinition": {
+      "type": "object",
+      "required": ["exit_code", "category", "description"],
+      "additionalProperties": false,
+      "properties": {
+        "exit_code": {
+          "description": "Process exit code. Must be 10 or higher to avoid colliding with conventional success/warning exits used elsewhere (0/1/2).",
+          "type": "integer",
+          "minimum": 10,
+          "maximum": 99
+        },
+        "category": {
+          "description": "Top-level category for grouping in dashboards and logs.",
+          "type": "string",
+          "enum": ["config", "contract", "determinism", "migration", "plugin", "io", "internal"]
+        },
+        "description": {
+          "description": "One-sentence human description used in error messages.",
+          "type": "string",
+          "minLength": 10
+        },
+        "fix_template": {
+          "description": "Template for the suggested fix. May reference $1, $2 placeholders filled in by the emitting script.",
+          "type": "string"
+        },
+        "since": {
+          "description": "AI Toolbox version this code was introduced in.",
+          "type": "string",
+          "pattern": "^[0-9]+\\.[0-9]+$"
+        }
+      }
+    }
+  }
+}

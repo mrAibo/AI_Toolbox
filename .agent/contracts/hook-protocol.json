@@ -1,0 +1,199 @@
+{
+  "$schema": "../schema/hook-protocol.schema.json",
+  "version": "1.0",
+  "clients": {
+    "claude-code": {
+      "settings_path": ".claude.json",
+      "notes": "Full hook API: bidirectional JSON over stdin/stdout. Hooks may block, modify input via permissionDecision, or inject additional system context.",
+      "guarantees": {
+        "can_block": true,
+        "can_modify_input": true,
+        "can_modify_output": true,
+        "can_inject_context": true
+      },
+      "events": {
+        "PreToolUse": {
+          "stdin_format": "JSON: { hook_event_name, session_id, tool_name, tool_input: { command?, file_path?, ... } }",
+          "stdout_format": "JSON: { decision: 'allow'|'ask'|'deny', reason, hookSpecificOutput?: { permissionDecision, permissionDecisionReason, additionalContext } }",
+          "exit_codes": {
+            "0": "decision honored as written in stdout",
+            "1": "non-zero treated as deny (legacy fallback)",
+            "2": "block silently without surfacing reason"
+          },
+          "implementation": ".agent/scripts/hook-pre-command.sh"
+        },
+        "PostToolUse": {
+          "stdin_format": "JSON: { hook_event_name, session_id, tool_name, tool_input, tool_response: { content?, files_written?: [...] } }",
+          "stdout_format": "ignored (advisory only — no decision)",
+          "exit_codes": {
+            "0": "default — continuation"
+          },
+          "implementation": ".agent/scripts/hook-stop.sh"
+        },
+        "Stop": {
+          "stdin_format": "JSON: { hook_event_name, session_id, stop_hook_active }",
+          "stdout_format": "plain text — appended to user-visible output",
+          "exit_codes": {
+            "0": "default"
+          },
+          "implementation": ".agent/scripts/hook-stop.sh"
+        },
+        "SessionStart": {
+          "stdin_format": "JSON: { hook_event_name, session_id }",
+          "stdout_format": "plain text — injected as additional context",
+          "exit_codes": {
+            "0": "default"
+          },
+          "implementation": ".agent/scripts/sync-task.sh"
+        }
+      }
+    },
+
+    "qwen-code": {
+      "settings_path": ".qwen/settings.json",
+      "notes": "Mirrors Claude protocol with the same JSON shape. PreCompact hook is unique to Qwen and runs before context compaction.",
+      "guarantees": {
+        "can_block": true,
+        "can_modify_input": true,
+        "can_modify_output": true,
+        "can_inject_context": true
+      },
+      "events": {
+        "PreToolUse": {
+          "stdin_format": "JSON: { hook_event_name, tool_name, tool_input }",
+          "stdout_format": "JSON: { decision, reason, hookSpecificOutput? }",
+          "exit_codes": {
+            "0": "stdout decision honored",
+            "1": "deny (legacy)"
+          },
+          "implementation": ".agent/scripts/hook-pre-command-qwen.sh"
+        },
+        "PostToolUse": {
+          "stdin_format": "JSON: { hook_event_name, tool_name, tool_input, tool_response }",
+          "stdout_format": "advisory text",
+          "exit_codes": {
+            "0": "default"
+          },
+          "implementation": ".agent/scripts/hook-post-tool-qwen.sh"
+        },
+        "Stop": {
+          "stdin_format": "JSON: { hook_event_name, session_id }",
+          "stdout_format": "plain text",
+          "exit_codes": {
+            "0": "default"
+          },
+          "implementation": ".agent/scripts/hook-stop-qwen.sh"
+        },
+        "SessionStart": {
+          "stdin_format": "JSON: { hook_event_name, session_id }",
+          "stdout_format": "plain text — used as boot context",
+          "exit_codes": {
+            "0": "default"
+          },
+          "implementation": ".agent/scripts/sync-task.sh"
+        },
+        "SessionEnd": {
+          "stdin_format": "JSON: { hook_event_name, session_id }",
+          "stdout_format": "ignored",
+          "exit_codes": {
+            "0": "default"
+          },
+          "implementation": ".agent/scripts/hook-session-end-qwen.sh"
+        },
+        "PreCompact": {
+          "stdin_format": "JSON: { hook_event_name, session_id }",
+          "stdout_format": "plain text — injected before compaction so it survives",
+          "exit_codes": {
+            "0": "default"
+          },
+          "env_vars": ["HOOK_STATS_FILE"],
+          "implementation": ".agent/scripts/hook-pre-compact-qwen.sh"
+        }
+      }
+    },
+
+    "codex": {
+      "settings_path": ".codex/hooks.json",
+      "notes": "Codex hooks can block via non-zero exit but cannot rewrite tool input/output or inject context into the model. This is a Codex platform limit, not an implementation gap.",
+      "guarantees": {
+        "can_block": true,
+        "can_modify_input": false,
+        "can_modify_output": false,
+        "can_inject_context": false
+      },
+      "events": {
+        "SessionStart": {
+          "stdin_format": "none",
+          "stdout_format": "ignored",
+          "exit_codes": {
+            "0": "continue",
+            "1": "abort session start with statusMessage"
+          },
+          "implementation": ".agent/scripts/sync-task.sh"
+        },
+        "PreToolUse": {
+          "stdin_format": "JSON: { tool_name, tool_input }",
+          "stdout_format": "ignored — only exit code matters",
+          "exit_codes": {
+            "0": "allow",
+            "1": "block; statusMessage shown to user"
+          },
+          "implementation": ".agent/scripts/hook-pre-command-qwen.sh"
+        },
+        "PostToolUse": {
+          "stdin_format": "JSON: { tool_name, tool_input, tool_response }",
+          "stdout_format": "ignored",
+          "exit_codes": {
+            "0": "default"
+          },
+          "implementation": ".agent/scripts/hook-post-tool-qwen.sh"
+        },
+        "Stop": {
+          "stdin_format": "none",
+          "stdout_format": "ignored",
+          "exit_codes": {
+            "0": "default"
+          },
+          "implementation": ".agent/scripts/hook-stop-qwen.sh"
+        }
+      }
+    },
+
+    "opencode": {
+      "settings_path": "opencode.json",
+      "notes": "OpenCode does not expose a generic hook API. AI Toolbox integrates via permission config (edit/bash) and slash-command templates. The 'events' below are slash-commands invoked manually by the agent.",
+      "guarantees": {
+        "can_block": true,
+        "can_modify_input": false,
+        "can_modify_output": false,
+        "can_inject_context": true
+      },
+      "events": {
+        "boot": {
+          "stdin_format": "none — slash-command template executed by agent",
+          "stdout_format": "plain text — read into agent context",
+          "exit_codes": {
+            "0": "default"
+          },
+          "implementation": ".agent/scripts/sync-task.sh"
+        },
+        "sync": {
+          "stdin_format": "none",
+          "stdout_format": "plain text",
+          "exit_codes": {
+            "0": "default"
+          },
+          "implementation": ".agent/scripts/sync-task.sh"
+        },
+        "handover": {
+          "stdin_format": "none",
+          "stdout_format": "plain text",
+          "exit_codes": {
+            "0": "default"
+          },
+          "implementation": ".agent/scripts/hook-stop.sh"
+        }
+      }
+    }
+  }
+}
