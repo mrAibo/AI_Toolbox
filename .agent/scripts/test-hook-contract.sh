@@ -68,25 +68,34 @@ if python3 -c "import jsonschema" 2>/dev/null; then
 import json, os, sys
 from pathlib import Path
 from jsonschema import Draft202012Validator
-try:
-    from referencing import Registry, Resource
-    from referencing.jsonschema import DRAFT202012
-    have_ref = True
-except ImportError:
-    have_ref = False
+
 schema = json.loads(Path(os.environ['SCHEMA_PATH']).read_text(encoding='utf-8'))
 data   = json.loads(Path(os.environ['CONTRACT_PATH']).read_text(encoding='utf-8'))
-if have_ref:
-    sd = Path(os.environ['SCHEMA_DIR_PATH']).resolve()
-    resources = []
-    for s in sd.glob('*.schema.json'):
-        body = json.loads(s.read_text(encoding='utf-8'))
-        resources.append((s.name, Resource(contents=body, specification=DRAFT202012)))
-        resources.append((s.as_uri(), Resource(contents=body, specification=DRAFT202012)))
-    registry = Registry().with_resources(resources)
-    v = Draft202012Validator(schema, registry=registry)
-else:
-    v = Draft202012Validator(schema)
+sd = Path(os.environ['SCHEMA_DIR_PATH']).resolve()
+
+# Build a sibling-resolving validator. Prefer the modern referencing API,
+# fall back to RefResolver on old jsonschema (< 4.18) which lacks registry=.
+def _build_validator():
+    try:
+        from referencing import Registry, Resource
+        from referencing.jsonschema import DRAFT202012
+        resources = []
+        for s in sd.glob('*.schema.json'):
+            body = json.loads(s.read_text(encoding='utf-8'))
+            resources.append((s.name, Resource(contents=body, specification=DRAFT202012)))
+            resources.append((s.as_uri(), Resource(contents=body, specification=DRAFT202012)))
+        registry = Registry().with_resources(resources)
+        return Draft202012Validator(schema, registry=registry)
+    except (ImportError, TypeError):
+        try:
+            from jsonschema import RefResolver  # type: ignore
+            base_uri = sd.as_uri() + '/'
+            resolver = RefResolver(base_uri=base_uri, referrer=schema)
+            return Draft202012Validator(schema, resolver=resolver)
+        except Exception:
+            return Draft202012Validator(schema)
+
+v = _build_validator()
 errs = sorted(v.iter_errors(data), key=lambda e: list(e.absolute_path))
 if errs:
     for e in errs:
@@ -94,7 +103,7 @@ if errs:
         print(f"  contract violation at {path}: {e.message}", file=sys.stderr)
     sys.exit(1)
 PY
-    if [ $? -ne 0 ]; then
+        if [ $? -ne 0 ]; then
         SCHEMA_OK=0
     else
         _log "[contract-test] schema OK"

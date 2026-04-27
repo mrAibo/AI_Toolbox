@@ -40,26 +40,33 @@ with schema_file.open(encoding='utf-8') as f:
 with config_file.open(encoding='utf-8') as f:
     data = json.load(f)
 
-# Resolve sibling schemas (client.schema.json) using the modern `referencing` API.
-try:
-    from referencing import Registry, Resource
-    from referencing.jsonschema import DRAFT202012
+# Resolve sibling schemas (client.schema.json) using the modern `referencing`
+# API where available (jsonschema >= 4.18). On older Ubuntu/Debian images the
+# system jsonschema may pre-date that, so we fall back to the deprecated
+# RefResolver. ImportError covers "referencing not installed"; TypeError
+# covers "jsonschema too old to accept registry= kwarg".
+def _build_validator(schema, schema_dir):
+    try:
+        from referencing import Registry, Resource
+        from referencing.jsonschema import DRAFT202012
 
-    resources = []
-    for sib in schema_dir.glob('*.schema.json'):
-        with sib.open(encoding='utf-8') as f:
-            body = json.load(f)
-        resources.append((sib.name, Resource(contents=body, specification=DRAFT202012)))
-        # Also register by absolute file URI so '$id'-less local refs work.
-        resources.append((sib.as_uri(), Resource(contents=body, specification=DRAFT202012)))
-    registry = Registry().with_resources(resources)
-    validator = Draft202012Validator(schema, registry=registry)
-except ImportError:
-    # Older jsonschema without `referencing` — fall back to RefResolver.
-    from jsonschema import RefResolver  # type: ignore
-    base_uri = schema_dir.as_uri() + '/'
-    resolver = RefResolver(base_uri=base_uri, referrer=schema)
-    validator = Draft202012Validator(schema, resolver=resolver)
+        resources = []
+        for sib in schema_dir.glob('*.schema.json'):
+            with sib.open(encoding='utf-8') as f:
+                body = json.load(f)
+            resources.append((sib.name, Resource(contents=body, specification=DRAFT202012)))
+            # Also register by absolute file URI so '$id'-less local refs work.
+            resources.append((sib.as_uri(), Resource(contents=body, specification=DRAFT202012)))
+        registry = Registry().with_resources(resources)
+        return Draft202012Validator(schema, registry=registry)
+    except (ImportError, TypeError):
+        # Older jsonschema — fall back to RefResolver.
+        from jsonschema import RefResolver  # type: ignore
+        base_uri = schema_dir.as_uri() + '/'
+        resolver = RefResolver(base_uri=base_uri, referrer=schema)
+        return Draft202012Validator(schema, resolver=resolver)
+
+validator = _build_validator(schema, schema_dir)
 
 errors = sorted(validator.iter_errors(data), key=lambda e: list(e.absolute_path))
 if errors:
