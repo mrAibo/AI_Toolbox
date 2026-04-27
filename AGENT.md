@@ -320,3 +320,25 @@ The AI Toolbox builds on established open-source projects. **AI Toolbox is the p
 Full integration details: **[.agent/rules/tool-integrations.md](.agent/rules/tool-integrations.md)**.
 
 ---
+
+## 16. Plugins (v1.5+)
+
+Plugins are file-based extensions that contribute stack-specific rules and
+context hints. They live under `.agent/plugins/<name>/` and are referenced
+from this section. The block below is **auto-managed by `bootstrap`** —
+edit `.agent/plugins/<name>/manifest.json` instead, then run
+`ai-toolbox bootstrap` (or `--dry-run` to preview).
+
+See **[.agent/plugins/README.md](.agent/plugins/README.md)** for the manifest
+format, conflict-resolution semantics, and how to add a new plugin.
+
+<!-- AI_TOOLBOX_PLUGINS:START -->
+**Active plugins** (sorted by priority ascending — see [.agent/plugins/README.md](.agent/plugins/README.md)):
+
+- **`nodejs`** v0.1.0 (priority 100) — Node.js / npm conventions: package.json hygiene, lockfiles, script naming.
+  - [.agent/plugins/nodejs/rules.md](.agent/plugins/nodejs/rules.md)
+- **`python`** v0.1.0 (priority 100) — Python / pip / venv conventions: virtual environments, type hints, test layout.
+  - [.agent/plugins/python/rules.md](.agent/plugins/python/rules.md)
+<!-- AI_TOOLBOX_PLUGINS:END -->
+
+---

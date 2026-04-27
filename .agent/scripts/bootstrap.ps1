@@ -1,5 +1,118 @@
 ﻿# bootstrap.ps1 — AI Toolbox repo initialization (Windows)
 # No $ErrorActionPreference = "Stop" — must be resilient; one failure must not kill the whole script.
+#
+# Usage: pwsh .agent/scripts/bootstrap.ps1 [-DryRun] [-Help]
+
+[CmdletBinding(PositionalBinding = $false)]
+param(
+    [switch]$DryRun,
+    [switch]$Help
+)
+
+if ($Help) {
+    Write-Host @"
+bootstrap.ps1 — idempotent AI Toolbox file generation.
+
+Usage: pwsh .agent/scripts/bootstrap.ps1 [-DryRun] [-Help]
+
+  -DryRun    Show every file/dir that would be created or modified,
+             without writing anything. Useful for preview and CI.
+  -Help      Show this message.
+
+Without -DryRun, bootstrap creates memory files, rule files, router files
+for every supported client, and Git hooks. It is safe to re-run; existing
+non-empty files are not overwritten.
+"@
+    exit 0
+}
+
+# ---- Dry-run plumbing ----------------------------------------------------
+$script:DryRunActive = [bool]$DryRun
+$script:DryRunCount  = 0
+
+function script:_DrLog {
+    param([string]$Message)
+    $script:DryRunCount++
+    Write-Host "[DRY-RUN] $Message"
+}
+
+if ($script:DryRunActive) {
+    Write-Host "[bootstrap] DRY-RUN — no files will be written"
+
+    # Override the cmdlets bootstrap.ps1 uses for writes. PowerShell prefers a
+    # function over a same-named cmdlet within the script's scope. We accept
+    # all parameters via -ValueFromRemaining so binding never fails.
+    function global:Set-Content {
+        [CmdletBinding()]
+        param(
+            [Parameter(Position=0, ValueFromPipeline=$true)] $Value,
+            [Parameter(Position=1)] [string]$Path,
+            [string]$Encoding,
+            [switch]$Force,
+            [switch]$NoNewline,
+            [Parameter(ValueFromRemainingArguments=$true)] $Rest
+        )
+        process {
+            $len = if ($Value -is [string]) { $Value.Length } else { ($Value | Out-String).Length }
+            _DrLog "Set-Content $Path ($len chars)"
+        }
+    }
+
+    function global:Add-Content {
+        [CmdletBinding()]
+        param(
+            [Parameter(Position=0, ValueFromPipeline=$true)] $Value,
+            [Parameter(Position=1)] [string]$Path,
+            [string]$Encoding,
+            [Parameter(ValueFromRemainingArguments=$true)] $Rest
+        )
+        process { _DrLog "Add-Content $Path" }
+    }
+
+    function global:New-Item {
+        [CmdletBinding()]
+        param(
+            [Parameter(Position=0)] $Path,
+            [string]$ItemType,
+            [switch]$Force,
+            $Value,
+            [Parameter(ValueFromRemainingArguments=$true)] $Rest
+        )
+        $kind = if ($ItemType) { $ItemType } else { 'File' }
+        _DrLog "New-Item $kind $Path"
+    }
+
+    function global:Copy-Item {
+        [CmdletBinding()]
+        param(
+            [Parameter(Position=0)] $Path,
+            [Parameter(Position=1)] $Destination,
+            [switch]$Force, [switch]$Recurse,
+            [Parameter(ValueFromRemainingArguments=$true)] $Rest
+        )
+        _DrLog "Copy-Item $Path -> $Destination"
+    }
+
+    function global:Move-Item {
+        [CmdletBinding()]
+        param(
+            [Parameter(Position=0)] $Path,
+            [Parameter(Position=1)] $Destination,
+            [Parameter(ValueFromRemainingArguments=$true)] $Rest
+        )
+        _DrLog "Move-Item $Path -> $Destination"
+    }
+
+    function global:Out-File {
+        [CmdletBinding()]
+        param(
+            [Parameter(Position=0)] [string]$FilePath,
+            [Parameter(ValueFromPipeline=$true)] $InputObject,
+            [Parameter(ValueFromRemainingArguments=$true)] $Rest
+        )
+        process { _DrLog "Out-File $FilePath" }
+    }
+}
 
 Write-Host "[bootstrap] preparing AI Toolbox structure..."
 
@@ -1169,5 +1282,31 @@ if ((Get-Command opencode -ErrorAction SilentlyContinue) -or (Test-Path "opencod
     }
 }
 
+# Render plugin references into AGENT.md (idempotent — see .agent/plugins/README.md).
+if ((Test-Path '.agent/plugins') -and (Test-Path '.agent/scripts/render-plugins.py')) {
+    $python = Get-Command python3 -ErrorAction SilentlyContinue
+    if (-not $python) { $python = Get-Command python -ErrorAction SilentlyContinue }
+    if ($python) {
+        $env:PYTHONIOENCODING = 'utf-8'
+        if ($script:DryRunActive) {
+            & $python.Source '.agent/scripts/render-plugins.py' --dry-run
+        } else {
+            & $python.Source '.agent/scripts/render-plugins.py'
+        }
+    } else {
+        Write-Host '[bootstrap] python not available — skipping plugin enumeration'
+    }
+}
+
 Write-Host "[bootstrap] structure ready"
+
+# ---- Dry-run summary + cleanup ----
+if ($script:DryRunActive) {
+    foreach ($name in 'Set-Content','Add-Content','New-Item','Copy-Item','Move-Item','Out-File') {
+        $f = Get-Item "function:global:$name" -ErrorAction SilentlyContinue
+        if ($f) { Remove-Item "function:global:$name" -Force -ErrorAction SilentlyContinue }
+    }
+    Write-Host ""
+    Write-Host "[bootstrap] DRY-RUN summary: $($script:DryRunCount) operation(s) would run"
+}
 

@@ -1,6 +1,79 @@
 #!/bin/bash
 set -e
 
+# ---- Argument parsing -----------------------------------------------------
+DRY_RUN=0
+for _arg in "$@"; do
+    case "$_arg" in
+        --dry-run|-n) DRY_RUN=1 ;;
+        --help|-h)
+            cat <<HELP
+bootstrap.sh — idempotent AI Toolbox file generation.
+
+Usage: bash .agent/scripts/bootstrap.sh [--dry-run|-n] [--help|-h]
+
+  --dry-run, -n    Show every file/dir that would be created or modified,
+                   without writing anything. Useful for preview and CI.
+  --help, -h       Show this message.
+
+Without --dry-run, bootstrap creates memory files, rule files, router files
+for every supported client, and Git hooks. It is safe to re-run; existing
+non-empty files are not overwritten.
+HELP
+            exit 0
+            ;;
+    esac
+done
+
+# ---- Dry-run plumbing -----------------------------------------------------
+# When DRY_RUN=1 we override every destructive shell command with a function
+# that prints the intent. Heredoc-redirect sites (`cat << EOF > FILE`) cannot
+# be intercepted via function override because the redirect happens at the
+# shell level — those sites use _dr_writeto explicitly (see below).
+_DR_TOTAL=0
+_DR_LOG="$(mktemp 2>/dev/null || echo /tmp/bootstrap-dry-run.$$)"
+: >"$_DR_LOG"
+
+_dr_log() { _DR_TOTAL=$((_DR_TOTAL+1)); printf '[DRY-RUN] %s\n' "$*" | tee -a "$_DR_LOG"; }
+
+if [ "$DRY_RUN" -eq 1 ]; then
+    echo "[bootstrap] DRY-RUN — no files will be written"
+    mkdir() { _dr_log "mkdir $*"; }
+    touch() { _dr_log "touch $*"; }
+    cp()    { _dr_log "cp $*"; }
+    mv()    { _dr_log "mv $*"; }
+    chmod() { _dr_log "chmod $*"; }
+    ln()    { _dr_log "ln $*"; }
+fi
+
+# Heredoc helper. Usage:
+#   _dr_writeto FILE <<EOF
+#   ...content...
+#   EOF
+# In dry-run, prints "[DRY-RUN] write FILE (N bytes)" and discards stdin.
+# In normal mode, writes stdin to FILE.
+_dr_writeto() {
+    local target="$1"
+    if [ "$DRY_RUN" -eq 1 ]; then
+        local bytes
+        bytes=$(cat | wc -c | tr -d ' ')
+        _DR_TOTAL=$((_DR_TOTAL+1))
+        printf '[DRY-RUN] write %s (%s bytes)\n' "$target" "$bytes" | tee -a "$_DR_LOG"
+    else
+        cat >"$target"
+    fi
+}
+
+# Print summary at exit when in dry-run mode. Use EXIT trap so it runs even
+# on early-exit paths (set -e). Avoid clobbering existing traps.
+if [ "$DRY_RUN" -eq 1 ]; then
+    trap '
+        echo ""
+        echo "[bootstrap] DRY-RUN summary: $_DR_TOTAL operation(s) would run"
+        rm -f "$_DR_LOG" 2>/dev/null
+    ' EXIT
+fi
+
 echo "[bootstrap] preparing AI Toolbox structure..."
 mkdir -p .agent/rules .agent/memory .agent/templates .agent/scripts .agent/workflows docs examples prompts
 
@@ -8,7 +81,7 @@ touch README.md AGENT.md  # ensure files exist if someone deleted them
 
 TODAY=$(date +%Y-%m-%d)
 if [ ! -s .agent/memory/architecture-decisions.md ]; then
-cat << EOF > .agent/memory/architecture-decisions.md
+_dr_writeto .agent/memory/architecture-decisions.md << EOF
 # Architecture Decision Records (ADRs)
 
 This file tracks major architectural decisions. Use the format from \`../templates/adr-template.md\`.
@@ -24,7 +97,7 @@ EOF
 fi
 
 if [ ! -s .agent/memory/integration-contracts.md ]; then
-cat << 'EOF' > .agent/memory/integration-contracts.md
+_dr_writeto .agent/memory/integration-contracts.md << 'EOF'
 # Integration Contracts
 
 This file documents the contracts between different components, services, or third-party integrations (e.g. APIs, database schemas, library versions).
@@ -38,7 +111,7 @@ EOF
 fi
 
 if [ ! -s .agent/memory/session-handover.md ]; then
-cat << 'EOF' > .agent/memory/session-handover.md
+_dr_writeto .agent/memory/session-handover.md << 'EOF'
 # Session Handover
 
 ## Completed
@@ -59,7 +132,7 @@ EOF
 fi
 
 if [ ! -s .agent/memory/current-task.md ]; then
-cat << 'EOF' > .agent/memory/current-task.md
+_dr_writeto .agent/memory/current-task.md << 'EOF'
 # Task: Short title
 
 - Status: ready
@@ -75,7 +148,7 @@ EOF
 fi
 
 if [ ! -s .agent/memory/runbook.md ]; then
-cat << 'EOF' > .agent/memory/runbook.md
+_dr_writeto .agent/memory/runbook.md << 'EOF'
 # Runbook
 
 This file stores recurring operational knowledge for the repository.
@@ -108,7 +181,7 @@ EOF
 fi
 
 if [ ! -s .agent/memory/active-session.md ]; then
-cat << 'EOF' > .agent/memory/active-session.md
+_dr_writeto .agent/memory/active-session.md << 'EOF'
 # Active Session — [Date]
 
 ## Current Step
@@ -138,14 +211,14 @@ fi
 
 # Initialize tool usage tracking file
 if [ ! -f .agent/memory/.tool-stats.json ]; then
-cat << 'EOF' > .agent/memory/.tool-stats.json
+_dr_writeto .agent/memory/.tool-stats.json << 'EOF'
 {"rtk": 0, "beads": 0, "mcp": 0}
 EOF
 fi
 
 # Initialize memory index (READ FIRST during boot sequence)
 if [ ! -s .agent/memory/memory-index.md ]; then
-cat << 'EOF' > .agent/memory/memory-index.md
+_dr_writeto .agent/memory/memory-index.md << 'EOF'
 # Memory Index
 
 This file provides a quick overview of all memory files. Read this first during boot, then load detail files only when relevant.
@@ -167,7 +240,7 @@ EOF
 fi
 
 if [ ! -s .agent/rules/safety-rules.md ]; then
-cat << 'EOF' > .agent/rules/safety-rules.md
+_dr_writeto .agent/rules/safety-rules.md << 'EOF'
 # Safety Rules
 
 This file defines the repository safety constraints for AI-assisted work.
@@ -282,7 +355,7 @@ EOF
 fi
 
 if [ ! -s .agent/rules/testing-rules.md ]; then
-cat << 'EOF' > .agent/rules/testing-rules.md
+_dr_writeto .agent/rules/testing-rules.md << 'EOF'
 # Testing Rules
 
 This file defines how work must be verified before it is considered complete.
@@ -400,7 +473,7 @@ EOF
 fi
 
 if [ ! -s .agent/rules/stack-rules.md ]; then
-cat << 'EOF' > .agent/rules/stack-rules.md
+_dr_writeto .agent/rules/stack-rules.md << 'EOF'
 # Stack Rules
 
 This file defines stack-level constraints and preferences for the project.
@@ -495,7 +568,7 @@ EOF
 fi
 
 if [ ! -s .agent/rules/antigravity.md ]; then
-cat << 'EOF' > .agent/rules/antigravity.md
+_dr_writeto .agent/rules/antigravity.md << 'EOF'
 # Antigravity Environment Specifics
 
 This file defines how to work with the **AI Toolbox** when using the **Antigravity** assistant environment.
@@ -531,7 +604,7 @@ EOF
 fi
 
 if [ ! -s .agent/rules/qwen-code.md ]; then
-cat << 'EOF' > .agent/rules/qwen-code.md
+_dr_writeto .agent/rules/qwen-code.md << 'EOF'
 # Qwen Code Environment Specifics
 
 Qwen Code is a **Full-Tier** client with access to hooks, multi-agent orchestration, plan mode, and sync automation.
@@ -558,7 +631,7 @@ EOF
 fi
 
 if [ ! -s .agent/rules/tdd-rules.md ]; then
-cat << 'EOF' > .agent/rules/tdd-rules.md
+_dr_writeto .agent/rules/tdd-rules.md << 'EOF'
 # TDD Rules
 
 **When TDD is mandatory:** For all code changes.
@@ -573,7 +646,7 @@ EOF
 fi
 
 if [ ! -s .agent/rules/mcp-rules.md ]; then
-cat << 'EOF' > .agent/rules/mcp-rules.md
+_dr_writeto .agent/rules/mcp-rules.md << 'EOF'
 # MCP Server Rules
 
 **Before connecting:** Verify server identity and auth requirements.
@@ -588,7 +661,7 @@ EOF
 fi
 
 if [ ! -s .agent/rules/status-reporting.md ]; then
-cat << 'EOF' > .agent/rules/status-reporting.md
+_dr_writeto .agent/rules/status-reporting.md << 'EOF'
 # Status Reporting Rules
 
 **Report at these moments:**
@@ -604,7 +677,7 @@ EOF
 fi
 
 if [ ! -s .agent/rules/template-usage.md ]; then
-cat << 'EOF' > .agent/rules/template-usage.md
+_dr_writeto .agent/rules/template-usage.md << 'EOF'
 # Template Usage Rules
 
 **When to use templates:**
@@ -625,7 +698,7 @@ EOF
 fi
 
 if [ ! -s .agent/rules/tool-integrations.md ]; then
-cat << 'EOF' > .agent/rules/tool-integrations.md
+_dr_writeto .agent/rules/tool-integrations.md << 'EOF'
 # Tool Integration Guide
 
 ## rtk (Runtime Toolkit)
@@ -656,7 +729,7 @@ fi
 echo "[bootstrap] creating AI auto-discovery router files..."
 # CLAUDE.md is a committed file — only create/update if missing or empty
 if [ ! -s CLAUDE.md ]; then
-cat << 'EOF' > CLAUDE.md
+_dr_writeto CLAUDE.md << 'EOF'
 # AI Toolbox Protocol (Claude Code) -- Tier: Full
 <!-- cache-prefix: tier badge + 3 critical rules must remain first and unmodified -->
 
@@ -680,7 +753,7 @@ if [ -f ".agent/templates/clients/.claude.json" ] && [ ! -s .claude.json ]; then
 fi
 
 if [ ! -s GEMINI.md ]; then
-cat << 'EOF' > GEMINI.md
+_dr_writeto GEMINI.md << 'EOF'
 # AI Toolbox Protocol (Gemini CLI) -- Tier: Basic
 <!-- cache-prefix: tier badge + 3 critical rules must remain first and unmodified -->
 
@@ -732,7 +805,7 @@ EOF
 fi
 
 if [ ! -s PI.md ]; then
-cat << 'EOF' > PI.md
+_dr_writeto PI.md << 'EOF'
 # AI Toolbox Protocol (Pi by Inflection) -- Tier: Basic
 <!-- cache-prefix: tier badge + 3 critical rules must remain first and unmodified -->
 
@@ -786,7 +859,7 @@ fi
 
 # Create specialized router files (guard: preserve manual edits)
 if [ ! -s .cursorrules ]; then
-cat << 'EOF' > .cursorrules
+_dr_writeto .cursorrules << 'EOF'
 # AI Toolbox Protocol (Cursor) -- Tier: Standard
 <!-- cache-prefix: tier badge + 3 critical rules must remain first and unmodified -->
 
@@ -799,7 +872,7 @@ EOF
 fi
 
 if [ ! -s .clinerules ]; then
-cat << 'EOF' > .clinerules
+_dr_writeto .clinerules << 'EOF'
 # AI Toolbox Protocol (RooCode / Cline) -- Tier: Standard
 <!-- cache-prefix: tier badge + 3 critical rules must remain first and unmodified -->
 
@@ -812,7 +885,7 @@ EOF
 fi
 
 if [ ! -s .windsurfrules ]; then
-cat << 'EOF' > .windsurfrules
+_dr_writeto .windsurfrules << 'EOF'
 # AI Toolbox Protocol (Windsurf) -- Tier: Standard
 <!-- cache-prefix: tier badge + 3 critical rules must remain first and unmodified -->
 
@@ -826,7 +899,7 @@ fi
 
 # Full-Tier: Antigravity router (SKILL.md) — guard: preserve manual edits
 if [ ! -s SKILL.md ]; then
-cat << 'EOF' > SKILL.md
+_dr_writeto SKILL.md << 'EOF'
 ---
 name: AI Toolbox
 description: A strict, memory-backed agentic development framework for terminal-based AIs. (Antigravity Manifest)
@@ -854,7 +927,7 @@ if [ -f ".agent/templates/clients/QWEN.md" ] && [ ! -s QWEN.md ]; then
     cp .agent/templates/clients/QWEN.md QWEN.md
     echo "[bootstrap] Installed QWEN.md (Full Tier)"
 elif [ ! -s QWEN.md ]; then
-cat << 'EOF' > QWEN.md
+_dr_writeto QWEN.md << 'EOF'
 # AI Toolbox Protocol (Qwen Code) -- Tier: Full
 
 This project uses the **AI Toolbox** workflow framework. As a **Full-Tier** client, you have access to all features: hooks, multi-agent orchestration, plan mode, and sync automation.
@@ -885,7 +958,7 @@ if [ -f ".agent/templates/clients/CONVENTIONS.md" ] && [ ! -s CONVENTIONS.md ]; 
     cp .agent/templates/clients/CONVENTIONS.md CONVENTIONS.md
     echo "[bootstrap] Installed CONVENTIONS.md (Basic Tier)"
 elif [ ! -s CONVENTIONS.md ]; then
-cat << 'EOF' > CONVENTIONS.md
+_dr_writeto CONVENTIONS.md << 'EOF'
 # AI Toolbox Protocol (Aider) -- Tier: Basic
 
 This project uses the **AI Toolbox** workflow framework. As a **Basic-Tier** client, you have access to the Memory Layer and Rules Layer. Hooks are not available -- all safety rules are soft reminders.
@@ -940,7 +1013,7 @@ if [ -d ".git" ] && [ "${AITB_INSTALL_GIT_HOOKS:-true}" != "false" ]; then
         fi
     fi
     if [ "$NEEDS_UPDATE" -eq 1 ]; then
-    cat << 'EOF' > .git/hooks/pre-commit
+    _dr_writeto .git/hooks/pre-commit << 'EOF'
 #!/bin/bash
 # AI Toolbox Pre-commit wrapper
 REPO_ROOT="$(git rev-parse --show-toplevel)"
@@ -962,7 +1035,7 @@ EOF
         fi
     fi
     if [ "$NEEDS_UPDATE" -eq 1 ]; then
-    cat << 'EOF' > .git/hooks/commit-msg
+    _dr_writeto .git/hooks/commit-msg << 'EOF'
 #!/bin/bash
 # AI Toolbox Commit-Message wrapper
 REPO_ROOT="$(git rev-parse --show-toplevel)"
@@ -989,6 +1062,12 @@ REQUIRED_IGNORES=(
 )
 
 for ignore in "${REQUIRED_IGNORES[@]}"; do
+    # In dry-run, .gitignore may not have been created (touch is intercepted),
+    # so skip the existence check and just report intent.
+    if [ "$DRY_RUN" -eq 1 ]; then
+        _dr_log "append '$ignore' to .gitignore (if not already present)"
+        continue
+    fi
     if ! grep -qxF "$ignore" "$GITIGNORE"; then
         printf '\n%s\n' "$ignore" >> "$GITIGNORE"
         echo "[bootstrap] Added $ignore to .gitignore"
@@ -1016,7 +1095,7 @@ QWEN_SETTINGS=".qwen/settings.json"
 if command -v qwen &> /dev/null || [ -d ".qwen" ]; then
     mkdir -p .qwen
     if [ ! -f "$QWEN_SETTINGS" ]; then
-        cat << 'QWENEOF' > "$QWEN_SETTINGS"
+        _dr_writeto "$QWEN_SETTINGS" << 'QWENEOF'
 {
   "hooks": {
     "SessionStart": [{"hooks": [{"type": "command", "command": "bash .agent/scripts/sync-task.sh", "name": "ai-toolbox-sync", "description": "Sync task state from tracker", "timeout": 15000}]}],
@@ -1035,7 +1114,10 @@ QWENEOF
     else
         # Merge: add missing AI Toolbox hooks without overwriting existing Qwen config
         if command -v python3 &>/dev/null; then
-            python3 - "$QWEN_SETTINGS" << 'PYEOF'
+            if [ "$DRY_RUN" -eq 1 ]; then
+                _dr_log "merge AI Toolbox hooks into "$QWEN_SETTINGS" (via python3)"
+            else
+                python3 - "$QWEN_SETTINGS" << 'PYEOF'
 import json, sys
 settings_path = sys.argv[1]
 toolbox_hooks = {
@@ -1069,6 +1151,7 @@ try:
 except Exception as e:
     print(f"[bootstrap] Could not merge hooks: {e}", file=sys.stderr)
 PYEOF
+            fi
         else
             echo "[bootstrap] python3 not available — cannot merge into $QWEN_SETTINGS"
         fi
@@ -1089,7 +1172,10 @@ if command -v codex &>/dev/null || [ -d "$CODEX_SETTINGS" ]; then
     else
         # Merge: add missing AI Toolbox hooks without overwriting existing Codex config
         if command -v python3 &>/dev/null; then
-            python3 - ".codex/hooks.json" << 'PYEOF'
+            if [ "$DRY_RUN" -eq 1 ]; then
+                _dr_log "merge AI Toolbox hooks into ".codex/hooks.json" (via python3)"
+            else
+                python3 - ".codex/hooks.json" << 'PYEOF'
 import json, sys
 hooks_path = sys.argv[1]
 toolbox_hooks = {
@@ -1118,6 +1204,7 @@ try:
 except Exception as e:
     print(f"[bootstrap] Could not merge Codex hooks: {e}", file=sys.stderr)
 PYEOF
+            fi
         else
             echo "[bootstrap] python3 not available — cannot merge into .codex/hooks.json"
         fi
@@ -1154,7 +1241,10 @@ if command -v opencode &>/dev/null || [ -f "opencode.json" ] || [ -f "opencode.j
         OPENCODE_TARGET="opencode.json"
         [ -f "opencode.jsonc" ] && OPENCODE_TARGET="opencode.jsonc"
         if command -v python3 &>/dev/null && [ -f ".agent/templates/clients/opencode-config.json" ]; then
-            python3 - "$OPENCODE_TARGET" ".agent/templates/clients/opencode-config.json" << 'PYEOF'
+            if [ "$DRY_RUN" -eq 1 ]; then
+                _dr_log "merge AI Toolbox hooks into "$OPENCODE_TARGET" (via python3)"
+            else
+                python3 - "$OPENCODE_TARGET" ".agent/templates/clients/opencode-config.json" << 'PYEOF'
 import json, sys
 target_path, template_path = sys.argv[1], sys.argv[2]
 try:
@@ -1179,6 +1269,7 @@ try:
 except Exception as e:
     print(f"[bootstrap] Could not merge OpenCode config: {e}", file=sys.stderr)
 PYEOF
+            fi
         else
             echo "[bootstrap] python3 not available — cannot merge into $OPENCODE_TARGET"
         fi
@@ -1189,6 +1280,19 @@ PYEOF
             cp .agent/templates/clients/OPENCODERULES.md OPENCODERULES.md
             echo "[bootstrap] Created OPENCODERULES.md (OpenCode router file)"
         fi
+    fi
+fi
+
+# Render plugin references into AGENT.md (idempotent — see .agent/plugins/README.md).
+if [ -d ".agent/plugins" ] && [ -f ".agent/scripts/render-plugins.py" ]; then
+    if command -v python3 &>/dev/null; then
+        if [ "$DRY_RUN" -eq 1 ]; then
+            PYTHONIOENCODING=utf-8 python3 .agent/scripts/render-plugins.py --dry-run
+        else
+            PYTHONIOENCODING=utf-8 python3 .agent/scripts/render-plugins.py
+        fi
+    else
+        echo "[bootstrap] python3 not available — skipping plugin enumeration"
     fi
 fi
 

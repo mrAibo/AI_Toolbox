@@ -1,0 +1,23 @@
+{
+  "$schema": "../../schema/plugin-manifest.schema.json",
+  "name": "python",
+  "version": "0.1.0",
+  "description": "Python / pip / venv conventions: virtual environments, type hints, test layout.",
+  "rules": ["rules.md"],
+  "context_hints": [
+    "pyproject.toml",
+    "setup.py",
+    "setup.cfg",
+    "requirements.txt",
+    "requirements-dev.txt",
+    "uv.lock",
+    "poetry.lock",
+    "Pipfile",
+    "Pipfile.lock",
+    "**/*.py"
+  ],
+  "priority": 100,
+  "conflict_resolution": "merge",
+  "requires_toolbox_version": "1.5",
+  "tags": ["language:python", "ecosystem:pip"]
+}

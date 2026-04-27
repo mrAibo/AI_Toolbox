@@ -153,6 +153,9 @@ jobs:
               (Path('.agent/contracts/hook-protocol.json'),  schema_dir / 'hook-protocol.schema.json'),
               (Path('.agent/contracts/error-codes.json'),    schema_dir / 'error-codes.schema.json'),
           ]
+          # Plugin manifests: glob .agent/plugins/*/manifest.json
+          for manifest in sorted(Path('.agent/plugins').glob('*/manifest.json')):
+              pairs.append((manifest, schema_dir / 'plugin-manifest.schema.json'))
           fails = 0
           for instance_path, schema_path in pairs:
               if not instance_path.exists() or not schema_path.exists():
@@ -175,6 +178,12 @@ jobs:
           if fails:
               sys.exit(1)
           PY
+
+      - name: Verify AGENT.md plugin block is up to date
+        run: |
+          # Idempotency guard: if a plugin manifest changes but bootstrap
+          # wasn't re-run, AGENT.md drifts. The --check mode catches this.
+          python3 .agent/scripts/render-plugins.py --check
 
       - name: Validate TOML files
         run: |

@@ -1,0 +1,21 @@
+{
+  "$schema": "../../schema/plugin-manifest.schema.json",
+  "name": "nodejs",
+  "version": "0.1.0",
+  "description": "Node.js / npm conventions: package.json hygiene, lockfiles, script naming.",
+  "rules": ["rules.md"],
+  "context_hints": [
+    "package.json",
+    "package-lock.json",
+    "pnpm-lock.yaml",
+    "yarn.lock",
+    "**/*.js",
+    "**/*.mjs",
+    "**/*.cjs",
+    "tsconfig.json"
+  ],
+  "priority": 100,
+  "conflict_resolution": "merge",
+  "requires_toolbox_version": "1.5",
+  "tags": ["language:javascript", "ecosystem:npm", "runtime:node"]
+}
