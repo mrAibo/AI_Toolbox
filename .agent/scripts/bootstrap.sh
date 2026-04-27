@@ -1115,7 +1115,7 @@ QWENEOF
         # Merge: add missing AI Toolbox hooks without overwriting existing Qwen config
         if command -v python3 &>/dev/null; then
             if [ "$DRY_RUN" -eq 1 ]; then
-                _dr_log "merge AI Toolbox hooks into "$QWEN_SETTINGS" (via python3)"
+                _dr_log "merge AI Toolbox hooks into ${QWEN_SETTINGS} (via python3)"
             else
                 python3 - "$QWEN_SETTINGS" << 'PYEOF'
 import json, sys
@@ -1173,7 +1173,7 @@ if command -v codex &>/dev/null || [ -d "$CODEX_SETTINGS" ]; then
         # Merge: add missing AI Toolbox hooks without overwriting existing Codex config
         if command -v python3 &>/dev/null; then
             if [ "$DRY_RUN" -eq 1 ]; then
-                _dr_log "merge AI Toolbox hooks into ".codex/hooks.json" (via python3)"
+                _dr_log "merge AI Toolbox hooks into .codex/hooks.json (via python3)"
             else
                 python3 - ".codex/hooks.json" << 'PYEOF'
 import json, sys
@@ -1242,7 +1242,7 @@ if command -v opencode &>/dev/null || [ -f "opencode.json" ] || [ -f "opencode.j
         [ -f "opencode.jsonc" ] && OPENCODE_TARGET="opencode.jsonc"
         if command -v python3 &>/dev/null && [ -f ".agent/templates/clients/opencode-config.json" ]; then
             if [ "$DRY_RUN" -eq 1 ]; then
-                _dr_log "merge AI Toolbox hooks into "$OPENCODE_TARGET" (via python3)"
+                _dr_log "merge AI Toolbox hooks into ${OPENCODE_TARGET} (via python3)"
             else
                 python3 - "$OPENCODE_TARGET" ".agent/templates/clients/opencode-config.json" << 'PYEOF'
 import json, sys
