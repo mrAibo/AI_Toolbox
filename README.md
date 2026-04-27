@@ -1,219 +1,158 @@
-# AI Toolbox — Universal Terminal AI Workflow
+# AI Toolbox
+
+> **Make any terminal AI agent reliable.** Persistent memory, enforced safety,
+> stack-aware rules — file-based, no daemon, no vendor lock-in.
 
 [![Latest Release](https://img.shields.io/github/v/release/mrAibo/AI_Toolbox?label=version)](https://github.com/mrAibo/AI_Toolbox/releases)
 [![CI](https://github.com/mrAibo/AI_Toolbox/actions/workflows/ci.yml/badge.svg)](https://github.com/mrAibo/AI_Toolbox/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
-> Terminal AI agents are powerful — but without structure they forget context, dump 10,000-line logs into the chat, and start coding before planning.
+---
 
-AI Toolbox adds three layers on top of any terminal AI client:
+## The problem
+
+Terminal AI agents are powerful — and they forget. Across a single feature you
+hit five recurring failure modes:
+
+- The agent **re-reads the same files** every session because nothing persists.
+- It **plans in chat** (which gets compacted) instead of in version control.
+- It **claims work is done** without running tests.
+- It **dumps 8,000 lines** of test output into the context window and loses focus.
+- Every client has a **different hook format**, so guardrails don't transfer.
+
+## The fix
+
+A small, file-based protocol that lives next to your code.
 
 | Layer | What it does |
 |-------|-------------|
-| **Memory** | Persists architecture decisions, task state, and session handover across restarts |
-| **Rules** | Enforces TDD, safety guards, token-efficient output, and surgical changes |
-| **Automation** | Hooks sync state on every command, handover on every session end |
+| **Memory** (`.agent/memory/`) | ADRs, integration contracts, session handover, audit log — survives restarts |
+| **Rules** (`.agent/rules/`) | TDD, safety, surgical changes, parallel execution — enforced by hooks where supported |
+| **Plugins** (`.agent/plugins/`) | Stack-specific conventions (Node, Python, …) — declarative, no runtime |
+| **Contracts** (`.agent/contracts/`) | Hook protocol per client with **explicit guarantees**, structured error codes |
+| **CLI** (`./ai-toolbox`) | One stable entry point: `doctor`, `setup`, `bootstrap`, `validate`, `migrate` |
 
-Works with **10 AI clients** out of the box — no vendor lock-in.
-
----
-
-## Quick Start
-
-Choose the installation method that fits your situation:
-
-| Method | Best for |
-|--------|---------|
-| [GitHub Template](#option-1-github-template--recommended) | Starting a brand-new project |
-| [Script](#option-2-script--clone--run-setup) | Adding AI Toolbox to an existing project |
-| [AI-assisted](#option-3-ai-assisted-installation) | Letting your AI agent set everything up |
+Works with **11 AI clients** out of the box.
 
 ---
 
-### Option 1: GitHub Template *(recommended)*
+## What's new in v1.5
 
-1. On the **[repository page](https://github.com/mrAibo/AI_Toolbox)** click **"Use this template" → "Create a new repository"**
-2. Fill in owner, repo name, and visibility — click **"Create repository"**
-3. Clone your new repo locally and run setup:
+- 🛠️  **`ai-toolbox` CLI** — one stable entry replacing `bash .agent/scripts/...`
+- 📐 **JSON-Schema everywhere** — config, plugins, hook contracts, doctor output
+- 🔌 **Plugins** — drop a directory, get stack-specific rules into `AGENT.md`
+- 🧪 **`bootstrap --dry-run`** — preview every file change before it happens
+- 🚦 **CI compatibility matrix** — every Full-Tier client's hook contract verified on every push
+- 📋 **Structured errors** — every failure has a stable code (`CONFIG_ERROR`, `PLUGIN_CONFLICT`, …) with a fix instruction
+- 🔁 **`ai-toolbox migrate`** — versioned, idempotent config upgrades
+
+Full history in [CHANGELOG.md](CHANGELOG.md).
+
+---
+
+## Quick start
+
+### Option 1: Clone + setup *(recommended)*
 
 ```bash
-# Linux / macOS
-git clone https://github.com/YOUR-ORG/YOUR-REPO.git my-project
-cd my-project
-bash .agent/scripts/setup.sh
-```
-
-```powershell
-# Windows
-git clone https://github.com/YOUR-ORG/YOUR-REPO.git my-project
-cd my-project
-powershell -ExecutionPolicy Bypass -File .agent\scripts\setup.ps1
-```
-
-> Full step-by-step guide: [USE_AS_TEMPLATE.md](USE_AS_TEMPLATE.md)
-
----
-
-### Option 2: Script — Clone + Run Setup
-
-Clone directly and run the interactive setup wizard:
-
-```bash
-# Linux / macOS
 git clone https://github.com/mrAibo/AI_Toolbox.git my-project
 cd my-project
-bash .agent/scripts/setup.sh
+./ai-toolbox setup
 ```
 
-```powershell
-# Windows
-git clone https://github.com/mrAibo/AI_Toolbox.git my-project
-cd my-project
-powershell -ExecutionPolicy Bypass -File .agent\scripts\setup.ps1
-```
+Setup auto-detects your AI client, installs optional tools (rtk, Beads), and
+configures hooks. Anything that needs your action prints a numbered checklist.
 
-Setup detects your AI client, installs optional tools (rtk, Beads), and configures hooks automatically. A numbered checklist is printed for anything that needs manual action.
+### Option 2: GitHub Template
 
-For silent/CI use (no prompts), run `bootstrap.sh` / `bootstrap.ps1` directly instead of `setup`.
+On the [repository page](https://github.com/mrAibo/AI_Toolbox) click
+**"Use this template" → "Create a new repository"**, clone, and run setup.
+Full step-by-step guide: [USE_AS_TEMPLATE.md](USE_AS_TEMPLATE.md).
 
-> Full guide with per-client instructions: [INSTALL.md](INSTALL.md)
+### Option 3: AI-assisted
 
----
+Paste this into any supported AI client:
 
-### Option 3: AI-assisted Installation
+> Clone https://github.com/mrAibo/AI_Toolbox.git to a temp folder, copy `.agent/`
+> and `AGENT.md` into the current directory, then run `./ai-toolbox setup`.
+> Read `AGENT.md` when done and confirm.
 
-Let your AI agent do the setup. Paste this prompt into any supported AI client:
+### Verify
 
-```
-I want to add AI Toolbox to this project.
-Clone https://github.com/mrAibo/AI_Toolbox.git to a temp folder,
-copy the .agent/ folder and AGENT.md into the current directory,
-then run bootstrap.sh (Linux/macOS) or bootstrap.ps1 (Windows).
-Read AGENT.md when done and confirm the setup is complete.
-```
-
-The AI will:
-1. Clone AI Toolbox into a temporary directory
-2. Copy `.agent/`, `AGENT.md`, and the router files for your client
-3. Run `bootstrap.sh` / `bootstrap.ps1` to configure hooks and memory
-4. Read `AGENT.md` and confirm readiness
-
-> Detailed AI-agent instructions: [INSTALL.md — For AI Agents](INSTALL.md#for-ai-agents)
-
----
-
-**Verify any installation:**
 ```bash
-bash .agent/scripts/doctor.sh       # Linux / macOS
-powershell .agent/scripts/doctor.ps1   # Windows
+./ai-toolbox doctor              # health check
+./ai-toolbox doctor --explain    # with fix instructions
 ```
 
 ---
 
-## The Problem it Solves
+## What it looks like
 
-Without AI Toolbox, a typical session looks like this:
-
-```
-Day 1:  AI plans feature X, writes code, claims it works
-Day 2:  New session — AI has no memory, starts over, contradicts Day 1 decisions
-Day 3:  AI runs "npm test" → dumps 8,000 lines of output → loses focus
-Day 4:  AI skips tests, patches the wrong thing, breaks Day 1's code
-```
-
-With AI Toolbox:
+**Day 1.** You ask the agent for a refactor. Before writing code, it reads
+`.agent/memory/architecture-decisions.md`, picks up unfinished work from
+`session-handover.md`, and announces the active rules:
 
 ```
-Day 1:  AI reads session-handover.md → picks up exactly where Day 1 ended
-        pre-command hook intercepts "npm test" → runs "rtk npm test" instead
-        → shows only the 3 failing tests, not 8,000 lines
-        → TDD rule enforces: write failing test first, then fix, then verify
-Day 2:  hook-stop writes handover → next session resumes without repetition
+✅ AI Toolbox Active
+  → rtk: installed
+  → Beads: installed
+📋 Skill activated: TDD Rules — RED phase
 ```
+
+**Day 2, new session.** Same agent (or a different one — `claude`, `qwen`, `codex`)
+runs the same boot sequence and resumes where day 1 ended. No "let me read your codebase first."
+
+**Day 3.** It runs `npm test`. The pre-command hook intercepts and swaps in `rtk
+npm test` — output drops from 8,000 to 30 lines. A test fails. The agent reads
+the 3 failing tests, not the noise.
+
+**Day 4.** You add a React plugin:
+
+```bash
+mkdir -p .agent/plugins/react
+cat > .agent/plugins/react/manifest.json <<EOF
+{
+  "name": "react", "version": "0.1.0",
+  "rules": ["rules.md"],
+  "context_hints": ["src/**/*.tsx"],
+  "priority": 100
+}
+EOF
+echo "# React conventions ..." > .agent/plugins/react/rules.md
+./ai-toolbox bootstrap
+```
+
+The plugin reference appears in `AGENT.md` automatically. Re-run is idempotent.
 
 ---
 
-## How it Works
+## CLI reference
 
-Every session follows a fixed sequence defined in `AGENT.md`:
-
-```
-Session start  →  read memory-index.md
-               →  run sync-task (loads current-task.md from Beads)
-               →  read session-handover.md (unfinished work)
-
-During work    →  pre-command hook blocks heavy commands without rtk
-               →  TDD rules enforce RED → GREEN → REFACTOR
-               →  large source-file reads trigger a "use git diff" reminder
-
-Session end    →  hook-stop writes handover, caps history at 10 entries
-               →  audit.log appended (append-only, gitignored)
+```bash
+./ai-toolbox doctor    [--json] [--explain]      # health check
+./ai-toolbox setup     [--silent]                # interactive client detection
+./ai-toolbox bootstrap [--dry-run]               # idempotent file generation
+./ai-toolbox validate  [--json]                  # schema-validate config
+./ai-toolbox migrate   [--target X] [--dry-run]  # advance toolbox_version
+./ai-toolbox sync      [--json]                  # refresh current-task.md
 ```
 
-The AI never loses context between sessions. If it restarts mid-task, it picks up exactly where it left off.
+`context`, `simulate`, and `stats` are reserved for v1.6 (Phase C — adaptive
+context building). They exit 60 with a clear message until then.
+
+Full reference: [docs/cli-reference.md](docs/cli-reference.md).
 
 ---
 
-## The 9-Step Workflow
+## Client support
 
-Every task — from a one-line fix to a multi-week feature — follows the same structure:
-
-| Step | Name | What happens |
-|------|------|-------------|
-| 1 | **TASK** | Create Beads task: `bd create -t epic "Goal"` |
-| 2 | **BRAINSTORM** | Design before code — constraints, 2–3 approaches, tradeoffs |
-| 3 | **PLAN** | Break into 2–5 min subtasks, record decisions in ADRs |
-| 4 | **ISOLATE** | Git worktree per task — no cross-contamination |
-| 5 | **IMPLEMENT** | TDD: RED → GREEN → REFACTOR, no production code without a failing test |
-| 6 | **REVIEW** | Self-review checklist before claiming done |
-| 7 | **VERIFY** | Run tests, check for regressions, no silent completions |
-| 8 | **FINISH** | Merge, update handover, close Beads task |
-| 9 | **CLOSE** | `bd close` — marks task done, triggers next |
-
-Full details: [.agent/workflows/unified-workflow.md](.agent/workflows/unified-workflow.md)
-
----
-
-## Hook System
-
-Hooks run automatically at key moments — no manual invocation needed on Full-Tier clients.
-
-| Hook | When | What it does |
-|------|------|-------------|
-| `SessionStart` | Session begins | Runs sync-task, loads current-task.md |
-| `PreToolUse` | Before any shell command | Blocks heavy commands (python, cargo, npm…) unless prefixed with `rtk` |
-| `PostToolUse` | After file write/edit | Scans written files for secrets |
-| `Stop` | Before each response | Updates memory files |
-| `SessionEnd` | Session closes | Full memory consolidation, writes session-handover.md |
-| `PreCompact` | Before context compaction | Injects architecture context so it survives compaction |
-
-Git hooks (installed by bootstrap):
-- **pre-commit** — verifies tier badges, warns on missing TDD coverage, scans for secrets
-- **commit-msg** — enforces TDD markers in commit messages
-
----
-
-## Token Efficiency
-
-AI Toolbox is built to minimize token cost at every layer:
-
-- **Cache-stable prefix** — each router file has a fixed `<!-- cache-prefix -->` header; the BOOT/SAFETY/HANDOVER block never changes, maximizing prompt-cache hits
-- **rtk integration** — heavy command output compressed 60–90% before entering the context window
-- **Instruction deduplication** — each rule lives in one file; router files reference, not repeat
-- **Input context discipline** — agents are guided to read `git diff` and symbol context instead of full files (see `.agent/rules/diff-editing.md`)
-- **Lazy memory loading** — only `memory-index.md` loads on boot; detail files load on demand
-
----
-
-## Client Support
-
-| Client | Tier | Auto hooks | Multi-agent | Router file |
-|--------|------|-----------|------------|------------|
+| Client | Tier | Auto hooks | Multi-agent | Router |
+|--------|------|-----------|------------|--------|
 | Claude Code | Full | ✅ | ✅ | `CLAUDE.md` |
 | Qwen Code | Full | ✅ | ✅ | `QWEN.md` |
 | Antigravity | Full | ✅ | ✅ | `SKILL.md` |
-| Codex CLI | Standard | ✅ | — | `CODERULES.md` |
-| OpenCode | Standard | ✅ | ✅ | `OPENCODERULES.md` |
+| Codex CLI | Full | ✅ | block-only | `CODERULES.md` |
+| OpenCode | Full | ✅ | ✅ | `OPENCODERULES.md` |
 | Cursor | Standard | manual | — | `.cursorrules` |
 | RooCode / Cline | Standard | manual | — | `.clinerules` |
 | Windsurf | Standard | manual | — | `.windsurfrules` |
@@ -221,69 +160,50 @@ AI Toolbox is built to minimize token cost at every layer:
 | Aider | Basic | — | — | `CONVENTIONS.md` |
 | Pi (Inflection) | Basic | — | — | `PI.md` |
 
-**Full** = hooks auto-enforce every rule, multi-agent parallelization available.  
-**Standard** = hooks work but require manual invocation.  
-**Basic** = rules are soft reminders only, no hook support.
+**Tiers.** *Full* = hooks auto-enforce every rule, multi-agent parallel work
+available. *Standard* = hooks work but require manual invocation. *Basic* =
+soft reminders only, no hook support.
+
+Hook capabilities per client (block / modify input / modify output / inject
+context) are declared in [`.agent/contracts/hook-protocol.json`](.agent/contracts/hook-protocol.json) — and verified in CI on every push.
 
 ---
 
-## Key Files
+## How it works
+
+Every session follows a fixed sequence defined in [`AGENT.md`](AGENT.md):
 
 ```
-AGENT.md                        ← AI's master execution contract (read first)
-.agent/
-  memory/
-    memory-index.md             ← Boot entry point (lists all memory files)
-    current-task.md             ← Active task (auto-generated by sync-task)
-    session-handover.md         ← Unfinished work from last session
-    architecture-decisions.md   ← Long-term ADRs
-    integration-contracts.md    ← API / schema contracts
-    audit.log                   ← Append-only audit trail (gitignored)
-  rules/                        ← 21 hard execution constraints
-    safety-rules.md             ← Destructive action prevention
-    tdd-rules.md                ← RED → GREEN → REFACTOR enforcement
-    diff-editing.md             ← Output + input context budget rules
-    coding-discipline.md        ← Simplicity First, Surgical Changes
-    parallel-execution.md       ← When and how to parallelize
-  scripts/
-    bootstrap.sh / .ps1         ← Silent idempotent setup (CI-safe)
-    setup.sh / .ps1             ← Interactive wizard (client detect, tool install)
-    doctor.sh / .ps1            ← Health check — validates entire setup
-    sync-task.sh / .ps1         ← Syncs Beads task state to current-task.md
-    hook-pre-command.sh / .ps1  ← Blocks heavy commands without rtk
-    hook-stop.sh / .ps1         ← Writes session handover on stop
-  workflows/                    ← Unified 9-step, bug-fix, code-review, branch-finish
-  skills/                       ← TDD, debugging, code-review, parallel, safety
+Session start  →  read .agent/memory/memory-index.md
+               →  ./ai-toolbox sync   (loads current-task.md)
+               →  read session-handover.md (unfinished work)
+
+During work    →  pre-command hook blocks heavy commands without rtk
+               →  TDD rules enforce RED → GREEN → REFACTOR
+               →  large source-file reads trigger a "use git diff" reminder
+
+Session end    →  hook-stop writes session-handover.md
+               →  audit.log appended (append-only, gitignored)
 ```
+
+The agent never loses context between sessions.
 
 ---
 
-## Optional Tools
+## Optional tools
 
-| Tool | Purpose | Without it |
-|------|---------|-----------|
-| **[rtk](https://github.com/rtk-ai/rtk)** | Compresses test/build output 60–90% | More tokens on heavy commands |
-| **[Beads](https://github.com/steveyegge/beads)** | CLI task graph — moves plan out of chat | Manual edits to `current-task.md` |
-| **[MCP servers](docs/mcp-guide.md)** | Context7 docs, filesystem, fetch | No live docs / web lookup |
+| Tool | Why | Without it |
+|------|-----|-----------|
+| **[rtk](https://github.com/rtk-ai/rtk)** | Compresses test/build output 60–90% | Heavy commands eat tokens |
+| **[Beads](https://github.com/steveyegge/beads)** | CLI task graph — keeps plans out of chat | Manual edits to `current-task.md` |
+| **[MCP servers](docs/mcp-guide.md)** | Live docs (Context7), filesystem, fetch | No live docs / web lookup |
 
 ```bash
-cargo install rtk                                          # rtk
-go install github.com/steveyegge/beads/cmd/bd@v0.63.3    # Beads
+cargo install --git https://github.com/rtk-ai/rtk
+go install github.com/steveyegge/beads/cmd/bd@v0.63.3
 ```
 
-Both are installed automatically by `setup.sh` / `setup.ps1` if you confirm the prompts.
-
----
-
-## Start Working
-
-**Continuing existing work:**
-> *"Execute your Boot Sequence, read our memories and sync tasks, then pick up the next step."*
-
-**New feature or project:**
-> *"I want to build [X]. Follow AGENT.md — do not write code yet. Brainstorm constraints and propose 2–3 approaches."*
-
-**Paste into any supported AI client.** The Boot Sequence, task sync, and safety hooks do the rest.
+`./ai-toolbox setup` installs these for you if you confirm the prompts.
 
 ---
 
@@ -291,14 +211,36 @@ Both are installed automatically by `setup.sh` / `setup.ps1` if you confirm the 
 
 | Guide | What's in it |
 |-------|-------------|
-| [AGENT.md](AGENT.md) | Master execution contract — all rules, boot sequence, 9-step workflow |
-| [INSTALL.md](INSTALL.md) | Full installation guide — Template, clone, and per-client manual setup |
-| [QUICKSTART.md](QUICKSTART.md) | 5-minute quick start — bootstrap, rtk, first session |
-| [USE_AS_TEMPLATE.md](USE_AS_TEMPLATE.md) | GitHub Template step-by-step: create repo, clone, setup, first session |
-| [docs/setup-claude.md](docs/setup-claude.md) | Claude Code: hooks, MCP, sub-agents, v1.2.0 features |
-| [docs/setup-opencode.md](docs/setup-opencode.md) | OpenCode: commands, agents, skills |
-| [docs/setup-codex.md](docs/setup-codex.md) | Codex CLI: config, permissions |
-| [docs/setup-pi.md](docs/setup-pi.md) | Pi (Inflection AI): manual context workflow, limitations |
-| [docs/mcp-guide.md](docs/mcp-guide.md) | MCP server setup for all clients |
-| [docs/faq.md](docs/faq.md) | Frequently asked questions |
+| [AGENT.md](AGENT.md) | Agent's master execution contract — boot sequence, workflows, rules |
+| [QUICKSTART.md](QUICKSTART.md) | 5-minute walk-through |
+| [INSTALL.md](INSTALL.md) | Detailed installation across all clients |
+| [USE_AS_TEMPLATE.md](USE_AS_TEMPLATE.md) | GitHub Template flow |
+| [docs/cli-reference.md](docs/cli-reference.md) | All `ai-toolbox` subcommands and flags |
+| [.agent/plugins/README.md](.agent/plugins/README.md) | Plugin authoring guide |
+| [.agent/contracts/hook-protocol.md](.agent/contracts/hook-protocol.md) | What hooks can / cannot do per client |
+| [.agent/contracts/error-codes.md](.agent/contracts/error-codes.md) | Structured error registry |
+| [docs/mcp-guide.md](docs/mcp-guide.md) | MCP server setup |
+| [docs/faq.md](docs/faq.md) | FAQ |
 | [CHANGELOG.md](CHANGELOG.md) | Release history |
+
+---
+
+## Contributing
+
+PRs welcome. Three rules of engagement:
+
+1. **Schemas first.** New config fields land in `.agent/schema/` *before* they're
+   read by code.
+2. **Hook contract.** New client integrations declare their `guarantees` block
+   in [`hook-protocol.json`](.agent/contracts/hook-protocol.json) and pass the
+   CI matrix.
+3. **No more than 9 top-level CLI verbs.** New functionality is a flag or a
+   sub-subcommand, not a new verb.
+
+Run `./ai-toolbox doctor` and the test suite (`pytest tests/`) before you push.
+
+---
+
+## License
+
+MIT — see [LICENSE](LICENSE).

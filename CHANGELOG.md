@@ -8,15 +8,94 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
-### Added
-- `PI.md` — Basic-Tier router file for Pi (Inflection AI, pi.ai); web-only client, soft reminders, manual context paste workflow
-- `docs/setup-pi.md` — Pi setup guide: session start/end flow, manual context workflow, limitations table
-- `.ai-toolbox/config.json` — Pi client entry (tier: basic, no hooks, no autodetect)
-- `bootstrap.sh` / `bootstrap.ps1` — generate `PI.md` when missing (idempotent, matching Gemini pattern)
-- `test-content.sh` — `PI.md` added to router-file check list
-- `USE_AS_TEMPLATE.md` — expanded with full step-by-step GitHub Template flow (7 steps), Template vs Clone vs Fork comparison table, client router-file reference table, per-client setup guide links
-- `INSTALL.md` — added GitHub Template as Option A with `USE_AS_TEMPLATE.md` link, added Pi client section
-- README documentation table expanded: `INSTALL.md` and `QUICKSTART.md` entries added with descriptions
+---
+
+## [v1.5.0] — 2026-04-27
+
+### Added — Phase A: declarative contracts
+- `.agent/schema/` — seven JSON Schemas (Draft 2020-12): `config`, `client`,
+  `plugin-manifest`, `hook-protocol`, `doctor-output`, `context-bundle`,
+  `error-codes`. All meta-validated in CI.
+- `.agent/contracts/hook-protocol.json` + `hook-protocol.md` — per-client
+  hook capabilities with explicit `guarantees` block (`can_block`,
+  `can_modify_input`, `can_modify_output`, `can_inject_context`). Codex
+  declared as block-only — a system limit, not an implementation gap.
+- `.agent/contracts/error-codes.json` + `error-codes.md` — registry of 10
+  structured error classes with stable exit codes (≥10) per category:
+  `CONFIG_ERROR`, `CONTRACT_VIOLATION`, `DETERMINISM_ERROR`,
+  `MIGRATION_ERROR`, `PLUGIN_ERROR`, `IO_ERROR`, `INTERNAL_ERROR`, …
+- `.agent/scripts/lib-errors.sh` — structured error emit helper with
+  text and JSON modes, variable substitution into fix templates.
+- `.agent/migrations/1.4-to-1.5.sh` + `.ps1` — first idempotent migration
+  (adds `$schema` reference, `toolbox_version`, `context` budgets).
+- `.agent/scripts/migrate.sh` + `.ps1` — versioned migrator with `--dry-run`
+  and audit-log entries.
+- `.agent/scripts/test-hook-contract.sh` — per-client × per-event simulation
+  with `--json` output for CI consumption.
+- `.ai-toolbox/config.json` — `$schema` reference and required
+  `toolbox_version: "1.5"`.
+
+### Added — Phase B: unified surface, plugins, dry-run
+- `ai-toolbox` (bash) and `ai-toolbox.ps1` (PowerShell) — top-level
+  dispatcher with 9 stable verbs: `doctor`, `setup`, `bootstrap`, `validate`,
+  `migrate`, `sync`, plus reserved `context`/`simulate`/`stats` (Phase C).
+- `docs/cli-reference.md` — interface contract and stability policy
+  (hard cap: 9 top-level verbs).
+- `.agent/plugins/` — file-based plugin convention. Drop a directory with
+  `manifest.json` and `rules.md`; bootstrap enumerates and references them
+  from `AGENT.md`. Schema-validated.
+- `.agent/plugins/nodejs/` and `.agent/plugins/python/` — two reference
+  plugins.
+- `.agent/scripts/render-plugins.py` — idempotent enumerator with
+  `--check` (CI drift guard) and `--dry-run` modes; detects rule-file
+  conflicts when `conflict_resolution: fail` is declared.
+- `tests/test_render_plugins.py` — 8 unit tests covering rendering,
+  idempotency, drift detection, dry-run, conflict resolution, name/dir
+  validation, and the empty-plugins case.
+- `bootstrap.sh` / `bootstrap.ps1` — `--dry-run` flag previewing every
+  filesystem write. Bash overrides `mkdir`/`cp`/`mv`/`touch`/`chmod`/`ln`;
+  30 heredoc-write sites use the new `_dr_writeto` helper. PowerShell
+  overrides the equivalent cmdlets via global function override.
+
+### Added — CI
+- Matrix job `hook-contract` runs `test-hook-contract.sh` for every
+  Full-Tier client (Claude, Qwen, Codex, OpenCode); fails fast on contract
+  drift. Results uploaded as artifacts.
+- Schema meta-validation: every `.agent/schema/*.schema.json` must be a
+  valid JSON Schema.
+- Instance validation: hook-protocol, error-codes, and every plugin
+  manifest validated against their schema on every push.
+- AGENT.md drift check via `render-plugins.py --check`.
+
+### Changed
+- `doctor.sh` / `doctor.ps1` — new `--json` output (schema-conformant per
+  `doctor-output.schema.json`) and `--explain` flag (appends fix
+  instructions to every warning/error). Two new sections: "Schema &
+  Contracts" and "Toolbox Version".
+- `validate-toolbox-config.sh` — switched to the `jsonschema` +
+  `referencing` API with defensive fallback to `RefResolver` on older
+  installations.
+- `AGENT.md` — new section 16 documenting plugins, with the auto-managed
+  `<!-- AI_TOOLBOX_PLUGINS:START/END -->` marker block.
+
+### Carried over from prior unreleased work
+- `PI.md` — Basic-Tier router file for Pi (Inflection AI, pi.ai); web-only
+  client, soft reminders, manual context paste workflow.
+- `docs/setup-pi.md` — Pi setup guide: session start/end flow, manual
+  context workflow, limitations table.
+- `.ai-toolbox/config.json` — Pi client entry (tier: basic, no hooks,
+  no autodetect).
+- `bootstrap.sh` / `bootstrap.ps1` — generate `PI.md` when missing
+  (idempotent, matching Gemini pattern).
+- `test-content.sh` — `PI.md` added to router-file check list.
+- `USE_AS_TEMPLATE.md` — expanded with full step-by-step GitHub Template
+  flow (7 steps), Template vs Clone vs Fork comparison table, client
+  router-file reference table, per-client setup guide links.
+- `INSTALL.md` — added GitHub Template as Option A with `USE_AS_TEMPLATE.md`
+  link, added Pi client section.
+- `README.md` — rewritten for v1.5: leads with the problem-it-solves,
+  highlights the new declarative-contracts and plugin layers, links to
+  the unified CLI and per-client hook guarantees.
 
 ---
 
