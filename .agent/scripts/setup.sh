@@ -144,6 +144,14 @@ else
     echo "  ✅ Aider ($AIDER_VERSION)"
   fi
 
+  # Check Codex CLI (binary or local .codex/ workspace)
+  if command -v codex &> /dev/null || [ -d ".codex" ] || [ -d "$HOME/.codex" ]; then
+    CODEX_VERSION=$(codex --version 2>/dev/null || echo "installed")
+    CLIENTS+=("codex")
+    CLIENT_NAMES+=("Codex CLI ($CODEX_VERSION)")
+    echo "  ✅ Codex CLI ($CODEX_VERSION)"
+  fi
+
   # GUI-based clients (no CLI binary — detect via common install paths)
   if command -v cursor &> /dev/null || [ -d "$HOME/.cursor" ] || [ -d "$HOME/.config/cursor" ]; then
     CLIENTS+=("cursor")

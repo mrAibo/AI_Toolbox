@@ -118,6 +118,18 @@ if ($ConfigPrimary) {
     Write-Host "  [OK] Aider ($ver)" -ForegroundColor Green
   }
 
+  # Check Codex CLI (binary or local .codex/ workspace or user-global config)
+  $CodexFound = (Get-Command codex -ErrorAction SilentlyContinue) -or
+      (Test-Path ".codex") -or
+      (Test-Path "$env:USERPROFILE\.codex")
+  if ($CodexFound) {
+    try { $ver = (codex --version 2>$null) } catch { $ver = "installed" }
+    if (-not $ver) { $ver = "installed" }
+    $Clients += "codex"
+    $ClientNames += "Codex CLI ($ver)"
+    Write-Host "  [OK] Codex CLI ($ver)" -ForegroundColor Green
+  }
+
   # GUI-based clients: check command + common install paths
 
   # Cursor
@@ -415,17 +427,38 @@ function Invoke-BdInit {
   return $false
 }
 
-# Remove stale npm bd shim if present (points to missing node_modules)
-$NpmBdShim = Join-Path $env:APPDATA "npm\bd"
-if (Test-Path $NpmBdShim) {
-  $shimContent = Get-Content $NpmBdShim -Raw -ErrorAction SilentlyContinue
-  if ($shimContent -match "bd\.js") {
-    Remove-Item "$env:APPDATA\npm\bd" -Force -ErrorAction SilentlyContinue
-    Remove-Item "$env:APPDATA\npm\bd.cmd" -Force -ErrorAction SilentlyContinue
-    Remove-Item "$env:APPDATA\npm\bd.exe" -Force -ErrorAction SilentlyContinue
-    Write-Host "  [FIX] Removed stale npm bd shim" -ForegroundColor Cyan
+# Remove stale npm bd shim if present (points to a non-existent
+# @beads/bd npm package). Beads is a Go binary — `go install …/bd@…` —
+# never an npm package. Old setups sometimes leave a broken shim in
+# %APPDATA%\npm that PowerShell picks up before ~/go/bin/bd.exe.
+#
+# We check ALL extensions: PowerShell prefers bd.ps1, cmd.exe prefers
+# bd.cmd, bare bd is a fallback. The previous version of this block
+# only checked the bare path and missed the .ps1 variant entirely.
+function Remove-NpmBdShim {
+  $npmDir = Join-Path $env:APPDATA "npm"
+  if (-not (Test-Path $npmDir)) { return }
+  $candidates = @('bd', 'bd.ps1', 'bd.cmd', 'bd.exe') |
+    ForEach-Object { Join-Path $npmDir $_ } |
+    Where-Object { Test-Path $_ }
+  if (-not $candidates) { return }
+  # Confirm at least one looks like the broken @beads/bd shim before
+  # we touch anything — never delete a shim we didn't recognize.
+  $broken = $false
+  foreach ($c in $candidates) {
+    $body = Get-Content $c -Raw -ErrorAction SilentlyContinue
+    if ($body -match 'bd\.js' -or $body -match 'node_modules.*beads') {
+      $broken = $true; break
+    }
   }
+  if (-not $broken) { return }
+  foreach ($c in $candidates) {
+    Remove-Item $c -Force -ErrorAction SilentlyContinue
+  }
+  $names = ($candidates | ForEach-Object { Split-Path -Leaf $_ }) -join ', '
+  Write-Host "  [FIX] Removed stale npm bd shim ($names)" -ForegroundColor Cyan
 }
+Remove-NpmBdShim
 
 $BdPath = Find-BdExe
 if (-not $BdPath) {
