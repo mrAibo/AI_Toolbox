@@ -74,6 +74,50 @@ if [ "$DRY_RUN" -eq 1 ]; then
     ' EXIT
 fi
 
+# ---- Multi-client gating -----------------------------------------------
+# Read primary_client and multi_client from .ai-toolbox/config.json so we
+# can avoid littering the project root with files for clients the user
+# doesn't actually use. multi_client=true (default) keeps the legacy
+# behavior — generate everything so any agent can self-onboard.
+TOOLBOX_PRIMARY_CLIENT=""
+TOOLBOX_MULTI_CLIENT=1
+if [ -f ".ai-toolbox/config.json" ] && command -v python3 &>/dev/null; then
+    TOOLBOX_PRIMARY_CLIENT=$(PYTHONIOENCODING=utf-8 python3 -c "
+import json
+try:
+    with open('.ai-toolbox/config.json', encoding='utf-8') as f:
+        print((json.load(f).get('primary_client') or '').strip())
+except Exception:
+    print('')
+" 2>/dev/null || echo "")
+    TOOLBOX_MULTI_CLIENT=$(PYTHONIOENCODING=utf-8 python3 -c "
+import json
+try:
+    with open('.ai-toolbox/config.json', encoding='utf-8') as f:
+        print('1' if json.load(f).get('multi_client', True) else '0')
+except Exception:
+    print('1')
+" 2>/dev/null || echo "1")
+fi
+
+# _install_for_client <client-id> — exit 0 if the client's files should
+# be generated, exit 1 if they should be skipped.
+#   multi_client=true  → always 0 (legacy behavior)
+#   multi_client=false → 0 only when primary_client matches (or is empty)
+# Client IDs use the canonical names from .ai-toolbox/config.json:
+#   claude-code, qwen-code, gemini-cli, antigravity, pi, aider, cursor,
+#   cline, windsurf, codex, opencode.
+_install_for_client() {
+    local target="$1"
+    if [ "$TOOLBOX_MULTI_CLIENT" = "1" ]; then return 0; fi
+    if [ -z "$TOOLBOX_PRIMARY_CLIENT" ]; then return 0; fi
+    [ "$TOOLBOX_PRIMARY_CLIENT" = "$target" ]
+}
+
+if [ "$TOOLBOX_MULTI_CLIENT" = "0" ] && [ -n "$TOOLBOX_PRIMARY_CLIENT" ]; then
+    echo "[bootstrap] single-client mode: only generating files for $TOOLBOX_PRIMARY_CLIENT"
+fi
+
 echo "[bootstrap] preparing AI Toolbox structure..."
 mkdir -p .agent/rules .agent/memory .agent/templates .agent/scripts .agent/workflows docs examples prompts
 
@@ -728,6 +772,7 @@ fi
 
 echo "[bootstrap] creating AI auto-discovery router files..."
 # CLAUDE.md is a committed file — only create/update if missing or empty
+if _install_for_client "claude-code"; then
 if [ ! -s CLAUDE.md ]; then
 _dr_writeto CLAUDE.md << 'EOF'
 # AI Toolbox Protocol (Claude Code) -- Tier: Full
@@ -751,7 +796,9 @@ if [ -f ".agent/templates/clients/.claude.json" ] && [ ! -s .claude.json ]; then
     cp .agent/templates/clients/.claude.json .claude.json
     echo "[bootstrap] Installed .claude.json hooks"
 fi
+fi  # claude-code gating
 
+if _install_for_client "gemini-cli"; then
 if [ ! -s GEMINI.md ]; then
 _dr_writeto GEMINI.md << 'EOF'
 # AI Toolbox Protocol (Gemini CLI) -- Tier: Basic
@@ -803,7 +850,9 @@ This project uses the **AI Toolbox** workflow framework. Read this file carefull
 Refer to [AGENT.md](AGENT.md) for the full operational contract.
 EOF
 fi
+fi  # gemini-cli gating
 
+if _install_for_client "pi"; then
 if [ ! -s PI.md ]; then
 _dr_writeto PI.md << 'EOF'
 # AI Toolbox Protocol (Pi by Inflection) -- Tier: Basic
@@ -856,8 +905,10 @@ This project uses the **AI Toolbox** workflow framework. Read this file carefull
 Refer to [AGENT.md](AGENT.md) for the full operational contract.
 EOF
 fi
+fi  # pi gating
 
 # Create specialized router files (guard: preserve manual edits)
+if _install_for_client "cursor"; then
 if [ ! -s .cursorrules ]; then
 _dr_writeto .cursorrules << 'EOF'
 # AI Toolbox Protocol (Cursor) -- Tier: Standard
@@ -870,7 +921,9 @@ _dr_writeto .cursorrules << 'EOF'
 Details in [AGENT.md](AGENT.md).
 EOF
 fi
+fi  # cursor gating
 
+if _install_for_client "cline"; then
 if [ ! -s .clinerules ]; then
 _dr_writeto .clinerules << 'EOF'
 # AI Toolbox Protocol (RooCode / Cline) -- Tier: Standard
@@ -883,7 +936,9 @@ _dr_writeto .clinerules << 'EOF'
 Details in [AGENT.md](AGENT.md).
 EOF
 fi
+fi  # cline gating
 
+if _install_for_client "windsurf"; then
 if [ ! -s .windsurfrules ]; then
 _dr_writeto .windsurfrules << 'EOF'
 # AI Toolbox Protocol (Windsurf) -- Tier: Standard
@@ -896,8 +951,10 @@ _dr_writeto .windsurfrules << 'EOF'
 Details in [AGENT.md](AGENT.md).
 EOF
 fi
+fi  # windsurf gating
 
 # Full-Tier: Antigravity router (SKILL.md) — guard: preserve manual edits
+if _install_for_client "antigravity"; then
 if [ ! -s SKILL.md ]; then
 _dr_writeto SKILL.md << 'EOF'
 ---
@@ -921,8 +978,10 @@ Refer to [AGENT.md](AGENT.md) for the full operational contract.
 EOF
     echo "[bootstrap] Created SKILL.md (Antigravity Full-Tier router)"
 fi
+fi  # antigravity gating (moved here — QWEN.md gets its own wrapper below)
 
 # Full-Tier: Qwen Code CLI router (guard: preserve manual edits)
+if _install_for_client "qwen-code"; then
 if [ -f ".agent/templates/clients/QWEN.md" ] && [ ! -s QWEN.md ]; then
     cp .agent/templates/clients/QWEN.md QWEN.md
     echo "[bootstrap] Installed QWEN.md (Full Tier)"
@@ -952,8 +1011,10 @@ This project uses the **AI Toolbox** workflow framework. As a **Full-Tier** clie
 Refer to [AGENT.md](AGENT.md) for the full operational contract.
 EOF
 fi
+fi  # qwen-code gating
 
 # Basic-Tier: Aider router + config (guard: preserve manual edits)
+if _install_for_client "aider"; then
 if [ -f ".agent/templates/clients/CONVENTIONS.md" ] && [ ! -s CONVENTIONS.md ]; then
     cp .agent/templates/clients/CONVENTIONS.md CONVENTIONS.md
     echo "[bootstrap] Installed CONVENTIONS.md (Basic Tier)"
@@ -1000,6 +1061,7 @@ if [ -f ".agent/templates/clients/.aider.conf.yml" ] && [ ! -s .aider.conf.yml ]
     cp .agent/templates/clients/.aider.conf.yml .aider.conf.yml
     echo "[bootstrap] Installed .aider.conf.yml"
 fi
+fi  # aider gating
 
 if [ -d ".git" ] && [ "${AITB_INSTALL_GIT_HOOKS:-true}" != "false" ]; then
     echo "[bootstrap] Updating Git pre-commit safeguards..."
@@ -1092,7 +1154,7 @@ fi
 
 # Configure Qwen Code hooks if qwen is available
 QWEN_SETTINGS=".qwen/settings.json"
-if command -v qwen &> /dev/null || [ -d ".qwen" ]; then
+if _install_for_client "qwen-code" && (command -v qwen &> /dev/null || [ -d ".qwen" ]); then
     mkdir -p .qwen
     if [ ! -f "$QWEN_SETTINGS" ]; then
         _dr_writeto "$QWEN_SETTINGS" << 'QWENEOF'
@@ -1160,7 +1222,7 @@ fi
 
 # Configure OpenAI Codex CLI hooks if codex is available
 CODEX_SETTINGS=".codex"
-if command -v codex &>/dev/null || [ -d "$CODEX_SETTINGS" ]; then
+if _install_for_client "codex" && (command -v codex &>/dev/null || [ -d "$CODEX_SETTINGS" ]); then
     mkdir -p .codex
     if [ ! -f ".codex/hooks.json" ]; then
         if [ -f ".agent/templates/clients/.codex-hooks.json" ]; then
@@ -1227,7 +1289,7 @@ PYEOF
 fi
 
 # Configure OpenCode CLI if opencode is available
-if command -v opencode &>/dev/null || [ -f "opencode.json" ] || [ -f "opencode.jsonc" ]; then
+if _install_for_client "opencode" && (command -v opencode &>/dev/null || [ -f "opencode.json" ] || [ -f "opencode.jsonc" ]); then
     # Create opencode.json if not present
     if [ ! -f "opencode.json" ] && [ ! -f "opencode.jsonc" ]; then
         if [ -f ".agent/templates/clients/opencode-config.json" ]; then

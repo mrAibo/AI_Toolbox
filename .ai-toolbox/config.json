@@ -5,15 +5,15 @@
     "version": "1.1",
     "description": "Central source of truth for AI Toolbox client configuration.",
     "source_of_truth_rules": [
-      "1. This file is the canonical client registry — edit here, not in bootstrap scripts.",
+      "1. This file is the canonical client registry \u2014 edit here, not in bootstrap scripts.",
       "2. Templates in .agent/templates/clients/ define file content.",
-      "3. Repo-root client files are generated outputs — restore them with the generator.",
+      "3. Repo-root client files are generated outputs \u2014 restore them with the generator.",
       "4. Run generate_client_files.py --sync to install any missing template-backed files.",
       "5. bootstrap.sh/ps1 remain the install mechanism today; a future PR will delegate to this generator."
     ],
     "detection_priority": [
-      "1. primary_client field (if non-null) — always wins, autodetection is skipped entirely.",
-      "2. Autodetection via command-v checks and folder/path heuristics in setup.sh / setup.ps1 — fallback only.",
+      "1. primary_client field (if non-null) \u2014 always wins, autodetection is skipped entirely.",
+      "2. Autodetection via command-v checks and folder/path heuristics in setup.sh / setup.ps1 \u2014 fallback only.",
       "3. Interactive user selection when autodetection finds multiple clients.",
       "4. User's selection is written back to primary_client so future runs use rule (1)."
     ],
@@ -29,15 +29,27 @@
   "tiers": {
     "full": {
       "description": "Hooks + Multi-Agent + Sync + Handover + Plan Mode",
-      "capabilities": ["hooks", "multi_agent", "file_rules", "plan_mode", "sync"]
+      "capabilities": [
+        "hooks",
+        "multi_agent",
+        "file_rules",
+        "plan_mode",
+        "sync"
+      ]
     },
     "standard": {
       "description": "Hooks + Sync + Handover (no Multi-Agent)",
-      "capabilities": ["hooks", "file_rules", "sync"]
+      "capabilities": [
+        "hooks",
+        "file_rules",
+        "sync"
+      ]
     },
     "basic": {
       "description": "Memory + Rules only (Soft-Reminders, no Guards)",
-      "capabilities": ["file_rules"]
+      "capabilities": [
+        "file_rules"
+      ]
     }
   },
   "clients": {
@@ -210,5 +222,6 @@
         }
       ]
     }
-  }
+  },
+  "multi_client": true
 }

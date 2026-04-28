@@ -114,6 +114,35 @@ if ($script:DryRunActive) {
     }
 }
 
+# ---- Multi-client gating ----
+# Read primary_client and multi_client from .ai-toolbox/config.json so we
+# can avoid littering the project root with files for clients the user
+# doesn't actually use. multi_client=$true (default) keeps the legacy
+# behavior — generate everything so any agent can self-onboard.
+$script:ToolboxPrimaryClient = ''
+$script:ToolboxMultiClient = $true
+if (Test-Path '.ai-toolbox/config.json') {
+    try {
+        $cfg = Get-Content '.ai-toolbox/config.json' -Raw -Encoding utf8 | ConvertFrom-Json
+        if ($cfg.primary_client) { $script:ToolboxPrimaryClient = [string]$cfg.primary_client }
+        if ($null -ne $cfg.multi_client) { $script:ToolboxMultiClient = [bool]$cfg.multi_client }
+    } catch { }
+}
+
+# Test-InstallForClient — return $true if the client's files should be
+# generated. Multi-client mode = always true. Single-client mode = only
+# matches primary_client. No primary set = fall back to multi-client.
+function script:Test-InstallForClient {
+    param([string]$Target)
+    if ($script:ToolboxMultiClient) { return $true }
+    if (-not $script:ToolboxPrimaryClient) { return $true }
+    return ($script:ToolboxPrimaryClient -eq $Target)
+}
+
+if (-not $script:ToolboxMultiClient -and $script:ToolboxPrimaryClient) {
+    Write-Host "[bootstrap] single-client mode: only generating files for $script:ToolboxPrimaryClient"
+}
+
 Write-Host "[bootstrap] preparing AI Toolbox structure..."
 
 $dirs = @(
@@ -860,28 +889,28 @@ Refer to [AGENT.md](AGENT.md) for the full operational contract.
 
 # Write router files (guard: only create if not already present)
 # NOTE: CLAUDE.md is a committed file — the guard ensures we don't overwrite manual edits
-if (-not (Test-Path "CLAUDE.md") -or (Get-Item "CLAUDE.md").Length -eq 0) {
+if ((Test-InstallForClient 'claude-code') -and (-not (Test-Path "CLAUDE.md") -or (Get-Item "CLAUDE.md").Length -eq 0)) {
     Set-Content -Path "CLAUDE.md" -Value $ClaudeContent -Encoding utf8
 }
-if (-not (Test-Path "GEMINI.md") -or (Get-Item "GEMINI.md").Length -eq 0) {
+if ((Test-InstallForClient 'gemini-cli') -and (-not (Test-Path "GEMINI.md") -or (Get-Item "GEMINI.md").Length -eq 0)) {
     Set-Content -Path "GEMINI.md" -Value $GeminiContent -Encoding utf8
 }
-if (-not (Test-Path "PI.md") -or (Get-Item "PI.md").Length -eq 0) {
+if ((Test-InstallForClient 'pi') -and (-not (Test-Path "PI.md") -or (Get-Item "PI.md").Length -eq 0)) {
     Set-Content -Path "PI.md" -Value $PiContent -Encoding utf8
 }
 # Standard-Tier routers: guard to preserve manual edits
-if (-not (Test-Path ".cursorrules") -or (Get-Item ".cursorrules").Length -eq 0) {
+if ((Test-InstallForClient 'cursor') -and (-not (Test-Path ".cursorrules") -or (Get-Item ".cursorrules").Length -eq 0)) {
     Set-Content -Path ".cursorrules"   -Value $CursorContent   -Encoding utf8
 }
-if (-not (Test-Path ".clinerules") -or (Get-Item ".clinerules").Length -eq 0) {
+if ((Test-InstallForClient 'cline') -and (-not (Test-Path ".clinerules") -or (Get-Item ".clinerules").Length -eq 0)) {
     Set-Content -Path ".clinerules"    -Value $ClineContent    -Encoding utf8
 }
-if (-not (Test-Path ".windsurfrules") -or (Get-Item ".windsurfrules").Length -eq 0) {
+if ((Test-InstallForClient 'windsurf') -and (-not (Test-Path ".windsurfrules") -or (Get-Item ".windsurfrules").Length -eq 0)) {
     Set-Content -Path ".windsurfrules" -Value $WindsurfContent -Encoding utf8
 }
 
 # Antigravity router (SKILL.md — Full Tier) — guard: preserve manual edits
-if (-not (Test-Path "SKILL.md") -or (Get-Item "SKILL.md").Length -eq 0) {
+if ((Test-InstallForClient 'antigravity') -and (-not (Test-Path "SKILL.md") -or (Get-Item "SKILL.md").Length -eq 0)) {
     $SkillContent = @'
 ---
 name: AI Toolbox
@@ -907,7 +936,7 @@ Refer to [AGENT.md](AGENT.md) for the full operational contract.
 }
 
 # Qwen Code router (Full Tier) — guard: preserve manual edits (inline only, no template dependency)
-if (-not (Test-Path "QWEN.md") -or (Get-Item "QWEN.md").Length -eq 0) {
+if ((Test-InstallForClient 'qwen-code') -and (-not (Test-Path "QWEN.md") -or (Get-Item "QWEN.md").Length -eq 0)) {
     $QwenFull = @'
 # AI Toolbox Protocol (Qwen Code) -- Tier: Full
 <!-- cache-prefix: tier badge + 3 critical rules must remain first and unmodified -->
@@ -937,7 +966,7 @@ Refer to [AGENT.md](AGENT.md) for the full operational contract.
 }
 
 # Aider router (Basic Tier) — inline only, no template dependency
-if (-not (Test-Path "CONVENTIONS.md") -or (Get-Item "CONVENTIONS.md").Length -eq 0) {
+if ((Test-InstallForClient 'aider') -and (-not (Test-Path "CONVENTIONS.md") -or (Get-Item "CONVENTIONS.md").Length -eq 0)) {
     $AiderFull = @'
 # AI Toolbox Protocol (Aider) -- Tier: Basic
 <!-- cache-prefix: tier badge + 3 critical rules must remain first and unmodified -->
@@ -978,7 +1007,7 @@ Refer to [AGENT.md](AGENT.md) for the full operational contract.
     Set-Content -Path "CONVENTIONS.md" -Value $AiderFull -Encoding utf8
 }
 # Aider config file — inline fallback
-if (-not (Test-Path ".aider.conf.yml") -or (Get-Item ".aider.conf.yml").Length -eq 0) {
+if ((Test-InstallForClient 'aider') -and (-not (Test-Path ".aider.conf.yml") -or (Get-Item ".aider.conf.yml").Length -eq 0)) {
     $AiderConf = @'
 # Aider configuration -- AI Toolbox project
 model: null
@@ -993,7 +1022,7 @@ auto-commits: true
 }
 
 # Claude hooks config — inline fallback
-if (-not (Test-Path ".claude.json") -or (Get-Item ".claude.json").Length -eq 0) {
+if ((Test-InstallForClient 'claude-code') -and (-not (Test-Path ".claude.json") -or (Get-Item ".claude.json").Length -eq 0)) {
     $ClaudeHooks = @'
 {
   "hooks": {
@@ -1141,7 +1170,7 @@ if (Get-Command rtk -ErrorAction SilentlyContinue) {
 
 # Configure Qwen Code hooks if qwen is available
 $QwenSettings = ".qwen/settings.json"
-if ((Get-Command qwen -ErrorAction SilentlyContinue) -or (Test-Path ".qwen")) {
+if ((Test-InstallForClient 'qwen-code') -and ((Get-Command qwen -ErrorAction SilentlyContinue) -or (Test-Path ".qwen"))) {
     New-Item -ItemType Directory -Force -Path ".qwen" | Out-Null
     $QwenHooksJson = @'
 {
@@ -1189,7 +1218,7 @@ if ((Get-Command qwen -ErrorAction SilentlyContinue) -or (Test-Path ".qwen")) {
 
 # Configure OpenAI Codex CLI hooks if codex is available
 $CodexSettings = ".codex"
-if ((Get-Command codex -ErrorAction SilentlyContinue) -or (Test-Path $CodexSettings)) {
+if ((Test-InstallForClient 'codex') -and ((Get-Command codex -ErrorAction SilentlyContinue) -or (Test-Path $CodexSettings))) {
     New-Item -ItemType Directory -Force -Path ".codex" | Out-Null
     if (-not (Test-Path ".codex/hooks.json")) {
         if (Test-Path ".agent/templates/clients/.codex-hooks.json") {
@@ -1237,7 +1266,7 @@ if ((Get-Command codex -ErrorAction SilentlyContinue) -or (Test-Path $CodexSetti
 }
 
 # Configure OpenCode CLI if opencode is available
-if ((Get-Command opencode -ErrorAction SilentlyContinue) -or (Test-Path "opencode.json") -or (Test-Path "opencode.jsonc")) {
+if ((Test-InstallForClient 'opencode') -and ((Get-Command opencode -ErrorAction SilentlyContinue) -or (Test-Path "opencode.json") -or (Test-Path "opencode.jsonc"))) {
     if (-not (Test-Path "opencode.json") -and -not (Test-Path "opencode.jsonc")) {
         if (Test-Path ".agent/templates/clients/opencode-config.json") {
             Copy-Item -Path ".agent/templates/clients/opencode-config.json" -Destination "opencode.json"

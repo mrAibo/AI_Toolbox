@@ -244,8 +244,30 @@ if ($ConfigPrimary) {
 
   Write-Host ""
   Write-Host "[OK] Primary client: $PrimaryClient" -ForegroundColor Green
-  Write-Host "   -> All router files will be created for ALL clients"
   Write-Host "   -> Hooks + MCP will be configured for $PrimaryClient"
+
+  # Multi-client mode: keep root tidy or be vendor-agnostic?
+  Write-Host ""
+  Write-Host "  Generate router files (CLAUDE.md, QWEN.md, .cursorrules, ...) for:"
+  Write-Host "    [a] All supported clients - repo stays vendor-agnostic; any agent can self-onboard"
+  Write-Host "    [p] Primary client only ($PrimaryClient) - keeps your project root tidy"
+  $multiChoice = Get-PromptDefault "Choice [A/p]" "A"
+  if ($multiChoice -match '^[Pp]') {
+    $MultiClientVal = $false
+    Write-Host "   -> Single-client mode: only $PrimaryClient files will be generated"
+  } else {
+    $MultiClientVal = $true
+    Write-Host "   -> Multi-client mode: all router files will be created"
+  }
+  if (Test-Path ".ai-toolbox/config.json") {
+    try {
+      $cfg = Get-Content ".ai-toolbox/config.json" -Raw -Encoding utf8 | ConvertFrom-Json
+      $cfg | Add-Member -MemberType NoteProperty -Name "multi_client" -Value $MultiClientVal -Force
+      $cfg | ConvertTo-Json -Depth 10 | Set-Content ".ai-toolbox/config.json" -Encoding utf8
+    } catch {
+      Write-Host "  [NOTE] Could not persist multi_client setting: $_" -ForegroundColor Yellow
+    }
+  }
 }
 
 # Collects manual steps the user must complete after setup

@@ -267,8 +267,39 @@ except Exception as e:
 
   echo ""
   echo "✅ Primary client: $PRIMARY_CLIENT"
-  echo "   → All router files will be created for ALL clients"
   echo "   → Hooks + MCP will be configured for $PRIMARY_CLIENT"
+
+  # ---------------------------------------------------------------
+  # Step 1.5: Multi-client mode — keep root tidy or be vendor-agnostic?
+  # ---------------------------------------------------------------
+  echo ""
+  echo "  Generate router files (CLAUDE.md, QWEN.md, .cursorrules, …) for:"
+  echo "    [a] All supported clients — repo stays vendor-agnostic; any agent can self-onboard"
+  echo "    [p] Primary client only ($PRIMARY_CLIENT) — keeps your project root tidy"
+  _prompt multi_client_choice "Choice [A/p]" "A"
+  multi_client_choice=${multi_client_choice:-a}
+  if [[ "$multi_client_choice" =~ ^[Pp]$ ]]; then
+    MULTI_CLIENT_VAL="false"
+    echo "   → Single-client mode: only $PRIMARY_CLIENT files will be generated"
+  else
+    MULTI_CLIENT_VAL="true"
+    echo "   → Multi-client mode: all router files will be created"
+  fi
+
+  if [ -f ".ai-toolbox/config.json" ] && command -v python3 &>/dev/null; then
+    PYTHONIOENCODING=utf-8 MC="$MULTI_CLIENT_VAL" python3 -c "
+import json, os
+try:
+    with open('.ai-toolbox/config.json', encoding='utf-8') as f:
+        d = json.load(f)
+    d['multi_client'] = (os.environ['MC'] == 'true')
+    with open('.ai-toolbox/config.json', 'w', encoding='utf-8') as f:
+        json.dump(d, f, indent=2)
+        f.write('\n')
+except Exception as e:
+    print('  Note: Could not persist multi_client setting: ' + str(e))
+" 2>/dev/null || true
+  fi
 fi
 
 # Collects manual steps the user must complete after setup

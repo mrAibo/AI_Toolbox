@@ -41,6 +41,11 @@
       "description": "Client to use without autodetection. null = autodetect via setup.sh/ps1. Must reference a key in clients.",
       "type": ["string", "null"]
     },
+    "multi_client": {
+      "description": "Bootstrap behavior: true (default) generates router files for ALL supported clients so any agent can self-onboard. false generates only the file(s) for primary_client, keeping the project root clean.",
+      "type": "boolean",
+      "default": true
+    },
     "tiers": {
       "description": "Tier capability definitions. The three keys (basic/standard/full) are required.",
       "type": "object",
